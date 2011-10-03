@@ -293,9 +293,9 @@ Clearly, a wide variety of preconditioning techniques have been applied to the n
 \section{Multigrid in Energy}
 look at structure in 3.3...
 
-A new preconditioners are being proposed to help Denovo solve large and challenging transport problems. The two preconditioners will be parallelized and used for the new outer iteration and eigenvalue solution methods. Preconditioners are often more difficult to parallelize than the iteration methods themselves. A substantial portion of the work for the new preconditioners will be in efficiently parallelizing them and finding what degree of parallelization provides the most benefit. 
+%A new preconditioner are being proposed to help Denovo solve large and challenging transport problems. The two preconditioners will be parallelized and used for the new outer iteration and eigenvalue solution methods. Preconditioners are often more difficult to parallelize than the iteration methods themselves. A substantial portion of the work for the new preconditioners will be in efficiently parallelizing them and finding what degree of parallelization provides the most benefit. 
 
-In Denovo the matrix $\ve{A}$ is never formed. This means factorization and other matrix-based preconditioning methods cannot be investigated. The two proposed preconditioners are therefore physics-based, which is in any case the preferable choice. The goal here is to accelerate a specific problem, not develop an all purpose preconditioner, so it makes sense to take advantage of information specific to the neutron transport equations. The past work sections above show physics-based preconditioners often provide more benefit than matrix-based methods.
+%In Denovo the matrix $\ve{A}$ is never formed. This means factorization and other matrix-based preconditioning methods cannot be investigated. The two proposed preconditioners are therefore physics-based, which is in any case the preferable choice. The goal here is to accelerate a specific problem, not develop an all purpose preconditioner, so it makes sense to take advantage of information specific to the neutron transport equations. The past work sections above show physics-based preconditioners often provide more benefit than matrix-based methods.
 
 %-------------------------------------------------------------------------------------------------------
 \subsection{Method}
