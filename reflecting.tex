@@ -1,0 +1,96 @@
+% Prelim, Appendix C
+% by Rachel Slaybaugh
+
+\chapter{Reflecting Boundaries}
+\label{sec:AppendixC}
+
+Algorithm \ref{algo:RQI+MGkrylov} works for problems with vacuum boundary conditions. However, with reflecting boundary conditions some modifications must be made to the calculation of the Rayleigh quotient. To compute the correct RQ the reflected boundary terms must be excluded when computing the dot products, but their contribution to the real moments must be included properly. It was not possible to do this using the solvers in Denovo when this work was begun. How Denovo handles reflecting boundary conditions and what was done to fix this problem is detailed here. The information in this section is derived from conversations with Tom Evans \cite{} and a paper by Warsa et.\ al.\ \cite{Warsa2004}.
+
+Denovo stores the boundary condition information between the flux moments in the solution vector. For the following discussion let the moments for group $g$ be held in $\phi_{g}$, which is of length $f_{g} = t \times c \times u$ (these sizes are defined in Chapter \ref{sec:Chp1}). Let the reflected angular flux for that group be $\psi_{r,g}$, which is of length $m = n \times c_{r} \times u$ where $c_{r}$ is the number of cells on the reflecting boundaries. For each group the solution vector and associated source are of length $f_{g} + m$ and look like
+%
+\begin{alignat}{2}
+ \Phi_{g} = \begin{pmatrix} \phi_{g} & \psi_{r,g} \end{pmatrix}^{T} \:, \qquad Q = \begin{pmatrix} q & 0 \end{pmatrix}^{T} \:.
+\label{eq:reflFlux}
+\end{alignat}
+%
+To exclude the boundary terms when computing the dot products in the RQ, $\Phi_{g}$ is simply truncated to only include $\phi_{g}$. 
+
+Understanding the next issue is aided by considering what the operator form of the transport equation for one group looks like with reflecting boundary conditions. First recall the transport equation for group $g$ that \emph{does not} include reflecting boundaries, where group indices are excluded for notational brevity:
+%
+\begin{align}
+  \mathbf{L} \psi &= \mathbf{MS}\phi + q
+  \label{eq:transport} \\
+  \bigl(\ve{I} - \ve{DL}^{-1}\ve{MS} \bigr) \phi &= \ve{DL}^{-1}q \:.
+  \label{eq:transportMoments}
+\end{align}
+
+To include reflecting boundaries, the operators are expanded in the appropriate dimensions from $f_{g}$ to $f_{g} + m$ to act on $\Phi$. The reflecting operators will be denoted by a tilde. The transport operator is split into volume (traditional) and reflected components: $\tilde{\ve{L}} = \ve{L}_{v} + \ve{L}_{r}$. The other terms become:
+%
+\begin{alignat}{4}
+  \ve{\tilde{I}} = \begin{pmatrix} \ve{I} & 0 \\ 0 & \ve{I}_{r} \end{pmatrix} \:, \nonumber
+ \qquad
+ \ve{\tilde{D}} = \begin{pmatrix} \ve{D} & 0 \\ 0 & \ve{I}_{r} \end{pmatrix} \:, \nonumber
+ \qquad
+ \ve{\tilde{M}} = \begin{pmatrix} \ve{M} & 0 \\ 0 & \ve{I}_{r} \end{pmatrix} \:, \nonumber
+ \qquad
+ \ve{\tilde{S}} = \begin{pmatrix} \ve{S} & 0 \\ 0 & \ve{I}_{r} \end{pmatrix} \:. \nonumber
+\end{alignat}
+%
+The operators in Equation \eqref{eq:transportMoments} can now be replaced by the reflecting operators, and then doing a transport solve will converge both the moments and the reflected terms at once. 
+
+When computing the Rayleigh quotient, however, the operator is applied but a full solve is not done. With the standard implementation this does not converge $\psi_{r}$ and those terms therefore do not contribute to the solution properly. 
+
+To address this the reflecting boundaries must be converged first by solving each group separately while excluding within-group scattering. Explicitly multiplying the reflecting matrices illustrates what is happening here. The inverse of the reflecting transport operator is
+%
+\begin{alignat}{3}
+ \ve{\tilde{L}}^{-1} = \begin{pmatrix} \ve{I} \\ \ve{P}^{T} \end{pmatrix}
+ \begin{pmatrix} \ve{L}_{v}^{-1} & -\ve{L}_{v}^{-1} \ve{L}_{r} \ve{P} \end{pmatrix}
+ =
+ \begin{pmatrix} \ve{L}_{v}^{-1} & -\ve{L}_{v}^{-1} \ve{L}_{r} \ve{P} \\
+                   \ve{P}^{T}\ve{L}_{v}^{-1} & -\ \ve{P}^{T}\ve{L}_{v}^{-1} \ve{L}_{r} \ve{P} \end{pmatrix}  \:,
+\label{eq:reflInverse}
+\end{alignat} 
+%
+where $\ve{P}$ is a projection operator that projects $\psi_{r} \to \psi$. The multiplication makes the system:
+%
+\begin{equation}
+  \Bigg[ \begin{pmatrix} \ve{I} & 0 \\ 0 & \ve{I}_{r} \end{pmatrix} - 
+  \begin{pmatrix} \ve{DL}_{v}^{-1}\ve{MS} & -\ve{DL}_{v}^{-1}\ve{L}_{r}\ve{P} \\
+                      \ve{P}^{T}\ve{L}_{v}^{-1}\ve{MS} & - \ve{P}^{T}\ve{L}_{v}^{-1} \ve{L}_{r} \ve{P} \end{pmatrix} \Bigg]
+  \begin{pmatrix} \phi \\ \psi_{r} \end{pmatrix}
+  =
+  \begin{pmatrix} \ve{DL}_{v}^{-1} & -\ve{DL}_{v}^{-1}\ve{L}_{r}\ve{P} \\
+                     \ve{P}^{T}\ve{L}_{v}^{-1} & - \ve{P}^{T}\ve{L}_{v}^{-1} \ve{L}_{r} \ve{P} \end{pmatrix}
+  \begin{pmatrix} q \\ 0 \end{pmatrix} \:.
+\label{eq:explicitBlocks}
+\end{equation}
+% 
+
+Now there are two equations with two unknowns that can be examined for similarities.
+\begin{align}
+  \phi - \ve{DL}_{v}^{-1}\ve{MS}\phi + \ve{DL}_{v}^{-1}\ve{L}_{r}\ve{P} \psi_{r} &= \ve{DL}_{v}^{-1} q 
+\label{eq:momentTE} \\
+  \psi_{r} - \ve{P}^{T}\ve{L}_{v}^{-1}\ve{MS} \phi + \ve{P}^{T}\ve{L}_{v}^{-1} \ve{L}_{r} \ve{P} \psi_{r} &= 0 
+\label{eq:reflTE}
+\end{align}
+Comparing the reflecting case to the standard case, $\ve{P}^{T}$ replaces $\ve{D}$ and $-\ve{L}_{r}\ve{P}$ acts like $\ve{MS}$. Equation \eqref{eq:reflTE} can be rearranged and solved for $\psi_{r}$. In Denovo this amounts to solving each group separately to converge the reflecting flux where the group source is $\ve{P}^{T}\ve{L}_{v}^{-1}\ve{MS} \phi$. The reflecting boundaries will then contribute properly when solving Equation \eqref{eq:momentTE} where the effective source becomes $q - \ve{DL}_{v}^{-1}\ve{L}_{r}\ve{P} \psi_{r}$.  
+
+In practice, the process to apply $\ve{A}$ in Denovo when calculating the Rayleigh quotient is:
+%
+\begin{alignat}{2}
+  \ve{\tilde{L}} z = v \:, \qquad y = \ve{\tilde{D}}z \:.
+\label{eq:calcRQ}
+\end{alignat}
+%
+Now Equation \eqref{eq:calcRQ} looks just like Equation \eqref{eq:transport} where the within-group scattering source is set to zero ($\ve{S} = 0$) and $v = q$. 
+
+An alternative way to express the same idea using the traditional operators using the $\ve{L}_{v}$ and $\ve{L}_{r}$ terms can be informative as well. This is presented in source iteration notation, where the reflecting boundaries are lagged. This is exactly the same idea as above, though iteration indices were excluded.
+\begin{align}
+  \psi^{l+1} &= \ve{L}_{v}^{-1} \bigl( \ve{MS} \phi^{l} - \ve{L}_{r} \ve{P} \psi_{r}^{l} \bigr) + \ve{D}q 
+\label{eq:laggedSI} \\
+  \phi^{l+1} &= \ve{D}\psi^{l+1} \:.
+\end{align}
+
+A new solver was written that solves each group separately to converge the reflecting boundaries. This solver is used to compute the Rayleigh quotient when there are reflecting boundaries. This has worked well, but has not been implemented for multisets because each group must be solved separately. 
+
+

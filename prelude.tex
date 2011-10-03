@@ -1,0 +1,111 @@
+% prelude.tex
+%   - titlepage
+%   - dedication
+%   - acknowledgments
+%   - table of contents, list of tables and list of figures
+%   - nomenclature
+%   - abstract
+%============================================================================
+
+
+\clearpage\pagenumbering{roman}  % This makes the page numbers Roman (i, ii, etc)
+
+
+
+% TITLE PAGE
+%   - define \title{} \author{} \date{}
+\title{ACCELERATION METHODS FOR MASSIVELY PARALLEL DETERMINISTIC TRANSPORT}
+\author{Rachel N. Slaybaugh}
+\date{\today}
+%   - The default degree is ``Doctor of Philosophy''
+%     (unless the document style msthesis is specified
+%      and then the default degree is ``Master of Science'')
+%     Degree can be changed using the command \degree{}
+\degree{Doctor of Philosophy}
+%   - The default is dissertation, unless the document style
+%     msthesis was specified in which case it becomes thesis.
+%     If msthesis is specified for the MS margins, you can
+%     still have a dissertation if you specify \disseration
+%\disseration
+%   - for a masters project report, specify \project
+%\project
+%   - for a preliminary report, specify \prelim
+%\prelim
+%   - for a masters thesis, specify \thesis
+\thesis
+%   - The default department is ``Electrical Engineering''
+%     The department can be changed using the command \department{}
+%\department{New Department}
+%   - once the above are defined, use \maketitle to generate the titlepage
+\department{Engineering Physics}
+\maketitle
+
+% COPYRIGHT PAGE
+%   - To include a copyright page use \copyrightpage
+\copyrightpage
+
+% DEDICATION
+%\begin{dedication}
+%To my pet rock, Skippy.
+%\end{dedication}
+
+% ACKNOWLEDGMENTS
+\begin{acknowledgments}
+First and foremost I would like to thank my thesis advisor Paul Wilson, my project mentor Tom Evans, and my fellowship mentor Tom Sutton for their instruction and guidance. I would also like to thank Steve Wilson, my mentor from my summer practicum at Bettis. Many other individuals such as Yousry Azmy and Bernadette Kirk, among others, have been instrumental to my professional development as well. Greg Davidson was extremely helpful throughout my work on Denovo. My colleagues at Karlsruhe were wonderful. Milad Fatenejad and Katy Huff made my life easier by teaching me about software carpentry while feeding me brownies and making me laugh. 
+
+This research was performed under appointment to the Rickover Fellowship Program in Nuclear Engineering sponsored by Naval Reactors Division of the U.S.\ Department of Energy. I would also like to thank Oak Ridge National Laboratory and their computing facilities (OLCF) for computer time and project support. 
+
+Finally, I would like to thank my friends and family without whom I could not do much of anything. My mom has always been my hero; my Dad is good at telling me he's proud of me; I've had fun watching my brother become a rock star in his own right; Jenna and Sam have long served as rocks; Julie and Megan have kept me laughing since I met them; all of my roommates in grad school have put up with my crazy kitchen adventures; the hash has kept me running; and all the folks I love who I haven't called out individually have made things interesting. Thank you all for inspiring me and making my life fun, fulfilling, and wonderful.
+
+\end{acknowledgments}
+
+% CONTENTS, TABLES, FIGURES
+\tableofcontents
+\listoftables
+\listoffigures
+%\listof{table}{LIST OF TABLES}
+%\listof{figure}{LIST OF FIGURES}
+%\listofalgorithms
+%\listof{algorithm}{LIST OF ALGORITHMS}
+
+% NOMENCLATURE
+%\begin{nomenclature}
+%\begin{description}
+%\item{\makebox[0.75in][l]{\TeX}}
+%       \parbox[t]{5in}{a typesetting system by Donald Knuth~\cite{knuth}.  It
+%       also refers to the ``plain'' format.  The proper pronounciation
+%       rhymes with ``heck'' and ``peck'' and does not sound like
+%       ``hex'' or ``Rex.''\\}
+
+%\item{\makebox[0.75in][l]{\LaTeX}}  
+%        \parbox[t]{5in}{a set of \TeX{} macros originally written by Leslie 
+%        Lamport~\cite{lamport}.  The proper pronunciation is 
+%        {\tt l\={a}$\cdot$tek'} and not {\tt l\={a}'$\cdot$teks} (see above).\\}
+
+%\item{\makebox[0.75in][l]{{\sc Bib}\TeX}} 
+%         \parbox[t]{5in}{a bibliography generation program by Oren 
+%                Patashnik~\cite{lamport}
+%                that can be used with either plain \TeX{} or \LaTeX{}.\\}
+
+%\item{\makebox[0.75in][l]{$C_1$}} Constant 1
+
+%\item{\makebox[0.75in][l]{$V$}}    Voltage 
+
+%\item{\makebox[0.75in][l]{\$}}     US Dollars
+%\end{description}
+%\end{nomenclature}
+
+
+\advisorname{Paul P. H. Wilson}
+\advisortitle{Associate Professor}
+% ABSTRACT
+%\begin{umiabstract}
+%  \input{abstract}
+%\end{umiabstract}
+
+%\begin{abstract}
+%  \input{abstract}
+%\end{abstract}
+
+
+\clearpage\pagenumbering{arabic} % This makes the page numbers Arabic (1, 2, etc)
