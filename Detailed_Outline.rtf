@@ -1,0 +1,396 @@
+{\rtf1\ansi\ansicpg1252\cocoartf1038\cocoasubrtf360
+{\fonttbl\f0\fswiss\fcharset0 Helvetica;}
+{\colortbl;\red255\green255\blue255;}
+\margl1440\margr1440\vieww13600\viewh14080\viewkind0
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural\pardirnatural
+
+\f0\fs32 \cf0 1. Introduction\
+- why we care about nuclear technology\
+- what the neutron transport equation (TE) is, why it's important for development of nuclear technology, and why increased accuracy matters\
+- goal of this work and how this document will tell you about accomplishing that goal \
+
+\b    goal: "accelerate transport calculations with methods that use new computers fully, facilitating the design of better nuclear systems"
+\b0 \
+   Three complimentary methods have been implemented to accomplish this goal. In the following chapters background information, past work, mathematics and implementation, and results will be discussed for each method in turn. \
+\
+- preview of chapter: foundation for document\
+   what has been, is being, and could be solved and why we care\
+   details about the transport equation\
+   how each method will help meet the goal\
+\
+ 1.1 Motivation\
+ - what do these problems look like?\
+     physical problems of interest\
+     when solved mathematically, the calculations can be large with fine discretizations\
+ - old computers weren't big enough for fine discretizations\
+ - to compensate, many approximations/simplifications were made\
+ - those approximations meant we had to build conservatism into designs. We'd like to remove approximations to improve designs\
+\
+  1.1.1 Problems of Interest\
+  - the problems we're solving today are really big and pushing the limits of our ability, here are some examples\
+  - what we'd really like to solve, "grand challenge" problems, are even bigger\
+\
+  1.1.2 Enabling Technology\
+  - larger computers (memory and computational power) allow us to reduce approximations and simplifications  \
+  - this work made tools that use these computers efficiently so we can solve those big problems\
+\
+ 1.2 The Transport Equation\
+ - before delving into the methods, need to understand the TE: what this equation describes\
+ - description of cross sections, fission, and criticality. \
+ - transport equation and term definition; there is fixed source and eigenvalue\
+ - characteristics of the equation. \
+ - equation is discretized in space, energy, and angle; we're doing deterministic discrete ordinates method and neglecting spatial discretization concerns\
+\
+  1.2.1 Multigroup Approximation (energy)\
+   - math and explanation\
+  1.2.2 Scattering Discretization (angle)\
+   - math and explanation\
+  1.2.3 Discrete Ordinates Approximation (angle)\
+   - math and explanation\
+  1.2.4 Operator Form\
+  - combine all the discretizations to express the problem in matrix form\
+  - relate moments to angular flux (discrete to moment, phi = D psi)\
+  - Ax = b form\
+  - define sizes of matrices, notation for variable discretization\
+  - here's what the matrices look like\
+  1.2.5 Solution Procedure\
+  - within group equations\
+  - outer iteration over all groups\
+  - one more iteration if there's a k\
+\
+ 1.3 Meeting the Goal\
+ - paragraph summarizing motivation and challenges, reminder of goal of work\
+ - using denovo for work; \
+ - denovo was parallelized in space and angle only when I started - shown not to be enough\
+ - denovo uses xxx solver methods, (to be explained in detail later) that are not sufficient\
+ - to improve denovo to accomplish goal:\
+    1) parallelize in energy and reduce upscatter solve time: block Krylov\
+        - converges faster than previous method for upscattering problems\
+        - energy parallelization over upscattering means we can use many cores and get good scaling  \
+    2) use better eigenvalue algorithm: RQI \
+        - extends energy parallelization to all groups; is enabled by block Krylov\
+        - converges better for some problems\
+        - has convergence issues without preconditioning for many problems\
+    3) use a good preconditioner: multilevel in energy\
+        - enabled by block Krylov\
+        - reduces the number of multigroup iterations\
+*** really spell out connection between these. block krylov standalone, accomplishes goal. RQI accomplishes goal, needs precond and block krylov. Precond needs Krylov. ***\
+ - Reiteration of why we need fast scalable codes in the nuclear and wider community\
+ - The methods employed accomplish this goal; the rest of this report provides the details\
+\
+\
+2. Upscattering and Energy Decomposition\
+- The first step on this path is the block Krylov solver since it's needed for the 2nd two methods.\
+- chapter preview: \
+   why existing parallel decomposition is insufficient, \
+   background (solvers, scattering, equations)\
+   relevant past work\
+   an explanation of the new method, \
+   and results from the new method.\
+\
+ 2.1 Denovo and Parallelism\
+ - to use machines efficiently we need good scaling, and denovo's scaling behavior is governed by the KBA algorithm\
+ - explanation of KBA's parallelization in angle\
+ - explanation of KBA's parallelization in space\
+ - how to measure the quality of parallelization: theoretical efficiency, weak scaling, strong scaling\
+ - Evans did a weak scaling study of X problem and found that the time to solution increased substantially from 4,000 to 40,000 cores: this is not good and is probably from load-balancing latencies. \
+ - parallelizing over another dimension will increase decomposition options such that load-balancing could be improved\
+ - I did a strong scaling study of X problem with 2 conditions that test how the theoretical efficiency should act\
+ - We found that when we use a large number of cores the problem blocks become too small so the communication costs dominate and we can't come close to the theoretical prediction.\
+ - With a decomposition that keeps the computational spaces large enough to avoid communication problems, not enough work can be done at one time.\
+ - This means that we need to keep problem blocks large. We can do this by parallelizing in energy.\
+\
+ 2.2 Background\
+ - to understand the new method, some background is needed.\
+ - this section contains an explanation of scattering, an overview of relevant basic solvers (SI, GS, Krylov), and how we handle scattering in the TE\
+\
+  2.2.2 Scattering\
+  - what is upscattering\
+  - why good energy resolution for xsecs w/ upscattering matters for some problems\
+  - upscattering and fission couple groups together, leading to inner and outer iteration structure\
+\
+  2.2.1 Solver Basics\
+  - 2 kinds of methods for solving Ax=b: direct and iterative. Why we're doing iterative.\
+   2.2.1.1 Richardson/source iteration (SI)\
+   - math of how it works\
+   - properties \
+   - pros and cons\
+   2.2.1.2 Gauss Seidel (GS) \
+   - math of how it works\
+   - properties \
+   - pros and cons\
+   2.2.1.3 Krylov methods: \
+   - math of how it works\
+   - properties \
+   - pros and cons\
+\
+  2.2.3 Current Scattering Solution Methods\
+  - In denovo we use all three of those methods, set up of equations \
+  - here's a matrix that will be used for discussion throughout section\
+   2.2.3.1 Downscattering\
+   - use forward substitution to solve the series of within-group equations because groups are not coupled\
+   - here's what that looks like for each group\
+   - here's what it looks like with the example\
+   - here's how we solve them for Krylov \
+   - the within-group equations are solved iteratively for X reasons\
+   2.2.3.2 Upscattering \
+   - groups are coupled with upscattering\
+   - b/c of coupling we must use some method like GS, and that looks like this\
+   - now you can see the inner-outer iteration structure. This cannot be parallelized in energy if GS is used.\
+ \
+ 2.3 Past Work\
+ - this section describes how the methods above have been used in the past to handle inner and outer iterations \
+ - also demonstrates that no one has used Krylov over multiple groups nor parallelized the equation in energy.\
+\
+  2.3.1 Inner iterations\
+  - traditionally this was done with SI, but SI is really slow\
+  - Krylov methods have been developed that are applicable to within-group equations\
+  - people are using Krylov for within-group or as part of acceleration so far; 2 exceptions to be discussed later \
+  - reasons Krylov has been restricted to within group\
+  - we use GMRES for inner iterations in Denovo and that looks like this\
+ \
+  2.3.2 Outer iterations\
+  - GS is used almost universally for outer iterations; not good when problems have high dominance ratios\
+  - demo of newness (only examples of almost Krylov over outers):\
+    Warsa: multigroup, 3-D TE. preconditioned Krylov for inners, GS or FGMRES(m) for intermediate, and IRAM for veal iters. Sometimes did IRAM initialization with PI. Has a hard time with upscattering, only done in serial. \
+use IRAM for TE in serial to do PI, does not handle upscattering well. \
+\
+  - conclusion: The methods that have been used in the past dictate an inner-outer iteration structure and limit parallelization to space and angle. My method is new. \
+\
+ 2.4 Multigroup Krylov Solver\
+ - a new method for upscattering is desired b/c we want to be able to parallelize in energy and use something that converges faster than GS\
+\
+  2.4.1 Method\
+  - explain method\
+\
+ 2.4.2 Results\
+  2.4.2.1strong scaling: \
+      shows pretty good results \
+      some communication issues for really large problems, plan to address this in the future\
+  2.4.2.2 gs vs. krylov: shows krylov is faster even in serial\
+  2.4.2.3 weak scaling: great results\
+\
+2.4.3 Implications\
+  - faster than gs, parallel in energy\
+  - this hasn't been done before b/c of computer limitations and implementation barriers\
+  - could have used block Jacobi - but no motivation b/c of computer limitations\
+ - conclusion about impact: faster convergence for at least most problems in all cases; allows pretty good scaling to very large machines.\
+\
+\
+3. Eigenvalue Acceleration\
+- reminder about why we care about eigenvalues in neutron transport\
+- motivation: why we need a better eigenvalue solver\
+- chapter preview:\
+  background (solver basics)\
+  past work\
+  an explanation of the new method, \
+  results from the new method.\
+\
+ 3.1 Background\
+ - connecting ordinary and generalized eigenvalue form\
+ - basic notation\
+ - this section covers iterative eigenvalue methods 1) used by the nuclear community and 2) needed to understand the new work\
+\
+   3.1.5 Condition Number and Convergence\
+  - define conditioning and condition number\
+  - define stability and backwards stability \
+  - explain how condition number and backwards stability are related\
+  3.1.1 Power Iteration (PI), \
+  - math of how it works\
+  - algorithm\
+  - properties (convergence; dominance ratio)\
+  - pros and cons\
+  3.1.2 Shifted Inverse Iteration (SII), \
+  - math of how it works (extension of PI)\
+  - properties (convergence; ill-conditioning)\
+  - Wielandt's method\
+  - pros and cons\
+  3.1.3 Rayleigh Quotient Iteration (RQI),\
+  - math of how it works (extension of SII)\
+  - algorithm\
+  - properties (convergence)\
+  - pros and cons\
+  3.1.4 Krylov Methods \
+  - shifted subspace equivalence\
+  - backwards stability\
+  - convergence with ill-conditioned systems and the need for preconditioning.\
+\
+  3.2 Past Work\
+ - Here are a bunch of studies that cover\
+     Past solution and acceleration methods\
+     Results for when Krylov methods are applied ill-conditioned systems\
+     What was done in Denovo before this work     \
+\
+  3.2.1 Eigenvalue Solution Methods\
+  - lit review shows SII is better than PI, but that you need a good shift, there are a variety of useful acceleration methods available, and no one has used RQI for TE.\
+\
+     Allen: 1-group, 1-D TE comparison of PI and SII; SII converges more quickly if a good shift is known (don't describe how to find shift)\
+    \
+     Itagaki: used SII for 1 and 2 group, 3-D DE using an interesting boundary integral spatial method. Demonstrates theoretically stable convergence if shift is chosen sufficiently close to k. In practice found rapid and stable convergence. \
+\
+     Hotta: Wielandt showing that convergence depends on good initial guess for flux\
+\
+     Zinzani: developed version of Wielandt that gets around need for good initial guess. Algorithm is complicated and slow. \
+\
+  - demonstrates that SII is better than PI, but good shift and eval guess are necessary.\
+  - other non-power iteration-based methods have been developed in the last 20 years like\
+\
+     Suetomi: incomplete factorization preconditioned rayleigh quotient minimization (RQM) of 1-group, 2-D, DE; compare to PI and unpreconditioned RQM. preconditioned RQM is best.\
+     Suetomi: extended to few-group, 2-D DE. Have to change to from RQM to conjugate residual (doesn't use RQ). Similar conclusions. \
+    Gupta and Modak: extend non-RQ version to the transport equation.\
+\
+    Vidal: multi-group (1st paper is 2-group then they extend to multi-group - at least the equations), 3-D DE. Select energy groups to only have downscattering. Used unsymmetric and symmetric Rayleigh-Ritz projection (a variation of PI) to find evecs/vals, with the sweeps done by Jacobi-preconditioned CG. Also developed variation acceleration. Compare to chebshev accelerated Arnoldi (2nd paper doesn't use arnoldi).  Arnoldi better for many evils and symmetric RR better for a few. (both papers are the same).\
+    Verdu: use IRAM and Rayleigh-Ritz for multigroup (eqns are all 2-group), 3-D DE. Find IRAM is better. Rayleigh-Ritz gets worse when evals are not as separated.\
+\
+  - these subspace approaches have been applied to DE and some extended to TE.\
+  - No one has done RQI for TI. \
+\
+  3.2.2 Denovo and Power iteration\
+ \
+  3.2.3 Krylov Methods Concerns\
+  - Krylov methods often used in transport, and have shown convergence problems.\
+  - Lewis: First was in 1977, likely b/c of large condition number\
+  - Rosa: More recent shows that restarted GMRES has trouble in optically thin regions\
+  - Oliveira: showed various krylov methods converge slowly for probs of interest\
+  - Patton: inspired by convergence problems, they studied preconditioners for GMRES \
+  - All of these results indicate that in practice Krylov methods can have serious convergence problems for ill conditioned problems and problems that are optically thin. These are cases of interest, so it is important to be wary of this problem. \
+\
+ 3.3 RQI in Denovo\
+ - conclusions from past work: PI is not great, so we def want a better method. We also want the best shift. Leads to selecting RQI. \
+ - RQI is enabled by MG Krylov. Added benefit is that it can take greater advantage of energy parallelization. Section preview.\
+ \
+  3.3.1 Method\
+  - explain method\
+  - note about fixed-shift option\
+  - reflecting boundary considerations\
+\
+ 3.3.2 Results\
+ - results showing rqi works at least sometimes\
+ - results showing that fixed shift also works, not extensively tested\
+ - results showing that rqi really needs preconditioning\
+ \
+  3.3.3 Implications\
+ - better convergence properties than PI; estimates of energy scaling behavior\
+ - why it hasn't been done before: \
+     computer limitations\
+     block Krylov makes this possible b/c of the dense scattering matrix. GS wouldn't be able to do it.\
+ - no one has done this before, similar ideas have only been used in DE\
+- conclusion about potential impact, especially if preconditioning gets worked out.\
+\
+\
+4. Preconditioning\
+- preconditioners are intended to make problems go faster\
+- motivation: we need preconditioners to accelerate Krylov methods and to be able to get RQI to converge.\
+- chapter preview:\
+  background (preconditioner basics, overview of preconditioners, preconditioners in the nuclear community, multilevel methods)\
+  past work (preconditioners, multilevel methods)\
+  an explanation of the new method, \
+  and results from the new method.\
+\
+ 4.1 Background\
+ - preconditioning transforms the system you want to solve into an equivalent system that is easier to solve. That looks like this. \
+ - a good preconditioner should be cheap and easy to solve while giving faster convergence\
+ - preconditioners are bounded by M=I (does nothing) and M=A-1 (just solving)\
+  - There are many different kinds of preconditioners. These can be put into two broad categories:\
+       - matrix based preconditioners; what they are and when they're useful, (an example ?)\
+       - physics based preconditioners; what they are and when they're useful (an example?)\
+\
+  4.1.1 Preconditioners and the Nuclear Community\
+  - a variety are used, some for within-group and some for outer iterations. Here is an overview\
+   4.1.1.1 Extrapolation methods \
+    - generic description (simple iterative/polynomial)\
+    - nuclear specific\
+   4.1.1.2 Rebalance \
+    - generic description (local approximation)\
+    - nuclear specific\
+   4.1.1.3 Incomplete Factorizations\
+    - generic description \
+    - nuclear specific\
+   4.1.1.4 Synthetic Acceleration \
+    - generic description (low-order approx)\
+    - nuclear specific\
+\
+  4.1.2 Multilevel Methods\
+  - multilevel methods can be used as preconditioners or as standalone solvers. can be applied to different problem types. I'm going into them in detail because this is the preconditioner type I used.\
+  - multilevel methods work by selectively removing error modes\
+  - to explain how that works, use this notation\
+  - Fourier modes can be used to express error, and the frequency of the error is expressed by wavenumber\
+  - a given error mode can appear smooth or coarse relative to the grid size: a fine grid makes error appear smoother and a coarse grid makes error appear more oscillatory\
+  - relaxation (iterative) methods remove oscillatory error very quickly, but do not handle smooth error well. As a result very fine grid spacing can make convergence worse\
+  - all of that is used to make multigrid methods: do a few realizations on a fine level to remove oscillatory error, map answer to coarser level where smooth error appears more oscillatory, relax here to remove the now oscillatory error, use answer to correct fine level answer - smooth modes of error should be reduced (see v-cycle algorithm)\
+  - a V-cycle is a bunch of v-cycles: go from fine level down multiple levels to a very coarse level, then back up. idea is to remove lots of error modes.\
+  - The optimal combination of levels and relaxation count may be problem dependent.\
+\
+  4.2 Past Work\
+  - Here are a bunch of studies that are going to show that 1) preconditioning is needed in general and 2) no one has done multigrid in energy ever before\
+  - concrete examples of multilevel methods that have been used and of preconditioning Krylov methods in the nuclear community.\
+ \
+   4.2.1 Rebalance\
+   - has been applied to 3-D TE using MOC with GMRES solver. \
+   - This method would need to be changed to apply to Sn.  \
+\
+   4.2.2 Incomplete Factorizations\
+   - Patton: A variety of factorization (matrix) and splitting (physics) methods tried for GMRES with 1-D, multigroup TE using DD. Physics was faster, but DSA was faster than both. \
+   - Chen: ILU and MILU to preconditioning CG with SOR for 3-D multigroup TE gave good convergence\
+   - Kozlowski: block ILU to precondition multigroup SP3 transport. Too much storage for large problems. \
+   - used somewhat widely with mixed success.\
+\
+   4.2.3 Synthetic Acceleration\
+   - wide use of DSA \
+   - recent development of TSA - stagnates for GMRES(m). Modified TSA can work for GMRES(m).\
+   - DSA in Denovo - useful for diffusive problems with high scattering ratios that are close to being isotropic.\
+   - used very widely with a lot of success. Restrictions on DSA can be troublesome, developments of TSA seem promising.\
+\
+   4.2.4 Multilevel methods\
+   - space and angular multigrid have been used as solvers and preconditioners\
+    4.2.4.2 Other\
+    - Sjoden: multigrid in space for 3-D parallel TE\
+    - Oliveira: 1-D 1 group, TE used mg in space or angle for krylov; gave better results than ILU\
+    - Chang: 2-D spatial mg for isotropic. Had trouble with heterogeneity.\
+    - Lee: mg in space and angle at the same time for 2 and 3-D. \
+    - not a comprehensive list - but can see space and angle mg have been successfully applied to a wide array of problems types. Never in energy though. \
+    4.2.4.1 Two-Grid\
+    - 1-level, 1-cycle in angle, applied to TE\
+    - requires the diffusion operator to be consistent with transport operator, which is very difficult for some spatial discretizations in multi-D\
+    4.2.4.3 Two-Grid in Denovo\
+    - Denovo has a transport two grid scheme that extends the method above to use a transport operator so the consistency requirement is removed. \
+    - equations\
+    - This is cost-effective for problems with many upscattering groups. \
+\
+   - conclusion: Preconditioners for Krylov is an active area of development and are needed,   \
+\
+ 4.3 Multilevel in Energy \
+ - we need preconditioning for x reasons\
+ - why we want physics-based\
+ - why we chose multilevel in energy\
+\
+  4.3.1 Method\
+  - explain method\
+  - information about shifted and unshifted operator choice\
+\
+ 4.3.2 Results\
+ - fixed source results\
+ - power iteration results\
+ - rqi results\
+ - effect of varying omega, relax count, and num v cycles\
+ - effect of shift in operator\
+\
+  4.3.3 Implications\
+ - fewer iterations for fixed source and eigenvalue; enable use of RQI\
+ - why it hasn't been done before: \
+     no motivation: really needed for RQI, made practical by parallelization in energy\
+     not practical without block krylov structure\
+ - no one has done this before at all\
+- conclusion about impact: makes RQI possible and reduces number of outer iterations. \
+  \
+\
+5. Summary and Conclusions\
+reinforce connections between methods and point out how they can be used individually. (build a table - but the legs are still useful)\
+\
+\
+\
+References\
+Appendix A: diffusion method\
+Appendix B: Krylov methods\
+Appendix C: Reflecting boundary equations\
+}
