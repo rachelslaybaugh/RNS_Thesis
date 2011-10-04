@@ -343,7 +343,6 @@ use IRAM for TE in serial to do PI, does not handle upscattering well. \
 \
    4.2.4 Multilevel methods\
    - space and angular multigrid have been used as solvers and preconditioners\
-    4.2.4.2 Other\
     - Sjoden: multigrid in space for 3-D parallel TE\
     - Oliveira: 1-D 1 group, TE used mg in space or angle for krylov; gave better results than ILU\
     - Chang: 2-D spatial mg for isotropic. Had trouble with heterogeneity.\
@@ -366,14 +365,17 @@ use IRAM for TE in serial to do PI, does not handle upscattering well. \
 \
   4.3.1 Method\
   - explain method\
+  - include weighted richardson, prolong and restrict, level number selection, weight selection, number of relaxations/level\
   - information about shifted and unshifted operator choice\
+  - parallelization\
 \
  4.3.2 Results\
+ - lay out matrix of options: fixed, pi, rqi; few vs. many groups = energy set investigation; preconditioning parameters. \
  - fixed source results\
  - power iteration results\
  - rqi results\
- - effect of varying omega, relax count, and num v cycles\
- - effect of shift in operator\
+ - effect of varying omega, relax count, and num V-cycles\
+ - effect of shift in operator as a last comment\
 \
   4.3.3 Implications\
  - fewer iterations for fixed source and eigenvalue; enable use of RQI\

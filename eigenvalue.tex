@@ -302,12 +302,12 @@ Before this work, the eigenvalue solution method used by Denovo was not too diff
   \phi = \ve{DL}^{-1}\ve{MS}\phi + \ve{DL}^{-1}\ve{M}\frac{1}{k}\ve{\chi} \ve{f}^{T} \phi \:, \\
 \end{equation}
 \begin{alignat}{2}
-  \text{let } \ve{T} = \ve{DL}^{-1}\ve{M} \nonumber \:, \text{ then multiply both sides by }f^{T}
+  \text{let } \ve{T} = \ve{DL}^{-1} \nonumber \:, \text{ then multiply both sides by }f^{T}
 \end{alignat}
 \begin{align}
-  f^{T}(\ve{I} - \ve{TS})\phi &= \frac{f^{T}}{k} \ve{T}\chi f^{T} \phi \:,
+  f^{T}(\ve{I} - \ve{TMS})\phi &= \frac{f^{T}}{k} \ve{TM}\chi f^{T} \phi \:,
     \label{eq:OperatorEvalForm} \\
-  f^{T}\phi^{k+1} &=  \frac{f^{T}}{k}(\ve{I} - \ve{TS})^{-1} \ve{T} \chi f^{T}\phi^{k} \:.
+  f^{T}\phi^{k+1} &=  \frac{f^{T}}{k}(\ve{I} - \ve{TMS})^{-1} \ve{TM} \chi f^{T}\phi^{k} \:.
   \label{eq:PowerItForm} 
 \end{align}
 Equation \eqref{eq:PowerItForm} is formulated using traditional power iteration. The outer iterations update the eigenvalue and there are two sets of inner iterations: energy, and space-angle. Originally, a Krylov solver was used for the space-angle inner iterations and Gauss Seidel was used for the energy iterations \cite{Evans2009a}, \cite{Evans2011}. Denovo uses Trilinos \cite{Heroux2003} to provide the Krylov solver, with a choice of either GMRES or BiCGSTAB \cite{Evans2009}.
@@ -330,18 +330,18 @@ A key element that enabled this choice is the multigroup Krylov solver. To imple
 \subsection{Method}
 Chapter \ref{sec:Chp2} introduced the block Krylov method that allows groups with non-zero entries in the upper triangular portion of the scattering matrix to be decomposed in energy. For fixed source problems this applies to groups with upscattering. The new method allows the new energy decomposition to be used in eigenvalue problems over all groups instead of just upscattering groups.
 
-To see how this will work, subtract $\rho \ve{TF}$ from both sides of $(\ve{I} - \ve{TS})\phi = \lambda \ve{TF}\phi$, where $\rho$ is the Rayleigh quotient and $\lambda = \frac{1}{k}$. This gives the following shifted system:
+To see how this will work, subtract $\rho \ve{TMF}$ from both sides of $(\ve{I} - \ve{TMS})\phi = \lambda \ve{TMF}\phi$, where $\rho$ is the Rayleigh quotient and $\lambda = \frac{1}{k}$. This gives the following shifted system:
 %
 \begin{align}
-  [\ve{I} - \ve{T}(\ve{S} + \rho\ve{F})]\phi &=( \lambda - \rho) \ve{T}\ve{F} \phi \:. \\
+  [\ve{I} - \ve{TM}(\ve{S} + \rho\ve{F})]\phi &=( \lambda - \rho) \ve{TMF} \phi \:. \\
   \text{ Now define } \ve{\tilde{S}} &\equiv \ve{S} + \rho\ve{F} \text{ to write} \nonumber \\
-   [\ve{I} - \ve{T}\ve{\tilde{S}}]\phi &=( \lambda - \rho) \ve{T}\ve{F} \phi \:.
+   [\ve{I} - \ve{TM\tilde{S}}]\phi &=( \lambda - \rho) \ve{TMF} \phi \:.
     \label{eq:OperatorShiftedEval}
 \end{align}
 %
 The new matrix, $\ve{\tilde{S}}$, is dense since the fission matrix is dense. Because the shifted scattering matrix is dense, it looks like one big upscattering block and can be treated in just that way. This means the entire problem can be decomposed in energy and the new block Krylov solver can be used over all groups.
 
-The energy-parallelized RQI method is shown in Algorithm \ref{algo:RQI+MGkrylov}. Here $\ve{A} = [\ve{I} - \ve{TS}]$ and a block of energy groups corresponding to an energy set is denoted by superscript ${\tilde{g}}$. The moments being computed by a given energy set are indicated by $\phi^{\tilde{g}}$.
+The energy-parallelized RQI method is shown in Algorithm \ref{algo:RQI+MGkrylov}. Here $\ve{A} = [\ve{I} - \ve{TMS}]$ and a block of energy groups corresponding to an energy set is denoted by superscript ${\tilde{g}}$. The moments being computed by a given energy set are indicated by $\phi^{\tilde{g}}$.
 %
 \begin{algorithm}[!h]
   Break the problem into energy sets and distribute to the appropriate number of processors\\
@@ -352,10 +352,10 @@ The energy-parallelized RQI method is shown in Algorithm \ref{algo:RQI+MGkrylov}
      \item Calculate the shift: $\mu = \frac{1}{k_{old}} - \rho_{old}$
      \item Apply the shift to both sides by 
      \begin{enumerate}
-       \item subtracting $\rho_{old} [\ve{TF}]^{\tilde{g}}$ from $\ve{A}^{\tilde{g}}$ and 
-       \item making the right hand side $\mu [\ve{TF}]^{\tilde{g}} \phi^{\tilde{g}}$
+       \item subtracting $\rho_{old} [\ve{TMF}]^{\tilde{g}}$ from $\ve{A}^{\tilde{g}}$ and 
+       \item making the right hand side $\mu [\ve{TMF}]^{\tilde{g}} \phi^{\tilde{g}}$
     \end{enumerate}
-    \item Use MG Krylov solver to solve $[\ve{I} - \ve{T}\ve{\tilde{S}}]^{\tilde{g}}\phi^{\tilde{g}} = \mu [\ve{TF}]^{\tilde{g}} \phi^{\tilde{g}}$ for an updated $\phi^{\tilde{g}}$
+    \item Use MG Krylov solver to solve $[\ve{I} - \ve{TM\tilde{S}}]^{\tilde{g}}\phi^{\tilde{g}} = \mu [\ve{TMF}]^{\tilde{g}} \phi^{\tilde{g}}$ for an updated $\phi^{\tilde{g}}$
     \item Global barrier so all processes can finish calculating $\phi^{\tilde{g}}$; all processes get the new $\phi$
     \item $k_{old} = \frac{1}{\rho_{old}}$
     \item Calculate a new Rayleigh quotient, $\rho_{new}$; $k_{new} = \frac{1}{\rho_{new}}$
@@ -366,11 +366,11 @@ The energy-parallelized RQI method is shown in Algorithm \ref{algo:RQI+MGkrylov}
   \label{algo:RQI+MGkrylov}
 \end{algorithm}
 %
-Denovo's implementation of RQI uses the generalized form of the Rayleigh quotient: $\frac{\phi^{T} \ve{A} \phi}{\phi^{T} \ve{TF} \phi}$. The way this is computed using energy sets is shown in Algorithm \ref{algo:calcRQ}. 
+Denovo's implementation of RQI uses the generalized form of the Rayleigh quotient: $\frac{\phi^{T} \ve{A} \phi}{\phi^{T} \ve{TMF} \phi}$. The way this is computed using energy sets is shown in Algorithm \ref{algo:calcRQ}. 
 %
 \begin{algorithm}[!h]
   \begin{list}{}{\hspace{2.5em}}
-    \item denominator $= \phi_{old}^{\tilde{g}, T} \ve{TF}^{\tilde{g}} \phi_{old}^{\tilde{g}}$
+    \item denominator $= \phi_{old}^{\tilde{g}, T} \ve{TMF}^{\tilde{g}} \phi_{old}^{\tilde{g}}$
     \item Globally sum the denominator
     \item If $|$denominator$|$ $> 1 \times 10^{-13}$, 
       \begin{list}{}{\hspace{1em}}

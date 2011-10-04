@@ -24,13 +24,11 @@ If $\ve{A}$ and/or $\ve{G}$ are non-normal then each of the preconditioning cons
 
 There are two extremes between which all other preconditioners lie: $\ve{G} = \ve{A}$, in which case the solution can be found directly, and $\ve{G} = \ve{I}$, which will have no effect.  In general, the matrix $\ve{A}\ve{G}^{-1}$ is never formed. The preconditioner can be applied by using some method to solve $\ve{G}y=c \to y \approx \ve{G}^{-1}c$, or by otherwise implementing the action of $\ve{G}^{-1}$ without ever explicitly forming and inverting $\ve{G}$ \cite{Benzi2002}, \cite{Trefethen1997}. 
 
-%Right preconditioning GMRES amounts to minimizing the residual $||\ve{A}\psi - b||_{2}$ over the affine space that includes the preconditioner in the Krylov subspace: $\psi_{0}  + \ve{G}^{-1}\mathcal{K}_{k}(\ve{AG}^{-1}, r_{0})$, where $\psi_{0}$ is the initial guess and $r_{0}$ is the initial residual \cite{Patton2002}. 
-
 Functionally, a good preconditioner should make the system easier to solve and result in faster convergence. It should also be cheap to construct and apply. These tend to be competing goals in that the easier a preconditioner is to construct and apply the less it typically does to improve convergence. Generally, a preconditioner is good if $\ve{A}\ve{G}^{-1}$ is not too far from normal and its eigenvalues are clustered \cite{Trefethen1997}. 
 
-There are many different types of preconditioners, but they can be put into two general categories: matrix-based and physics-based. Matrix-based preconditioners rely entirely on the structure of the matrix $\ve{A}$, regardless of the physics going on in the problem. That is, these methods do not change when the underlying problem changes. This can be a very useful property because matrix-based methods are then broadly applicable and do not require any understanding of the physical problem. Extrapolation methods and incomplete factorization are examples of a matrix-based preconditioners.
+There are many different types of preconditioners, but they can be put into two general categories: matrix-based and physics-based. Matrix-based preconditioners rely entirely on the structure of the matrix $\ve{A}$, regardless of the physics going on in the problem. That is, these methods do not change when the underlying problem changes. This can be a very useful property because matrix-based methods are then broadly applicable and do not require any understanding of the physical problem. Extrapolation methods and incomplete factorization are examples of a matrix-based preconditioners \cite{Trefethen1997}.
 
-Physics-based preconditioning uses knowledge about the physics of the problem in question to guide the creation of the preconditioner. This means that some methods only work with certain kinds of problems, and that the preconditioners may have to be tailored or adapted for different applications. However, such methods take advantage of knowing something about the problem and can be more effective than matrix-based methods for the range of problems for which they are intended. Rebalance and synthetic acceleration are examples of physics-based preconditioners.
+Physics-based preconditioning uses knowledge about the physics of the problem in question to guide the creation of the preconditioner. This means that some methods only work with certain kinds of problems, and that the preconditioners may have to be tailored or adapted for different applications. However, such methods take advantage of knowing something about the problem and can be more effective than matrix-based methods for the range of problems for which they are intended. Rebalance and synthetic acceleration are examples of physics-based preconditioners \cite{Trefethen1997}.
 
 %-----------------------------------------------------------------------------------------------
 \subsection{Preconditioners in the Nuclear Community}
@@ -130,21 +128,21 @@ The idea of multigrid methods is to take advantage of the smoothing effect by ma
    \label{fig:FourierGridError}
 \end{figure}
 
-Using this information, multigrid methods can be understood. The error is mapped from a fine grid to a coarser grid. A smoother is applied on the coarse grid to remove the newly oscillatory error components. The result is mapped back to the fine grid and used to correct the solution there. A few more relaxations are done back on the fine grid. That whole process is called a v-cycle, which is described in Algorithm~\ref{algo:MG}.%
+Using this information, multigrid methods can be understood. The error is mapped from a fine grid to a coarser grid. A smoother is applied on the coarse grid to remove the newly oscillatory error components. The result is mapped back to the fine grid and used to correct the solution there. A few more relaxations are done back on the fine grid. That whole process is called a v-cycle, which is described in Algorithm~\ref{algo:MG}. A call to this method is symbolized as $v^h \leftarrow \ve{G}(v^h, b^h)$ and is effectively doing $v^{h} \approx \ve{G}^{-1}b^{h}$.%
 \begin{algorithm}
-  \caption{ Multigrid v-cycle: $v^h \rightarrow MG(v^h, f^h)$}
+  \caption{ Multigrid v-cycle: $v^h \leftarrow \ve{G}(v^h, b^h)$}
   \label{algo:MG}
   \begin{list}{}{\hspace{2.5em}}
-    \item Relax $\nu_1$ times on $\ve{A}^h u^h = f^h$ on the fine grid $\Omega^h$ using initial guess $v^h$.
-    \item Compute the residual, $r^h = f^h - \ve{A} v^h$. 
+    \item Relax $\nu_1$ times on $\ve{A}^h u^h = b^h$ on the fine grid $\Omega^h$ using initial guess $v^h$.
+    \item Compute the residual, $r^h = b^h - \ve{A} v^h$. 
     \item Using some restriction operator, $\ve{R}_h^{2h}$, restrict the residual to a coarser grid: $r^{2h} =  \ve{R}_h^{2h} r^h$. 
     \item Solve the residual equation, $\ve{A}^{2h} e^{2h} = r^{2h}$, on coarse grid $\Omega^{2h}$. 
     \item Using some prolongation operator, $\ve{P}_{2h}^h$, prolong (interpolate) the coarse grid error back to a finer grid: $e^h = \ve{P}_{2h}^h e^{2h}$. 
     \item Add the error to the fine grid guess: $v^h \rightarrow v^h + e^h$. 
-    \item Relax $\nu_2$ times on $\ve{A}^h u^h = f^h$ on $\Omega^h$ to get an improved solution. 
+    \item Relax $\nu_2$ times on $\ve{A}^h u^h = b^h$ on $\Omega^h$ to get an improved solution. 
    \end{list}
 \end{algorithm}
-%The details of how restriction and prolongation are done are problem dependent. Simple iterative schemes can have very simple operators while more complex schemes may require more complex mappings. Other implementation choices are what relaxer to use and how many relaxations to do on each grid.
+The details of how restriction and prolongation are done are problem dependent. Simple iterative schemes can have very simple operators while more complex schemes may require more complex mappings. Other implementation choices are what relaxer to use and how many relaxations to do on each grid.
 
 There are many variations of how multigrid methods are put together. All methods, however, are built on the basic v-cycle correction scheme. A V-cycle is an extension of the v-cycle. Instead of only using two grids, many grids are used. The problem is restricted from grid to grid until it is on some grid which is coarse enough to directly invert the equations. Then the errors are prolongated back up the chain, continuously correcting on finer grids, until the finest grid is reached. Multigrid methods are differentiated by how many times the v-cycle is done and how many grids are used. A five-grid V-cycle can be seen in Figure~\ref{fig:Vcycle} (a). A W-cycle is when V-cycles are repeated to further improve the answer. An example can be seen in Figure~\ref{fig:Vcycle} (b). 
 \begin{figure}
@@ -155,7 +153,7 @@ There are many variations of how multigrid methods are put together. All methods
    \label{fig:Vcycle}
 \end{figure}
 
-Multigrid can also be used to obtain an initial guess where much of the smooth error has been removed. This is called nested iteration, and the iterations begin on the coarsest grid and move up to the finest gird. If nested iteration is combined with V-cycles, the full multigrid method (FMG) is obtained, as seen in Figure~\ref{fig:Vcycle} (c). The optimal combination of grids and cycles may depend on problem type. The addition of more grids and cycles will reduce error, but at an added cost. 
+Multigrid can also be used to obtain an initial guess where much of the smooth error has been removed. This is called nested iteration, and the iterations begin on the coarsest grid and move up to the finest gird. If nested iteration is combined with V-cycles, the full multigrid method (FMG) is obtained, as seen in Figure~\ref{fig:Vcycle} (c). A call to any of the combinations of v-cycles is denoted $v \leftarrow \ve{G}(v, b)$. The optimal combination of grids and cycles may depend on problem type. The addition of more grids and cycles will reduce error, but at an added cost. 
 
 Multigrid methods can be thought of as stationary iterative schemes that can be used alone or as accelerators for other methods. In the past these methods were highly problem specific and only applied to second-order elliptic PDEs. Over time they have been extended to different problem types, geometries, and discretizations \cite{Benzi2002}. 
 
@@ -163,6 +161,8 @@ Multigrid methods can be thought of as stationary iterative schemes that can be 
 %-------------------------------------------------------------------------------------------------------
 \section{Past Work}
 This section discusses some past work from most of the categories of preconditioners that were presented above. The focus is on methods that have been used to precondition Krylov solvers and on multigrid methods. This section is intended to illustrate the need for preconditioning Krylov methods in transport and to demonstrate the new preconditioner's originality. 
+
+When using Krylov methods, how well a preconditioner is going to do for a certain problem cannot be known a priori. At this time there are no set methods or procedures for predicting preconditioner behavior with Krylov methods. As a result preconditioning Krylov methods is somewhat ``guess and check.'' Despite this, the reward of preconditioning Krylov methods ensure that they are an essential part of their practical use. 
 
 %-------------------------------------------------------------------------------------------------------
 \subsection{Rebalance}
@@ -291,35 +291,120 @@ Clearly, a wide variety of preconditioning techniques have been applied to the n
 %-------------------------------------------------------------------------------------------------------
 %-------------------------------------------------------------------------------------------------------
 \section{Multigrid in Energy}
-look at structure in 3.3...
+Preconditioning is a very important part of increasing the robustness of Krylov methods. This is particularly true in this work for two reasons. The first is that the multigroup Krylov solver can create very large Krylov subspaces because it forms the subspaces with multiple-group-sized vectors. As a result, any reduction in iteration count will have a large benefit in terms of both memory and cost-per-iteration. The second is that preconditioning is needed to compensate for the ill-conditioned systems created by RQI so that the eigenvector can be converged. 
 
-%A new preconditioner are being proposed to help Denovo solve large and challenging transport problems. The two preconditioners will be parallelized and used for the new outer iteration and eigenvalue solution methods. Preconditioners are often more difficult to parallelize than the iteration methods themselves. A substantial portion of the work for the new preconditioners will be in efficiently parallelizing them and finding what degree of parallelization provides the most benefit. 
+A new physics-based preconditioner has been added to Denovo to improve the performance of the Krylov solves. It does multigrid in energy. Choosing a physics-based preconditioner supports the goal of accelerating a code that solves a specific equation, not developing an all purpose preconditioner. It makes sense to take advantage of information specific to the neutron transport equations. The past work sections above show physics-based preconditioners often provide more benefit than matrix-based methods. Further, the matrix $\ve{A}$ is never formed in Denovo making matrix-based preconditioners impossible anyway. 
 
-%In Denovo the matrix $\ve{A}$ is never formed. This means factorization and other matrix-based preconditioning methods cannot be investigated. The two proposed preconditioners are therefore physics-based, which is in any case the preferable choice. The goal here is to accelerate a specific problem, not develop an all purpose preconditioner, so it makes sense to take advantage of information specific to the neutron transport equations. The past work sections above show physics-based preconditioners often provide more benefit than matrix-based methods.
+The concept of multigrid in energy is that the grid is in energy, not space or angle like methods used in other work. The motivation behind this choice is that multigrid methods have been successful at accelerating the transport equation. Using grids in energy rather than space or angle is partially for simplicity, grids in the other dimensions can be complex and expensive, and partially because it seemed like it might work very well. Finally, the convergence behavior of the Krylov iterations inside RQI looks like a very good candidate for multigrid methods. 
 
 %-------------------------------------------------------------------------------------------------------
 \subsection{Method}
-The first preconditioner that will be implemented is a multigrid in energy preconditioner. Some combination of cycles and grids will be used such that the energy grid will be coarsened until the transport equation is a few-group or one-group problem. The motivation behind why this preconditioner will be beneficial is the same as any other multigrid method. That is, different frequency error modes can be selectively removed on different grids. In this case, the grids will be in energy.
+To make energy grids, the energy group structure is coarsened so each lower grid has fewer groups on it. The finest grid is the input energy structure and the coarsest grid has one or a few groups. Each level has half as many groups as the previous level, rounded up if applicable. This is conceptually straightforward because the equations are only one-dimensional in energy and energy groups can be combined (restricted) and separated (prolonged) linearly. 
 
-It is the intent that this preconditioner will be parallelizable. The implementation will use the energy sets introduced earlier in this work. The exact implementation details must be carefully investigated to mitigate communication cost. There will likely be tradeoffs between set size and number of grids, i.e.\ the number of processors that can be efficiently used and the reduction in iteration count.  
+The implemented restriction operator is a simple averaging scheme. Neighboring fine data are averaged together to make coarse data. Recall that for a grid with spacing $h$, $2h$ is the next-coarser grid. The moments are restricted as $\phi_{g}^{2h} = \frac{1}{2}(\phi_{2g}^{h} + \phi_{2g+1}^{h})$ for $g = 1,...,G-1$. If there are an odd number of groups the lowest energy group is just copied. This scheme was chosen so that the thermal energy groups would retain more granularity, which should improve accuracy for thermal reactors. The moments are restricted every time there is transfer from a given grid to a coarser grid.
 
-A multigrid energy method will be straightforward because the equations are one-dimensional in energy and energy groups can be combined (restricted) and separated (prolongated) linearly. The ease of mapping from one grid to another means this procedure will be computationally fast and simple to implement. The single dimension and straightforward mapping will also help in terms of parallelization.  
+The cross sections are restricted from the finest to the coarsest grid during problem initialization and they do not change thereafter. The total and fission cross sections are restricted in the same way as the moments. Scattering is slightly more complicated since it is in two dimensions, $g$ and $g'$. When there are an even number of groups all cross sections are treated the same way. For $g' = 1,..., G'$ and $g = 1, ..., G$ where $G$ is the number of groups on coarse grid and $2G+1$ is the number of groups on the fine grid,
+\begin{equation}
+  \Sigma_s^{2h}(g,g') = \frac{1}{4}[\Sigma_s^{h}(2g,2g') + \Sigma_s^{h}(2g+1,2g') + \Sigma_s^{h}(2g,2g'+1) + \Sigma_s^{h}(2g+1,2g'+1)] \:. 
+  \label{eq:XSSeven}
+\end{equation}
+% 
+Unless there is upscattering in every group, some of the entries in Equation~\eqref{eq:XSSeven} will be zero. When there are an odd number of groups Equation \eqref{eq:XSSeven} is used until $g=G-1$ and $g'=G'-1$. For the last group
+  \begin{align}
+    \Sigma^{2h}_s(G,g') &= \frac{1}{2}[\Sigma^{h}_s(2G,2g') + \Sigma^{h}_s(2G,2g'+1)] \qquad \text{for } g' = 0,...,G'-1 \:,\nonumber \\
+    \Sigma^{2h}_s(g,G') &=  \frac{1}{2}[\Sigma^{h}_s(2g,2G') + \Sigma^{h}_s(2g_1,2G')] \qquad \text{for } g  = 0,...,G-1 \:,\nonumber \\
+    \Sigma^{2h}_s(G,G') &= \Sigma^{h}_s(2G,2G') \nonumber \:.
+  \end{align}
 
-This preconditioning idea is new for the neutron transport equation. The author was unable to find a similar idea in the literature. This is not surprising because the author was also unable to find deterministic transport solvers in which the energy groups have been decoupled. The decoupling that is facilitated by the MG Krylov solver is what enables the use of this preconditioner.
+To prolong from a coarse grid to a fine, the points that line up between the grids are mapped directly, $\phi_{2g}^{h} = \phi_{g}^{2h}$. To fill in the intermediate points on the fine grid, the adjacent coarse values are linearly interpolated, $\phi_{2g+1}^{h} = \frac{1}{2}(\phi_{g}^{2h} + \phi_{g+1}^{2h})$. The moments are prolonged every time there is a transfer from a given grid to a finer grid. Since cross sections do not change they are never prolonged. 
 
-It is expected that this preconditioner will provide a reduced iteration count for many types of problems because \mg methods accomplish this effectively. The question at hand is whether the cost of the multigrid method is exceeded by the benefit of reduced iteration count. It is expected that the overall solution time will decrease for at least some problems because this preconditioner should be relatively cheap and parallelizable. 
+The choice of how to restrict and prolong between grids is hard-coded into the preconditioner. There are other multigrid method choices that are easier to vary and some of these are taken as user inputs. The number of V-cycles is a user input. One V-cycle goes from the finest grid to the coarsest grid and back up, but the user can choose to do more than one V-cycle per application. That means that for one application of the preconditioner ($v \leftarrow \ve{G}(v,b)$), any number of of the large Vs seen in Figure~\ref{fig:Vcycle} are concatenated together. One cycle looks like one V, two cycles looks like one W, and so on. The default number of V-cycles is 2. 
 
-%One thing to point out is that as the RQI converges rho->lambda and the system becomes singular.  This Is ok because RQI only converges on the shape of the eigenvector so this sequence will converge as long as a backwards-stable iteration method is used to invert A.  Herein lies the trick, no one (that I am aware of) has proved that GMRES is backward-stable, but it seems to work (like Krylov stuff does everywhere). So, no worries there.  However, as we the system becomes near-singular we CAN expect convergence to take a long time, even with GMRES.  Hence, preconditioning comes into play.  This is where we plan on applying or multigrid-in-energy preconditioner. ***
+At this time the depth of the V-cycle is prescribed by the number of groups. This is set such that the grids will be coarsened until there is only one energy group. The number of grids needed is given by \cite{BinaryTree2011}
+\begin{equation}
+  \text{floor}\bigl( \frac{ln(G-1)}{ln(2)}\bigr) + 2 \:.
+  \label{eq:NumGrids}
+\end{equation}
+%
+Note, this is handled differently with energy sets as discussed below. The depth of the cycle is an option that could be changed in the future if it is found that restricting down to only one group is unnecessary, particularly if there are a large number of groups. Investigating the optimal V-cycle depth is an interesting issue, but beyond the scope of this work. 
 
+On each grid that makes up a V-cycle some number of relaxations are performed. The number of relaxations per level, $\nu$, is a user input choice with a default of 2. The relaxation method selected is weighted Richardson iteration. In Equation \eqref{eq:relax} $k$ is the iteration index, where $k = 1, ..., \nu$, and $\omega$ is the weighting parameter, which is selected by the user and defaults to 1. This formulation takes the identity portion of $\ve{A}$ into account and $b$ is either $\ve{TM}q_{e}$ or $\frac{1}{k}\ve{TMF}\phi$.
+%
+\begin{align}
+  \phi^{k + \frac{1}{2}} &= \ve{TMS}\phi^{k} + b \:, \text{and} \nonumber \\
+  \phi^{k+1} &= \omega \phi^{k + \frac{1}{2}} + (1 - \omega) \phi^{k} \:, \text{ which can be combined to give } \nonumber \\
+  \phi^{k+1} &= \omega \ve{TMS}\phi^{k} + \omega b + (1 - \omega) \phi^{k} \:. 
+  \label{eq:relax}
+ \end{align}
+
+Recall that right preconditioning is applied as $\ve{A} \ve{G}^{-1} \ve{G} \phi = b$, where $\ve{A} = \ve{I} - \ve{TMS}$. To actually implement this in Denovo, the problem must be broken up into several steps: 
+%
+\begin{align}
+  \text{Define} \qquad y &= \ve{G}\phi \:;\\
+  \text{with a Krylov method solve} \qquad \ve{AG}^{-1}y &= b \:. \\
+  \text{After finding }y\text{, the final step is} \qquad \phi &= \ve{G}^{-1}y \:.
+\end{align}
+%
+Because the Krylov solvers are provided by an external library they cannot be modified easily, so carrying out the second step means the preconditioner must be applied to the iteration vectors handed to the solver. Equations~\eqref{eq:invertG}, \eqref{eq:ApplyA}, and \eqref{eq:findPhi} show how this works.  
+
+Let $v^{j}$ be an iteration vector that represents $y$, and let $z^{j}$ be an intermediate iteration vector. At each step below the equations are shown three ways to make clear what is going on algorithmically: the equation being solved, the symbolic representation of the outcome, and the way this is written in multigrid syntax. The first thing is to apply the preconditioner to the intermediate vector: %to affect the inversion of $\ve{G}$,
+%
+\begin{align}
+  \ve{G}z^{j} &= v^{j} \:,  \label{eq:invertG} \\
+  z^{j} &\approx \ve{G}^{-1}v^{j} \:, \nonumber \\
+  z^{j} &\leftarrow \ve{G}(z^{j}, v^{j}) \:. \nonumber
+\end{align}
+%
+Next, apply $\ve{A}$ to $z^{j}$ and set it equal to $v^{j+1}$; $y$ is also $v^{j+1}$:
+\begin{align}
+  v^{j+1} &= \ve{A}z^{j} \:,   \label{eq:ApplyA} \\
+  v^{j+1} &\approx \ve{AG}^{-1}v^{j} \:, \nonumber \\
+  y &= \ve{A}[z^{j} \leftarrow \ve{G}(z^{j}, v^{j})] \:. \nonumber
+\end{align}
+%
+To get the final $\phi$ from $y = \ve{G}\phi$, apply the preconditioner again to an iteration vector $w$:
+%
+\begin{align}
+  \ve{G}w^{j} &= y \:,   \label{eq:findPhi} \\
+  w^{j} &\approx \ve{G}^{-1}y \:, \nonumber \\
+  \phi &= w^{j} \leftarrow \ve{G}(w^{j}, y) \:. \nonumber
+\end{align}
+
+When doing RQI the default behavior is to use an unshifted operator $\ve{A}$ in the preconditioner. There is an option to use the shifted operator instead. In that case $\mathbf{S}$ becomes $\tilde{\ve{S}} = \ve{S} + \rho\ve{F}$ and the right hand side becomes $(\frac{1}{k} - \rho)\ve{TMF}\phi$ in the equations above. The use of the shifted operator can be turned on through an input option.
+
+An important attribute of this preconditioner is that it is parallelizable in energy because it can use the energy sets introduced earlier in this work. There are two ways to handle energy grids and energy sets together. One way is to restrict from $G$ groups down to $1$ group just like there weren't any energy sets. This requires cross-set communication as soon as there are fewer groups than sets. This also causes some logistical difficulties related to what data is held by which sets at various points in the calculation. 
+
+The other way is to prohibit cross-set communication by having each set do its own ``mini'' V-cycle. Each set restricts, prolongs, and relaxes on only its groups. Instead of restricting to one group overall, each set restricts to one or two group(s), giving approximately num\_sets groups overall. This strategy means there must be at least two groups on every set. The number of grids needed is determined by the set with the minimum number of groups since it will be the first to reach a grid with one group. To choose the number of levels, Algorithm~\ref{algo:multisetsGrids} is used. 
+%
+\begin{algorithm}
+  \caption{ Setting the Number of Grids When There Are Energy Sets}
+  \label{algo:multisetsGrids}
+   num\_levels = 1, num\_local\_min = floor$\bigl( \frac{\text{num\_groups}}{\text{num\_sets}}\bigr)$ \\
+   while (num\_local\_min $>$ 1)
+  \begin{list}{}{\hspace{2.5em}}
+    \item num\_levels = num\_levels + 1
+    \item num\_groups = (num\_groups + 1) / 2
+    \item num\_local\_min = floor$\bigl( \frac{\text{num\_groups}}{\text{num\_sets}}\bigr)$
+   \end{list}
+\end{algorithm}
+
+The communication costs and logistical complications of the first strategy seem likely to overwhelm the benefit gained by going to one group instead of num\_sets groups. The second strategy was chosen because it involves much less communication and overhead cost. The validity of this choice will be commented upon in the results section. 
+
+With the implemented energy set strategy there are tradeoffs between the number of sets and number of grids for a fixed number of groups. When there are more sets, more cores can be used at one time and wall time should decrease. When there are fewer sets each V-cycle can go deeper so the preconditioner should be more effective, which will reduce iteration count and hopefully decrease wall time. This tradeoff is also investigated.
 
 %-------------------------------------------------------------------------------------------------------
 \subsection{Results}
-The goal for the new preconditioners is to decrease solution time for at least some categories of problems. There are a variety of problem types which have been found to be challenging for transport methods. Traditional iterative schemes such as power iteration and Gauss Seidel have a hard time converging systems with highly scattering materials such as graphite because of their spectral radii. As noted in \cite{Rosa2010}, restarted Krylov methods can stagnate when there are optically thin spatial regions. Trying one toy problem from each of these categories is likely to be instructive about the success of the new methods. A large scale real problem, such as the full PWR used in the previous scaling studies, should also be tried. 
+Investigating the performance of the preconditioner is not simple because there are so many variables. The varsiety of knobs to turn are grouped into three categories: 1) problem and solver type, 2) preconditioning parameters, 3) number of groups and sets. The problem types and solvers are fixed source, eigenvalue with power iteration, and eigenvalue with Rayleigh quotient iteration. All were solved with the multigroup Krylov solver unless otherwise noted. The preconditioning parameters are weight, number of V-cycles, and number of relaxations per level. The group consideration deals with whether there are many or few groups and how many groups per set were used when doing multisets. Calculations were done to investigate all of these combinations.
 
-For the multigrid preconditioner, investigating some different cycle choices will be useful. Problems with a moderate to large number of energy groups will be needed to fully study this method as they will give the most abundant options for grid  combinations.
 
-An important area of study is the interplay between parallelization and iteration reduction. The preconditioners will be able to run in parallel, but the level of parallelization required is unclear at this time. The preconditioners may not scale as well as the rest of the code. There will likely be a tradeoff between iteration reduction from preconditioning and added cost of the preconditioner. This tradeoff will be investigated. 
+ 
+
+
 
 %-------------------------------------------------------------------------------------------------------
 \subsection{Implications}
 
+%The goal for the new preconditioners is to decrease solution time for at least some categories of problems. There are a variety of problem types which have been found to be challenging for transport methods. Traditional iterative schemes such as power iteration and Gauss Seidel have a hard time converging systems with highly scattering materials such as graphite because of their spectral radii. As noted in \cite{Rosa2010}, restarted Krylov methods can stagnate when there are optically thin spatial regions. Trying one toy problem from each of these categories is likely to be instructive about the success of the new methods. A large scale real problem, such as the full PWR used in the previous scaling studies, should also be tried. 
+
+
+%This preconditioning idea is new for the neutron transport equation. The author was unable to find a similar idea in the literature. This is not surprising because the author was also unable to find deterministic transport solvers in which the energy groups have been decoupled. The decoupling that is facilitated by the MG Krylov solver is what enables the use of this preconditioner.
