@@ -5,3 +5,150 @@
 \label{sec:AppendixD}
 This appendix contains tables of the results for which there are only figures in Chapter~\ref{sec:Chp4}. The tables are simply titled with monikers matching those in the Preconditioning Chapter. 
 
+\begin{table}[!h]
+\caption{Small Fixed Source Vacuum Boundary, Weight Variation Study}
+\begin{center}
+\begin{tabular}{c c c l}
+\hline
+Weight & Relaxations & V-cycles & Iterations \\[0.5ex]
+\hline
+0    & 0 & 0 & 10 \\
+1    & 1 & 1 & 7 \\
+1.1 & 1 & 1 & 6 \\
+1.2 & 1 & 1 & 6 \\
+1.3 & 1 & 1 & 6 \\
+1.4 & 1 & 1 & 7 \\
+1.5 & 1 & 1 & 8$^{*}$ \\
+1.6 & 1 & 1 & 10$^{*}$ \\
+1.7 & 1 & 1 & 13 \\
+1.8 & 1 & 1 & 20 \\
+1.9 & 1 & 1 & 265 \\
+2    & 1 & 1 & 7 \\
+2.1 & 1 & 1 & 1000$^{\dagger}$ \\
+\hline 
+\end{tabular} \\
+$^{*}$ One group in one cell failed a test \\
+$^{\dagger}$ All tests failed
+\end{center}
+\label{table:FxdSrcTstVacWeight}
+\end{table}
+
+\begin{table}[!h]
+\caption{Small Fixed Source Vacuum Boundary, Relaxation Count and V-cycle Variation Study}
+\begin{center}
+\begin{tabular}{c c c c}
+\hline
+Weight & Relaxations & V-cycles & Iterations \\[0.5ex]
+\hline
+0  & 0 & 0 & 10 \\
+1 & 1 & 1 & 7 \\
+1 & 2 & 2 & 4 \\
+1 & 3 & 3 & 4 \\
+1 & 4 & 4 & 4 \\
+1 & 5 & 5 & 4 \\
+1 & 6 & 6 & 4 \\
+1 & 7 & 7 & 4 \\
+1 & 10 & 10 & 4 \\
+\hline 
+\end{tabular}
+\end{center}
+\label{table:FxdSrcTstVacRV}
+\end{table}
+
+\begin{table}[!h]
+\caption{Small Fixed Source Reflecting Boundary, Weight Variation Study}
+\begin{center}
+\begin{tabular}{c c c c}
+\hline
+Weight & Relaxations & V-cycles & Iterations \\[0.5ex]
+\hline
+0    & 0 & 0 & 15 \\
+1    & 1 & 1 & 11 \\
+1.1 & 1 & 1 & 10 \\
+1.2 & 1 & 1 & 10 \\
+1.3 & 1 & 1 & 10 \\
+1.4 & 1 & 1 & 11 \\
+1.5 & 1 & 1 & 13 \\
+1.6 & 1 & 1 & 19 \\
+1.7 & 1 & 1 & 50 \\
+1.8 & 1 & 1 & 1000$^{\dagger}$ \\
+\hline 
+\end{tabular} \\
+$^{\dagger}$ All tests failed
+\end{center}
+\label{table:FxdSrcTstReflWeight}
+\end{table}
+
+\begin{table}[!h]
+\caption{Small Fixed Source Reflecting Boundary, Relaxation Count and V-cycle Variation Study}
+\begin{center}
+\begin{tabular}{c c c c}
+\hline
+Weight & Relaxations & V-cycles & Iterations \\[0.5ex]
+\hline
+0  & 0 & 0 & 15 \\
+1 & 1 & 1 & 11 \\
+1 & 2 & 2 & 5 \\
+1 & 3 & 3 & 3 \\
+1 & 4 & 4 & 2 \\
+1 & 5 & 5 & 2 \\
+1 & 6 & 6 & 2 \\
+1 & 7 & 7 & 2 \\
+1 & 10 & 10 & 1 \\
+\hline
+1.3 & 2 & 2 & 4 \\
+1.3 & 3 & 3 & 2 \\
+1.3 & 4 & 4 & 2 \\
+1.3 & 7 & 7 & 2 \\
+\hline 
+\end{tabular}
+\end{center}
+\label{table:FxdSrcTstReflRV}
+\end{table}
+
+\begin{table}[!h]
+\caption{2D C5G7 Benchmark Preconditioning With Power Iteration, Parameter Study}
+\begin{center}
+\begin{tabular}{c c c c c c}
+\hline
+Weight & Relaxations & V-cycles & Krylov & PI & Time (s) \\[0.5ex]
+\hline
+0    & 0 & 0 & 3,129 & 32 & 8.54 $\times 10^{3}$ \\
+1    & 1 & 1 & 1,649 & 31 & 2.12 $\times 10^{4}$ \\
+1.1 & 1 & 1 & 1,591 & 31 & 2.06 $\times 10^{4}$ \\
+1.2 & 1 & 1 & 1,546 & 31 & 1.98 $\times 10^{4}$ \\
+1.3 & 1 & 1 & 1,492 & 31 & 1.92 $\times 10^{4}$ \\
+1.4 & 1 & 1 & 1,458 & 31 & 1.91 $\times 10^{4}$ \\
+1.5 & 1 & 1 & 1,771 & 31 & 2.29 $\times 10^{4}$ \\
+\hline 
+\end{tabular} 
+\end{center}
+\label{table:2D c5g7}
+\end{table}
+
+\begin{table}[!h]
+\caption{Multiset Study with Preconditioner for Iron Graphite Fixed Source Problem}
+\begin{center}
+\begin{tabular}{c c c c c c}
+\hline
+\# Sets & Precond T (s) & Regular T (s) & Rel Diff & P T Set N / Set 1 & R T Set N / Set 1 \\[0.5ex]
+\hline1   & 3.64$\times 10^{3}$  & 8.00$\times 10^{2}$ & 3.56 & 1.00                              & 1.00 \\2   & 1.81$\times 10^{3}$	& 4.26$\times 10^{2}$ & 3.24 & 4.96$\times 10^{-1}$ & 5.32$\times 10^{-1}$ \\3   & 1.25$\times 10^{3}$	& 2.99$\times 10^{2}$ & 3.18 & 3.43$\times 10^{-1}$ & 3.74$\times 10^{-1}$ \\4   & 8.84$\times 10^{2}$	& 2.42$\times 10^{2}$ & 2.65 & 2.42$\times 10^{-1}$ & 3.02$\times 10^{-1}$ \\ 5   & 7.70$\times 10^{2}$	& 2.18$\times 10^{2}$ & 2.54 & 2.11$\times 10^{-1}$ & 2.72$\times 10^{-1}$ \\6   & 6.93$\times 10^{2}$	& 1.89$\times 10^{2}$ & 2.67 & 1.90$\times 10^{-1}$ & 2.36$\times 10^{-1}$ \\7   & 5.59$\times 10^{2}$	& 1.64$\times 10^{2}$ & 2.41 & 1.53$\times 10^{-1}$ & 2.05$\times 10^{-1}$ \\8   & 4.33$\times 10^{2}$	& 1.62$\times 10^{2}$ & 1.67 & 1.19$\times 10^{-1}$ & 2.03$\times 10^{-1}$ \\9   & 3.66$\times 10^{2}$	& 1.39$\times 10^{2}$ & 1.64 & 1.01$\times 10^{-1}$ & 1.74$\times 10^{-1}$ \\10 & 3.63$\times 10^{2}$	& 1.37$\times 10^{2}$ & 1.65 & 9.95$\times 10^{-2}$ & 1.71$\times 10^{-1}$ \\
+\hline 
+\end{tabular} 
+\end{center}
+\label{table:FeC multisets}
+\end{table}
+
+\begin{table}[!h]
+\caption{Multiset Study with Preconditioner for Infinite Medium Eigenvalue Problem}
+\begin{center}
+\begin{tabular}{c c c c c c}
+\hline
+\# Sets & Precond T (s) & Regular T (s) & Rel Diff & P T Set N / Set 1 & R T Set N / Set 1 \\[0.5ex]
+\hline
+1   & 1.43$\times 10^{2}$ & 5.69$\times 10^{1}$ & 1.51 & 1.00                                & 1.00 \\2   & 7.14$\times 10^{1}$ & 2.89$\times 10^{1}$ & 1.47 & 4.99$\times 10^{-1}$  & 5.08$\times 10^{-1}$ \\3   & 4.49$\times 10^{1}$ & 1.91$\times 10^{1}$ & 1.35 & 3.14$\times 10^{-1}$  & 3.35$\times 10^{-1}$ \\ 4   & 2.91$\times 10^{1}$ & 1.51$\times 10^{1}$ & 0.93 & 2.03$\times 10^{-1}$  & 2.65$\times 10^{-1}$ \\5   & 2.27$\times 10^{1}$ & 1.26$\times 10^{1}$ & 0.80 & 1.59$\times 10^{-1}$  & 2.22$\times 10^{-1}$ \\6   & 2.00$\times 10^{1}$ & 1.01$\times 10^{1}$ & 0.99 & 1.40$\times 10^{-1}$  & 1.77$\times 10^{-1}$ \\7   & 1.46$\times 10^{1}$ & 8.54                             & 0.71 & 1.02$\times 10^{-1}$  & 1.50$\times 10^{-1}$ \\8   & 1.15$\times 10^{1}$ & 7.86                             & 0.46 & 8.05$\times 10^{-2}$  & 1.38$\times 10^{-1}$ \\9   & 1.10$\times 10^{1}$ & 1.05$\times 10^{1}$ & 0.05 & 7.73$\times 10^{-2}$  & 1.84$\times 10^{-1}$ \\10 & 1.11$\times 10^{1}$ & 7.32                             & 0.52 & 7.77$\times 10^{-2}$  & 1.29$\times 10^{-1}$ \\
+\hline 
+\end{tabular} 
+\end{center}
+\label{table:impi multisets}
+\end{table}
