@@ -194,7 +194,7 @@ The size of the operators can be defined in terms of the granularity of discreti
 \indent $c$ = number of cells, \\
 \indent $u$ = number of unknowns per cell, which is determined by spatial discretization. \\
 %
-These can be combined to define $a = G \times n \times c \times u$ and $f = G \times t \times c \times u$. Using $a$ and $f$, Equation \eqref{eq:operator-form} can be presented in terms of operator size: $(a \times a)(a \times 1) = (a \times f) (f \times f) (f \times 1) + (a \times f) (f \times 1)$. The index variables, their meaning, and their ranges are shown in Table \ref{table:index}. 
+These can be combined to define $a = G \times n \times c \times u$ and $f = G \times t \times c \times u$. Using $a$ and $f$, Equation \eqref{eq:operator-form} can be presented in terms of operator size: $(a \times a)(a \times 1) = (a \times f) (f \times f) (f \times 1) + (a \times f) (f \times f) (f \times 1)$. The index variables, their meaning, and their ranges are shown in Table \ref{table:index}. 
 %
 \begin{table}[!h]
 \caption{Meaning and Range of Indices Used in Transport Discretization}
@@ -251,13 +251,13 @@ The structures of the vectors and matrices are shown in the next few equations a
  %
  \begin{alignat}{2}
       \mathbf{F}  &=     \begin{pmatrix}
-     \chi^{1}\nu\Macro_{f}^{1} &\chi^{1}\nu\Macro_{f}^{2} & \cdots &
-      \chi^{1}\nu\Macro_{f}^{G} \\
-      \chi^{2}\nu\Macro_{f}^{1} &\chi^{2}\nu\Macro_{f}^{2} & \cdots &
-      \chi^{2}\nu\Macro_{f}^{G}\\
+     \chi^{1}[\nu\Macro_{f}]^{1} &\chi^{1}[\nu\Macro_{f}]^{2} & \cdots &
+      \chi^{1}[\nu\Macro_{f}]^{G} \\
+      \chi^{2}[\nu\Macro_{f}]^{1} &\chi^{2}[\nu\Macro_{f}]^{2} & \cdots &
+      \chi^{2}[\nu\Macro_{f}]^{G}\\
       \vdots & \vdots & \ddots & \vdots \\
-      \chi^{G}\nu\Macro_{f}^{1} &\chi^{G}\nu\Macro_{f}^{2} & \cdots &
-      \chi^{G}\nu\Macro_{f}^{G}\\
+      \chi^{G}[\nu\Macro_{f}]^{1} &\chi^{G}[\nu\Macro_{f}]^{2} & \cdots &
+      \chi^{G}[\nu\Macro_{f}]^{G}\\
     \end{pmatrix} \:, \nonumber & \qquad
     %
   [\ve{S}]_{gg'} = \begin{pmatrix}

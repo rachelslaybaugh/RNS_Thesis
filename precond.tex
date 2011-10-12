@@ -128,7 +128,8 @@ The idea of multigrid methods is to take advantage of the smoothing effect by ma
    \label{fig:FourierGridError}
 \end{figure}
 
-Using this information, multigrid methods can be understood. The error is mapped from a fine grid to a coarser grid. A smoother is applied on the coarse grid to remove the newly oscillatory error components. The result is mapped back to the fine grid and used to correct the solution there. A few more relaxations are done back on the fine grid. That whole process is called a v-cycle, which is described in Algorithm~\ref{algo:MG}. A call to this method is symbolized as $v^h \leftarrow \ve{G}(v^h, b^h)$ and is effectively doing $v^{h} \approx \ve{G}^{-1}b^{h}$.%
+Using this information, multigrid methods can be understood. The error is mapped from a fine grid to a coarser grid. A smoother is applied on the coarse grid to remove the newly oscillatory error components. The result is mapped back to the fine grid and used to correct the solution there. A few more relaxations are done back on the fine grid. That whole process is called a v-cycle, which is described in Algorithm~\ref{algo:MG}. A call to this method is symbolized as $v^h \leftarrow \ve{G}(v^h, b^h)$ and is effectively doing $v^{h} \approx \ve{G}^{-1}b^{h}$.
+%
 \begin{algorithm}
   \caption{ Multigrid v-cycle: $v^h \leftarrow \ve{G}(v^h, b^h)$}
   \label{algo:MG}
@@ -142,7 +143,8 @@ Using this information, multigrid methods can be understood. The error is mapped
     \item Relax $\nu_2$ times on $\ve{A}^h u^h = b^h$ on $\Omega^h$ to get an improved solution. 
    \end{list}
 \end{algorithm}
-The details of how restriction and prolongation are done are problem dependent. Simple iterative schemes can have very simple operators while more complex schemes may require more complex mappings. Other implementation choices are what relaxer to use and how many relaxations to do on each grid.
+
+The details of how restriction and prolongation are done are problem dependent. Simple iterative schemes can have very simple operators while more complex schemes may require more complex mappings. Other implementation choices are what relaxer to use and how many relaxations to do on each grid.
 
 There are many variations of how multigrid methods are put together. All methods, however, are built on the basic v-cycle correction scheme. A V-cycle is an extension of the v-cycle. Instead of only using two grids, many grids are used. The problem is restricted from grid to grid until it is on some grid which is coarse enough to directly invert the equations. Then the errors are prolongated back up the chain, continuously correcting on finer grids, until the finest grid is reached. Multigrid methods are differentiated by how many times the v-cycle is done and how many grids are used. A five-grid V-cycle can be seen in Figure~\ref{fig:Vcycle} (a). A W-cycle is when V-cycles are repeated to further improve the answer. An example can be seen in Figure~\ref{fig:Vcycle} (b). 
 \begin{figure}
@@ -374,7 +376,7 @@ To get the final $\phi$ from $y = \ve{G}\phi$, apply the preconditioner again to
   \phi &= w^{j} \leftarrow \ve{G}(w^{j}, y) \:. \nonumber
 \end{align}
 
-The operator is used within the preconditioner to compute the residual, $r = \ve{A}\phi - b$. That is the only part of the preconditioning algorithm that ``applies $\ve{A}$''.  When doing RQI the default behavior is to use an unshifted operator in the preconditioner. There is an option to use the shifted operator instead. In that case $\mathbf{S}$ becomes $\tilde{\ve{S}} = \ve{S} + \rho\ve{F}$ and the right hand side becomes $(\frac{1}{k} - \rho)\ve{TMF}\phi$. The use of the shifted operator can be turned on through an input option.
+The operator is used within the preconditioner to compute the residual, $r = \ve{A}\phi - b$, and the form of the operator is used in the relaxation method. When doing RQI the default behavior is to use the regular, unshifted operator in the preconditioner. There is an option to use the shifted operator instead. In that case $\mathbf{S}$ becomes $\tilde{\ve{S}} = \ve{S} + \rho\ve{F}$ and the right hand side becomes $(\frac{1}{k} - \rho)\ve{TMF}\phi$. The use of the shifted operator can be turned on through an input option. This changes the calculation of the residual as well as the $\ve{S}$ used in the relaxer.
 
 An important attribute of this preconditioner is that it is parallelizable in energy because it can use the energy sets introduced earlier in this work. There are two ways to handle energy grids and energy sets together. One way is to restrict from $G$ groups down to $1$ group just like there weren't any energy sets. This requires cross-set communication as soon as there are fewer groups than sets. This also causes some logistical difficulties related to what data is held by which sets at various points in the calculation. 
 
@@ -398,132 +400,16 @@ With the implemented energy set strategy there are tradeoffs between the number 
 
 %-------------------------------------------------------------------------------------------------------
 \subsection{Results}
-Investigating the performance of the preconditioner is not simple because there are so many variables. The varsiety of knobs to turn are grouped into three categories: 1) problem and solver type, 2) preconditioning parameters, 3) number of groups and sets. The problem types and solvers are fixed source, eigenvalue with power iteration, and eigenvalue with Rayleigh quotient iteration. All were solved with the multigroup Krylov solver unless otherwise noted. The preconditioning parameters are weight, number of V-cycles, and number of relaxations per level. The group consideration deals with whether there are many or few groups and how many groups per set were used when doing multisets. Calculations were done to investigate all of these combinations.
+Fully characterizing the behavior of the preconditioner is not simple because there are so many variables. The variety of knobs to turn are grouped into three categories: 1) problem and solver type, 2) preconditioning parameters, 3) number of groups and sets. The problem types and solvers are fixed source, eigenvalue with power iteration, and eigenvalue with Rayleigh quotient iteration. All were solved with the multigroup Krylov solver unless otherwise noted. 
 
-\subsubsection{Fixed Source}
-Shows that preconditioner reduces multigroup Krylov iteration count, useful even for these problems. True for reflecting and vacuum, few and many groups.
+The preconditioning parameters are weight, number of V-cycles, and number of relaxations per level. The syntax used throughout this section will be $w\#$ is the weight, $r\#$ is the number of relaxations per level, and $v\#$ is the number of V-cycles, e.g.\ $w1r1v1$ is one relaxation per level, one V-cycle, and a weight of 1. ``More'' or a ``large amount of'' preconditioning means larger values of $w$ and/or $r$ and/or $v$. The group consideration deals with whether there are many or few groups and how many groups per set were used when doing multisets. Calculations were done to investigate as much of the problem space as possible.
 
-%-------------------------------------------------------------------------------------------------------
-* parameter variation with fixed source vacuum, 10 groups (FxdSrcTst\_vac)
-one material, 10 groups with 5 upscattering, first 3 groups have an isotropic source, $P_{0}$, $S_{4}$, 3 $\times$ 3 $\times$ 3 grid, vacuum boundaries, tolerance and upscatter tolerance of 1 $\times$ 10$^{-6}$. This is a fixed source manager unit test run on my mac with the debug version; no timing information is available. GMRES with multigroup Krylov solver. 
+In all tests the number of Krylov iterations over the whole calculation are compared. These subspaces are over all groups unless otherwise noted. Some problems report timing as well. Timing comparisons of most problems should be considered somewhat heuristically. In cases where the calculations were done on a single core, the machine was not dedicated to these calculations and times could vary if the same calculations were repeated. Further, little effort has been put into optimizing the preconditioner for speed. Once the multigrid in energy solver has been optimized for efficiency, the preconditioned times should decrease. How much improvement can be gained is a matter for future study. 
 
-See the results for varying the weight with 1 relaxation per level and 1 V-cycles in the top plot in Figure~\ref{fig:FxdSrcVac}. The results for varying with number of relaxations per grid and the number of V-cycles with the weight fixed at one can be seen in the bottom plot of that figure. When the preconditioning parameters were really cranked up nothing changed, see Table~\ref{table:FxdSrcTstVacOther}.
-%
-\begin{table}[!h]
-\caption{Small Fixed Source Vacuum Boundary, With Much Preconditioning}
-\begin{center}
-\begin{tabular}{c c c c}
-\hline
-Weight & Relaxations & V-cycles & Iterations \\[0.5ex]
-\hline
-0  & 0 & 0 & 10 \\
-2 & 2 & 2 & 4 \\
-2 & 3 & 3 & 4 \\
-1.3 & 4 & 4 & 4 \\
-1.3 & 10 & 10 & 4 \\
-\hline 
-\end{tabular}
-\end{center}
-\label{table:FxdSrcTstVacOther}
-\end{table}
-%
-\begin{figure}[!ht]
-    \begin{center}
-      \includegraphics [width=0.7\textwidth, height=0.8\textheight] {FxdSrcVac}
-   \end{center}
-   \caption{Preconditioning Parameter Studies for the Small Fixed Source Problem with Vacuum Boundaries}
-   \label{fig:FxdSrcVac}
-\end{figure}
-%-------------------------------------------------------------------------------------------------------
+\subsubsection{RQI Parameter Scoping}
+The first two problems run with the preconditioner were the small Rayleigh quotient iteration unit tests reported on in Chapter~\ref{sec:Chp3}. These easy problems were done to find out three things. The first was to check that the preconditioner reduces the number of Krylov iterations used in an RQI calculation. The second was to get some guidance on the effect of the preconditioning parameters. The third was find out whether or not the shifted version of the operator should be used in the preconditioner. All tests were run on one processor using the debug version of Denovo with GMRES as the multigroup Krylov solver.
 
-* parameter variation with fixed source reflecting, 10 groups (FxdSrcTst\_refl)
-one material, 10 groups with 5 upscattering, first 3 groups have an isotropic source, $P_{0}$, $S_{4}$, 3 $\times$ 3 $\times$ 3 grid, reflecting boundaries, tolerance and upscatter tolerance of 1 $\times$ 10$^{-6}$. This is a fixed source manager unit test run on my mac with the debug version; no timing information is available. GMRES with multigroup Krylov solver. 
-
-See the results for varying the weight with 1 relaxation per level and 1 V-cycles in the top plot of Figure~\ref{fig:FxdSrcRefl}. The results for varying with number of relaxations per grid and the number of V-cycles with the weight fixed at one can be seen in the bottom plot. 
-%
-\begin{figure}[!ht]
-    \begin{center}
-      \includegraphics [width=0.7\textwidth, height=0.8\textheight] {FxdSrcRefl}
-   \end{center}
-   \caption{Preconditioning Parameter Studies for the Small Fixed Source Problem with Reflecting Boundaries}
-   \label{fig:FxdSrcRefl}
-\end{figure}
-%-------------------------------------------------------------------------------------------------------
-
-* comparison of gs, ttg gs, mg krylov, and preconditioned mg krylov + demo of reduced angle solve for fixed source, 27 groups (FeC\_vac)
-The half iron half carbon toy problem from Chapter~\ref{sec:Chp2}. Run on the emac with the debug version of the code. 10 $\times$ 10 $\times$ 10, tolerance and upscatter tolerance of 1 $\times$ 10$^{-6}$, $S_{8}$. A few results comparing solvers can be seen in Table~\ref{table:FeC solvers}. The syntax is that w\# is the weight, r\# is the number of relaxations per level, and v\# is the number of V-cycles, e.g.\ w1r1v1 is one relaxation per level, one V-cycle, and a weight of 1.
-
-This problem also very briefly investigated the option of using a different angle set within the preconditioner. The overall problem was solved with $S_{8}$ and the preconditioner only used $S_{2}$. For the w1r2v2 case the time was reduced from 7.07 $\times 10^{2}$ seconds to 1.57 $\times 10^{2}$ seconds. 
-%
-\begin{table}[!h]
-\caption{Iron Carbon Fixed Source Cube, Solver and Preconditioning Comparison}
-\begin{center}
-\begin{tabular}{l c l c}
-\hline
-Solver & GS iters & Krylov & time (s)\\[0.5ex]
-\hline
-GS &  12 & 1,727 & 1.12 $\times 10^{2}$ \\
-GS TTG & 11 & 1687 & 1.99 $\times 10^{2}$  \\
-MG Krylov & n/a & 30 & 8.78 $\times 10^{1}$ \\
-w1 r2 v2 & n/a & 10 & 7.07 $\times 10^{2}$ \\
-w1.3 r4 v4 & n/a & 4 & 1.29 $\times 10^{3}$ \\
-\hline
-\end{tabular}
-\end{center}
-\label{table:FeC solvers}
-\end{table}
-%-------------------------------------------------------------------------------------------------------
-%-------------------------------------------------------------------------------------------------------
-
-\subsubsection{Power Iteration}
-Shows that reducing mg Krylov iterations in multigroup solves is useful for eigenvalue problems. True for few and many groups, reflecting (vacuum to come)
-
-* parameter variation with power iteration reflecting, 7 groups (2D Orhtanc)
-Results are in Figure~\ref{fig:2Dc5g7PI}. All $k$ values were within the uncertainty of the benchmark and so are not reported. These were run on the small orthanc cluster at Oak Ridge with 16 cores; 4 x-blocks and 4 y-blocks, 1 z-block and 1 set. The total and upscatering tolerances were 1 $\times 10^{-3}$, with a k tolerance of 1 $\times 10^{-5}$. In the table ``Krylov'' is the total number of Krylov iterations and ``Eigenvalue'' is the total number of Eigenvalue iterations. Two other calculations with a higher level of preconditioning were also done, all preconditioned cases used 31 eigenvalue iterations. When the parameters were w1.4, r2, v2 the number of Krylov iterations were reduced to 438, and the calculation took 1.77 $\times 10^{4}$ seconds. For w1r3v1, 253 Krylov iterations and 2.28 $\times 10^{4}$ seconds were required.
-%
-\begin{figure}[!ht]
-    \begin{center}
-      \includegraphics [width=0.7\textwidth, height=0.7\textheight] {2dc5g7PI}
-   \end{center}
-   \caption{Preconditioning Parameter Studies for the Small Fixed Source Problem with Reflecting Boundaries}
-   \label{fig:2Dc5g7PI}
-\end{figure}
-%------------------------------------------------------------------------------------------------------- 
- 
-* parameter variation with power iteration reflecting, 7 groups (3D Orhtanc)
-The same type of study was done with the 3D benchmark on the oic cluster at Oak Ridge. This used 720 cores with 40 x-blocks, 18 y-blocks and 5 z-blocks. The total and upscattering tolerances were 1 $\times 10^{-4}$, with a k tolerance of 1 $\times 10^{-5}$ unless otherwise indicated. Results seen in Table~\ref{table:3D c5g7}. None of these results were within the uncertainty bounds of the reported benchmark. All results were low by about 0.011.
-%
-\begin{table}[!h]
-\caption{3D C5G7 Benchmark With Power Iteration, Preconditioning Parameter Scoping}
-\begin{center}
-\begin{tabular}{c c c c l l}
-\hline
-Weight & Relaxations & V-cycles & Krylov & PI & Time (s) \\[0.5ex]
-\hline
-0    & 0 & 0 & 1,224 & 32 & 4.46 $\times 10^{3}$ \\
-1    & 1 & 1 & 708    & 32 & 2.12 $\times 10^{4}$ \\
-1.2 & 1 & 2 & 448    & 32 & 2.38 $\times 10^{4}$ \\
-1.2 & 2 & 1 & 448    & 32 & 2.39 $\times 10^{4}$ \\
-1.3 & 2 & 2 & 288    & 32 & 2.84 $\times 10^{4}$ \\
-1.5 & 3 & 3 & 192    & 32 & 3.73 $\times 10^{4}$ \\
-1    & 3 & 3 & 126    & 14$^{*}$  & 4.04 $\times 10^{4}$ \\
-1    & 4 & 4 & n/a     & n/a          & exceeded wall time \\
-1    & 4 & 4 & n/a     & n/a$^{*}$ & exceeded wall time \\
-1.5 & 5 & 5 & n/a     & n/a          & exceeded wall time \\
-\hline 
-\end{tabular}\\
-$^{*}$tol and upscatter tol = 1 $\times 10^{-5}$, $k$ tol = 1 $\times 10^{-3}$.
-\end{center}
-\label{table:3D c5g7}
-\end{table}
-%-------------------------------------------------------------------------------------------------------
-%-------------------------------------------------------------------------------------------------------
-
-\subsubsection{RQI}
-Shows that the preconditioner is useful for problems we can solve with rqi, and it makes rqi possible for problems we couldn't solve before. 
-
-* parameter variation with rqi vacuum, 4 groups (RQI\_UnitTest\_vac)
-Small RQI unit test with vacuum boundary conditions. This is the same problem that was reported upon in Chapter~\ref{sec:Chp3}. The correct $k$ and flux were found in all cases. The tolerance used to compare the flux to the reference case was $1 \times 10^{-5}$. The results are shown in Table~\ref{table:RQIUnitTestVac}.
+The small RQI unit test with vacuum boundary conditions was tested first. In all cases the correct $k$ and flux were found, and the preconditioned version used fewer Krylov iterations than the base case. The number of RQI iterations was not affected by the preconditioning. The tolerance used to compare the flux to the reference case was $1 \times 10^{-5}$. The results are shown in Table~\ref{table:RQIUnitTestVac}.
 %
 \begin{table}[!h]
 \caption{RQI Unit Test With Vacuum Boundaries, Preconditioning Parameter Study}
@@ -557,10 +443,13 @@ Weight & Relaxations & V-cycles & Krylov & RQI \\[0.5ex]
 \end{center}
 \label{table:RQIUnitTestVac}
 \end{table}
-%-------------------------------------------------------------------------------------------------------
 
-* parameter variation with rqi vacuum + shifted operator, 4 groups (RQI\_UnitTest\_vac)
-Small RQI unit test with vacuum boundary conditions. This test used the shifted version of the operator in the preconditioner. Unless otherwise noted the correct $k$ and flux were found. The flux checking tolerance was again $1 \times 10^{-5}$. The results are shown in Table~\ref{table:RQIUnitTestVacShifted}.
+To get much benefit from preconditioning this problem, larger values for the $r$ and $v$ parameters were needed. With $w1r1v1$ the Kyrlov iteration count was only reduced from 39 to 27; with $w1r3v3$ it went to 6. When only a small amount of preconditioning is used ($r1v1$), increasing the weight actually increases the number of Krylov iterations needed. When $r$ and $v$ are larger, changing the weight has no effect for this problem. When large values are used for the preconditioning parameters, or there is a lot of preconditioning, the problem does not break down. 
+
+Increasing $r$ or $v$ or both reduces the number of Krylov iterations, with an limit of 1 Krylov iteration per Rayleigh quotient iteration. For this problem the effect of $r$ and $v$ on iteration count are the same. That is $r1v2$ gives the same result as $r2v1$. This is not a surprising finding because both of those combinations result in the same number of relaxations being done on the flux moments on each energy grid.
+
+%-------------------------------------------------------------------------------------------------------
+This test was also tried with the shifted version of the operator in the preconditioner. Unless otherwise noted the correct $k$ and flux were found. The flux checking tolerance was again $1 \times 10^{-5}$. The results are shown in Table~\ref{table:RQIUnitTestVacShifted}.
 %
 \begin{table}[!h]
 \caption{RQI Unit Test With Vacuum Boundaries and Shifted Operator, Preconditioning Parameter Study}
@@ -586,13 +475,14 @@ $^{*}$flux was not correct and $k$ was 0.17632 instead of 0.17528 \\
 \end{center}
 \label{table:RQIUnitTestVacShifted}
 \end{table}
-%-------------------------------------------------------------------------------------------------------
 
-* parameter variation with rqi reflecting, 4 groups (RQI\_UnitTest\_refl)
-This is the small RQI unit test with reflecting boundary conditions, the same that was discussed in Chapter~\ref{sec:Chp3}.The flux was not tested against a very tight tolerance, either $1 \times 10^{-2}$ or $1 \times 10^{-3}$ unless otherwise noted. The results are show in Table~\ref{table:RQIUnitTestRefl}. Note that here the max number of Krylov iterations was set to 100.
+When the operator is shifted, fewer Krylov iterations are needed then with the unshifted operator. For example, $w1r2v3$ needed 6 iterations while the same parameters in the unshifted version needed 10. However, the two $r1v1$ cases did not get quite the right eigenvalue, suggesting the shifted operator may not be as robust as the unshifted version. Note that this problem occurred when preconditioning values were small. This study demonstrated the same patterns for weight, number of relaxations per level, and number of V-cycles as the unshifted study. 
+
+%-------------------------------------------------------------------------------------------------------
+The next test was the small RQI unit test with reflecting boundary conditions. The flux was not tested against a very tight tolerance, either $1 \times 10^{-2}$ or $1 \times 10^{-3}$ unless otherwise noted. Unless the calculation failed, the correct eigenvalue-vector pair were found. The results are shown in Table~\ref{table:RQIUnitTestRefl}. Note that here the maximum number of Krylov iterations was set to 100.
 %
 \begin{table}[!h]
-\caption{RQI Unit Test With Reflecting Boundaries and Shifted Operator, Preconditioning Parameter Study}
+\caption{RQI Unit Test With Reflecting Boundaries, Preconditioning Parameter Study}
 \begin{center}
 \begin{tabular}{c c c c c c}
 \hline
@@ -627,10 +517,13 @@ $^{\dagger}$at least one eigenvector iteration did not converge
 \end{center}
 \label{table:RQIUnitTestRefl}
 \end{table}
-%-------------------------------------------------------------------------------------------------------
 
-* parameter variation with rqi reflecting + shifted operator, 4 groups (RQI\_UnitTest\_refl)
-This is the small RQI unit test with reflecting boundary conditions. This test also used the shifted version of the operator in the preconditioner. Many of these tests did not pass with the preconditioner. The flux was tested against the same loose tolerance unless otherwise noted. The results are show in Table~\ref{table:RQIUnitTestReflShifted}. The max number of Krylov iterations was set to 100 here as well.
+For this test, the number of RQ iterations were reduced when preconditioning was used, and the number of  Krylov iterations were reduced as long as the eigenvector converged. This problem was more sensitive to increasing the weight than the vacuum problem was. There were no cases in which increasing weight reduced iteration count. With $r1v1$, increasing the weight kept the problem from converging. Though this is typically not done, using a weight less than 1 worked better than a weight greater than 1. 
+
+Again, when $r$ and $v$ were increased iteration count went down noticeably. This calculation also showed that exchanging the values of $r$ and $v$ gave the same iteration count. High $r$ and $v$ values reduced iteration count and did not cause breakdown. 
+
+%-------------------------------------------------------------------------------------------------------
+The reflecting boundary test was repeated with the shifted version of the operator in the preconditioner as well. Many of these calculations did not pass the unit tests. The flux was tested against the same loose tolerance as the unshifted case unless otherwise noted. The results are show in Table~\ref{table:RQIUnitTestReflShifted}. The maximum number of Krylov iterations was 100.
 %
 \begin{table}[!h]
 \caption{RQI Unit Test With Reflecting Boundaries and Shifted Operator, Preconditioning Parameter Study}
@@ -662,15 +555,86 @@ $^{*}$used a tighter comparison tolerance of $1 \times 10^{-5}$ and still passed
 \end{center}
 \label{table:RQIUnitTestReflShifted}
 \end{table}
-%-------------------------------------------------------------------------------------------------------
 
-  *** conclusions about using the shifted operator ***
- 
-* parameter variation with rqi reflecting, 27 groups (im\_pi)
-This is the infinite medium problem from Chapter~\ref{sec:Chp3} that has 27 groups and a very small dominance ratio. RQI was originally unable to converge the eigenvector for this problem, but got a close guess for the eigenvalue. These results are shown in Table~\ref{table:impi RQI}. This was solved in serial using the debug version of Denovo on a macbook pro. A strange issue with this calculation is that most of the time the flux was correct in magnitude, but negative. Note that the timing comparison should not be taken strictly because other work was being done on the computer while these calculations were running. 
+This problem only managed to pass and get the right answer with a lot of preconditioning, and only with a few sets of parameters. When the problem did not fail, increasing the weight made the behavior worse. When the problem did not fail, more RQ iterations were taken than without preconditioning, though in 3 cases fewer Krylov iterations were needed. Overall the shifted operator did not work well at all for this problem.
+
+Some preliminary conclusions were drawn from these tests that were used to steer subsequent investigation. A major finding is that using the shifted operator is not useful in the reflecting case, and likely not worth the risk in the vacuum case. With reflecting boundaries the shifted operator nearly always failed. And, while it reduces the number of iterations needed for the vacuum tests, that was only true if ``enough'' preconditioning was used to converge the problem. It is hard to know for sure that sufficient preconditioning was done to get the correct answer. That is, with the shifted operator in the preconditioner the wrong answer might be found and there is no warning that this has happened. 
+
+It is not so surprising that the shifted operator can be troublesome in the preconditioner. Using an ill-conditioned system inside a preconditioner designed to mitigate the effects of ill-conditioning does not make much sense. Just as in the unpreconditioned RQI results, when the shift works it works very well, but most of the time it does not converge. The shifted operator was not investigated further in this work.
+
+With the unshifted operator, the correct $k$ and flux were always found as long as the problem converged. The preconditioner also reduced the number of Krylov iterations as long as the problem converged the eigenvector. In the vacuum case, preconditioning did not reduce the number of RQ iterations, but it did in the reflecting case. 
+
+With vacuum boundary conditions, increasing the weight in the relaxation method was beneficial when larger $r$ and/or $v$ were used. With small $r$ and/or $v$ higher weight was detrimental. A larger $w$ was never useful in the reflecting case. In all cases increasing $r$ and/or $v$ decreased the number of Krylov iterations. The effect of increasing $r$ and $v$ were found to be interchangeable from a Krylov reduction standpoint. 
+
+%-------------------------------------------------------------------------------------------------------
+\subsubsection{Fixed Source Parameter Studies}
+Using the initial information about the effect of preconditioning parameters gained for the RQI tests, some fixed source tests were done. These are particularly useful because the preconditioner can be studied apart from eigenvalue iterations. All tests were run on one processor using the debug version of Denovo with GMRES as the multigroup Krylov solver.
+
+The first test was a small vacuum boundary test. It used 1 material, 10 groups, 5 upscattering groups, $P_{0}$, $S_{4}$, a 3 $\times$ 3 $\times$ 3 grid, and a tolerance and upscatter tolerance of 1 $\times$ 10$^{-6}$. The first 3 groups had an isotropic source. This problem was used to further study the effects of weight, relaxations per level, and V-cycles.
+
+In one set of tests the weight was varied with the relaxations per level and number of V-cycles both set to 1. The results can be seen in the top plot in Figure~\ref{fig:FxdSrcVac}. It is clear that increasing the weight is initially beneficial, reducing the iteration count to 6 from the unpreconditioned 10. After a certain level, though increased weight begins to increase the number of iterations. A weight of 2 seems to be a ``sweet spot'' that reduced the number of iterations again, though only to 7. However, when a weight of 2.1 was used the problem did not converge. All of the data for the weight study can be found in Appendix~\ref{sec:AppendixD} in Figure~\ref{table:FxdSrcTstVacWeight}.
+%
+\begin{figure}[!ht]
+    \begin{center}
+      \includegraphics [width=0.7\textwidth, height=0.8\textheight] {FxdSrcVac}
+   \end{center}
+   \caption{Small Fixed Source Problem with Vacuum Boundaries, Preconditioning Parameter Studies}
+   \label{fig:FxdSrcVac}
+\end{figure}
+
+Next the number of relaxations per grid and the number of V-cycles were varied with the weight fixed at 1. These results are shown in the bottom plot of Figure~\ref{fig:FxdSrcVac}. Here $r$ and $v$ were changed together, so the number on the x-axis represents both parameters. Initially, increasing $r$ and $v$ reduces the number of iterations needed for convergence. Once the problem gets to 4 iterations no additional amount of preconditioning reduces the iteration count further. The data from this plot is in Appendix~\ref{sec:AppendixD}, Figure~\ref{table:FxdSrcTstVacRV}. A calculation using $w1.3r10v10$ also yielded 4 iterations.
+
+%-------------------------------------------------------------------------------------------------------
+The previous problem was repeated with reflecting boundary conditions and two similar studies were done. This time the tolerance and upscatter tolerance were 1 $\times$ 10$^{-6}$. A plot of results for varying the weight with 1 relaxation per level and 1 V-cycle is in the top plot of Figure~\ref{fig:FxdSrcRefl}. The results for varying with number of relaxations per grid and the number of V-cycles with the weight fixed at 1 and some with the weight fixed at 1.3 can be seen in the bottom plot. 
+%
+\begin{figure}[!ht]
+    \begin{center}
+      \includegraphics [width=0.7\textwidth, height=0.8\textheight] {FxdSrcRefl}
+   \end{center}
+   \caption{Small Fixed Source Problem with Reflecting Boundaries, Preconditioning Parameter Studies}
+   \label{fig:FxdSrcRefl}
+\end{figure}
+
+The behavior of this problem is similar to but slightly different from the vacuum case. The weight variation again decreases the number of iterations initially and then increases dramatically. There is no ``sweet spot'' in this case, and 1,000 iterations is reached at $w1.8$ rather than $w2.1$. The $r$ and $v$ study showed two things. One is that early on a higher weight of 1.3 was better than a weight of 1. The other was that eventually the number of iterations can be decreased to 1. 
+
+These results confirm that increasing $r$ and/or $v$ decrease Krylov iteration count. They also indicate that using a small amount of weight is beneficial, but a large amount is not. Neither of these problems exhibited the problems with a weight over 1 at low $r$ and $v$. All of these test problems were very small and simple. Testing with larger and more complex problems is needed as well. 
+
+%-------------------------------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------------------------------
+\subsubsection{Fixed Source Solver and Angle Comparisons} 
+Another fixed source problem was the half iron, half graphite, toy problem from Chapter~\ref{sec:Chp2}. For this calculation a grid of 10 $\times$ 10 $\times$ 10 was used with $S_{8}$ and $P_{0}$. The tolerance and upscatter tolerance were 1 $\times$ 10$^{-6}$. This problem had vacuum boundaries and 27 energy groups, 13 of which have upscattering. A few calculations were done with this setup to investigate the number of iterations with different solvers rather than the effect of preconditioning parameters. The results comparing solvers can be seen in Table~\ref{table:FeC solvers}. 
 %
 \begin{table}[!h]
-\caption{Intermediate Problem With Rayleigh Quotient Iteration, Preconditioning Parameter Scoping}
+\caption{Iron Graphite Fixed Source Cube, Solver and Preconditioning Comparison}
+\begin{center}
+\begin{tabular}{l c l c}
+\hline
+Solver & GS iters & Krylov & time (s)\\[0.5ex]
+\hline
+GS &  12 & 1,727 & 1.12 $\times 10^{2}$ \\
+GS TTG & 11 & 1,687 & 1.99 $\times 10^{2}$  \\
+MG Krylov & n/a & 30 & 8.78 $\times 10^{1}$ \\
+w1 r2 v2 & n/a & 10 & 7.07 $\times 10^{2}$ \\
+w1.3 r4 v4 & n/a & 4 & 1.29 $\times 10^{3}$ \\
+\hline
+\end{tabular}
+\end{center}
+\label{table:FeC solvers}
+\end{table}
+
+Preconditioning reduced the number of Krylov iterations dramatically for this problem, which contains highly scattering material. While the Krylov subspace sizes are made from smaller vectors when GS is used, all the problems using MG Krylov took many fewer iterations. The highly preconditioned problem needed 4 Krylov iterations while unaccelerated Gauss Seidel needed 1,727.  
+
+The timing comparison is not so favorable. With the unoptimized state of the preconditioner, using it for fixed source problems increases rather than decreases run time. Even though many fewer Krylov iterations are taken, the overall preconditioned run times are longer than all other calculations. This may not be the best problem for examining timing, however. Accelerated GS was slower than unaccelerated GS, which is not typical.
+
+The option of using a different angle set within the preconditioner was investigated very briefly. The overall problem was solved with $S_{8}$, but the preconditioner used $S_{2}$. For the $w1r2v2$ case the time was reduced from 7.07 $\times 10^{2}$ seconds to 1.57 $\times 10^{2}$ seconds, a factor of 4.5. With the smaller angle set in the multigrid method the solve time was less than accelerated GS. 
+
+%-------------------------------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------------------------------
+\subsubsection{RQI Intermediate Problem}
+The intermediately-sized infinite medium problem from Chapter~\ref{sec:Chp3} that has 27 groups and a very small dominance ratio was solved with preconditioned RQI. This is the first test to see if the preconditioner can converge the Krylov iterations when they did not converge with it. Recall that RQI was originally unable to converge the eigenvector for this problem, but got an eigenvalue close to the correct answer. The results with the preconditioner are shown in Table~\ref{table:impi RQI}. Like all the problems discussed so far, this was solved without any parallelization using the debug version of Denovo and GMRES. 
+%
+\begin{table}[!h]
+\caption{Intermediate Problem With Rayleigh Quotient Iteration, Preconditioning Results}
 \begin{center}
 \begin{tabular}{c c c l l c c}
 \hline
@@ -697,17 +661,43 @@ $^{\dagger}$negative flux with correct magnitude
 \label{table:impi RQI}
 \end{table}
 
-An important comparison is that is was solved with power iteration using no preconditioning and using a lot of preconditioning. Without preconditioning the problem took 180 Krylov iterations and $2.57 \times 10^{2}$ seconds. With w1r5v5 preconditioning it took 12 Krylov iterations and $2.19 \times 10^{3}$ sections. Both calculations obtained an eigenvalue of 0.4 and a positive correct flux. 
+This calculation had a lot of issues. Most of the time the flux was correct in magnitude, but negative. It may be that for this problem the shift became negative and created a negative eigenvector that was the right magnitude. Another concern is that when the problem was heavily preconditioned, the eigenvector converged but gave a negative and incorrect eigenvalue. 
+
+In addition, the correct eigenvalue was almost never calculated. The reported eigenvalues are often close, but not quite right. There was only one test where the correct eigenvalue and positive correct eigenvector were found. A serious concern about these behaviors is that the method gives no warning or indication that something has gone awry until the negative eigenvector/value is reported at the end of the calculation. 
+
+At this time it is unknown why preconditioned RQI had such a hard time with this calculation. Preconditioned RQI did have more trouble with the small reflecting problem than the vacuum problem. Perhaps the characteristics of $\ve{A}$ for this problem are just quite difficult. Whatever the reason, RQI did not perform well on this problem regardless of whether it was preconditioned.  
+
+Some parameter information can still be gleaned from this study. The eigenvector did not converge after the first iteration when $w1r1v1$ was used. With more preconditioning the problem converged and the number of iterations was reduced. This is similar to what has been seen before. However, when a lot of preconditioning was used, the problem did not get the right eigenvalue. This is a behavior that was not observed in the simpler problems. 
+
+These numbers further confirm that it is the total number of relaxations done, not the specific combination of $r$ and $v$, that determine the reduction in iteration count. That is, $r1v4$ = $r4v1$ = $r2v2$; though there is a difference in timing. Using a larger $v$ and a smaller $r$ may be more time consuming than a smaller $v$ and a larger $r$. Doing more V-cycles requires more prolongation and restriction operations to transfer between grids whereas doing more relaxations per level does not. 
+
+To investigate whether some of the strange behavior was coming from GMRES, this problem was also attempted with BiCGSTAB. The preconditioning was set to $r2v2$, and the weight was increased in 0.1 increments from 1.0 to 1.5. In the cases where the calculation terminated itself, it was because a negative eigenvalue was found (which automatically ends the calculation) and the answers were incorrect. In the three cases where it didn't; $w1.1$, $w1.2$, $w1.3$; the problems were terminated manually. The eigenvalue was oscillating between a value close to the correct answer and a large number like 11. When a problem is terminated manually there is no way to obtain the flux, so it is unknown whether the flux was correct or not in those cases. Not only did BiCGSTAB not make the calculations better, it performed worse than GMRES.
+
+The infinite medium problem was also solved with power iteration using no preconditioning and using a lot of preconditioning. Without preconditioning the problem took 180 Krylov iterations and $2.57 \times 10^{2}$ seconds. With $w1r5v5$ preconditioning it took 12 Krylov iterations and $2.19 \times 10^{3}$ seconds. Both calculations obtained an eigenvalue of 0.4 and a positive correct flux. Preconditioning substantially reduced the number of Krylov iterations needed. Further, the amount of preconditioning that worked with power iteration did not work with RQI. 
+
 %-------------------------------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------------------------------
+\subsubsection{2D C5G7 Benchmark Study}
+Next, the preconditioner was applied to the 2D c5g7 benchmark using both PI and RQI with the goals of seeing if preconditioned RQI could converge the flux and $k$, to investigate the effect of preconditioning in both RQI and PI, and to see whether the lessons learned about preconditioning parameters still hold in a real problem. The problem used 16 cores on the small orthanc cluster at Oak Ridge: 4 x-blocks, 4 y-blocks, 1 z-block and 1 energy set. The total and upscattering tolerances were 1 $\times 10^{-3}$, with a $k$ tolerance of 1 $\times 10^{-5}$. An optimized version of Denovo was used.  
 
-* parameter variation with rqi reflecting using BiCGSTAB, 27 groups (im\_pi)
-This problem was attempted with BiCGSTAB instead of GMRES with no success. The preconditioning was set to 2 relaxations per level and 2 V-cycles, the weight was increased in 0.1 increments from 1.0 to 1.5. In the cases where the calculation terminated itself it was because a negative eigenvalue was found (which automatically ends the calculation), and the answers were entirely incorrect. In the three cases where it didn't; w1.1, w1.2, w1.3; the problems were terminated manually. The eigenvalue was oscillating between a value close to the correct answer and a large number like 11. When a problem is terminated manually there is no way to obtain the flux, so it is unknown whether that was correct or not. 
+A weight variation study was done with power iteration first. The results using $r1v1$ are shown in Figure~\ref{fig:2Dc5g7PI}. The data that is plotted can be found in Appendix~\ref{sec:AppendixD}, Table~\ref{table:2D c5g7}. All $k$ values were within the uncertainty of the benchmark and so are not reported. All preconditioned cases needed 31 power iterations while the unpreconditioned case took 32.
+%
+\begin{figure}[!ht]
+    \begin{center}
+      \includegraphics [width=0.7\textwidth, height=0.7\textheight] {2dc5g7PI}
+   \end{center}
+   \caption{2D C5G7 Benchmark, Preconditioner Weight Variation With Power Iteration}
+   \label{fig:2Dc5g7PI}
+\end{figure}
 
-* parameter variation with rqi reflecting, 7 groups (2D Orhtanc)
-This used the same settings as the power iteration version. In all cases, except the unpreconditioned one, $k$ was within the uncertainty of the benchmark value. This test case was the first to really focus on whether the preconditioner could get RQI to converge. Recall that this was the first test problem for which RQI did not get the right answer at all. The results of this study can be seen in Table~\ref{table:2D c5g7 rqi}.
+This study shows the preconditioner is very effective at reducing the number of Krylov iterations used by power iteration. The unpreconditioned case took 3,129 MG Krylov iterations.. As the weight was increased from 1 to 1.4, the number of Krylov iterations and the time to solution both decreased. With $w1.4$, 1,458 MG Krylovs were taken. The time and iteration count both went back up with a weight of 1.5. When the weight was increased beyond 1.5 none of the multigroup iterations converged, and the problem was terminated manually after several power iterations. 
+
+Two other calculations with a higher level of preconditioning were also done. When the parameters were $w1.4r2v2$ the number of Krylov iterations were reduced to 438 and the calculation took 1.77 $\times 10^{4}$ seconds, both lower than all the cases using $r1v1$. For $w1r3v3$, 253 Krylov iterations and 2.28 $\times 10^{4}$ seconds were required. This had the smallest number of Krylov iterations, but a slightly longer time than all the calculations except $w1.5r1v1$.	
+
+The results from the RQI study are in Table~\ref{table:2D c5g7 rqi}. ``Krylov'' is the total number of Krylov iterations and ``RQI'' is the total number of Eigenvalue iterations. In all cases, except the unpreconditioned one, $k$ was within the uncertainty of the benchmark value. The ``$<$ 1,000?'' column indicates whether or not the multigroup iterations converged during the RQI process. If the value is ``no'' that means the eigenvector only converged during the first iteration. A number indicates the last eigenvalue iteration for which the Krylov method took less than 1,000 iterations. A ``yes'' means all of the Krylov iterations converged.
 %
 \begin{table}[!h]
-\caption{2D C5G7 Benchmark With Rayleigh Quotient Iteration, Convergence Study}
+\caption{2D C5G7 Benchmark, Convergence Study With Rayleigh Quotient Iteration}
 \begin{center}
 \begin{tabular}{c c c l c c c}
 \hline
@@ -730,25 +720,55 @@ $^{*}$terminated manually
 \end{center}
 \label{table:2D c5g7 rqi}
 \end{table}
+%
 
-The ``$<$ 1,000?'' column indicates whether or not the multigroup iterations converged during the RQI process. If the value is ``no'' that means the eigenvector only converged during the first iteration when the Rayleigh quotient was not yet a good guess and the system was therefore not yet ill-conditioned. A number indicates the last eigenvalue iteration for which the Krylov method took less than 1,000 iterations. A ``yes'' means all of the Krylov iterations converged.
+These results show a few important things. It seems that preconditioning can hold RQI on track enough to get the right eigenvalue when the eigenvector is not quite converging, like what happened with the unpreconditioned infinite medium problem. For many of the calculations the eigenvector didn't converge, or didn't converge all the time, but the correct eigenvalue was still found (even in the $w1.2r1v1$ case that was terminated manually). As the preconditioning increased, the eigenvector came closer to converging for all iterations. 
 
-These results show a few important things. The first is another example that preconditioning can hold RQI on track enough to get the right eigenvalue, even when the eigenvector is not quite converging. For many of the calculations the eigenvector didn't converge, or didn't converge all the time, but the correct eigenvalue was still found (even in the w1.2r1v1 case). As the preconditioning increased, the eigenvector came closer to converging for all iterations. 
+Most importantly, with enough preconditioning the eigenvector within RQI can be converged and the right eigenpair can be found. For the first three $w\#r3v3$ cases all of the Krylov iterations converged. As a result, the calculation time decreased by an order of magnitude compared to the ones where they did not converge every time. If the Krylov iterations did converge, increasing the weight decreased iteration count and wall time for small weights. As in other problems, too much weight caused the calculation not to converge at all. This test case was the first to demonstrate that the preconditioner can get RQI to converge. 
 
-The second is that with enough preconditioning, the eigenvector within RQI can be converged and the right eigenpair can be found. For all of the w\#r3v3 cases all of the Krylov iterations converged. As a result, the calculation time decreased by an order of magnitude. Increasing the weight then decreased iteration count and wall time up until there was too much weight and the calculation did not converge at all. 
+Only the $w1r3v3$ calculation overlap between RQI and PI. PI took fewer Krylov iterations and less time, though RQI used fewer eigenvalue iterations. The RQI problem was also tried with BiCGSTAB as the Krylov solver for an unpreconditioned case and a $w1r3v3$ case. Every multigroup iteration went to the 1,000 iteration limit and the problem was terminated manually after several RQ iterations.
+
 %-------------------------------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------------------------------
+ \subsubsection{3D C5G7 Benchmark Study}
+The preconditioner using both PI and RQI was also applied to the 3D c5g7 benchmark with an optimized version of Denovo. The goals of this study were essentially the same as the 2D study, except that this problem is larger, and the first to approach a real ``grand challenge''-type of calculation. This time the medium-sized oic cluster at Oak Ridge was used and each problem was given 720 cores with 40 x-blocks, 18 y-blocks and 5 z-blocks. The total and upscattering tolerances were 1 $\times 10^{-4}$, with a $k$ tolerance of 1 $\times 10^{-5}$ unless otherwise indicated. 
 
-* parameter demonstration with rqi reflecting using BiCGSTAB, 7 groups (2D Orthanc)
- 
-* parameter variation with rqi reflecting, 7 groups (3D Orhtanc)
-The 3D benchmark was also done using the same parameters as the power iteration version. The degree to which the RQI-computed $k$ matched the benchmark was the same as PI: within 0.011 when the tighter calculation tolerance was used, but not within the reported uncertainty. The results are in Table~\ref{table:3D c5g7 rqi}.
+The power iteration results are in Table~\ref{table:3D c5g7}. None of the $k$s were within the uncertainty bounds of the reported benchmark; all results were low by about 0.011. The wall time limit was 12 hours. 
 %
 \begin{table}[!h]
-\caption{3D C5G7 Benchmark With Rayleigh Quotient Iteration, Preconditioning Parameter Scoping}
+\caption{3D C5G7 Benchmark, Preconditioning Parameter Scoping With Power Iteration}
 \begin{center}
 \begin{tabular}{c c c c l l}
 \hline
 Weight & Relaxations & V-cycles & Krylov & PI & Time (s) \\[0.5ex]
+\hline
+0    & 0 & 0 & 1,224 & 32 & 4.46 $\times 10^{3}$ \\
+1    & 1 & 1 & 708    & 32 & 2.12 $\times 10^{4}$ \\
+1.2 & 1 & 2 & 448    & 32 & 2.38 $\times 10^{4}$ \\
+1.2 & 2 & 1 & 448    & 32 & 2.39 $\times 10^{4}$ \\
+1.3 & 2 & 2 & 288    & 32 & 2.84 $\times 10^{4}$ \\
+1    & 3 & 3 & 126    & 14$^{*}$  & 4.04 $\times 10^{4}$ \\
+1.5 & 3 & 3 & 192    & 32 & 3.73 $\times 10^{4}$ \\
+1    & 4 & 4 & n/a     & n/a          & exceeded wall time \\
+1    & 4 & 4 & n/a     & n/a$^{*}$ & exceeded wall time \\
+1.5 & 5 & 5 & n/a     & n/a          & exceeded wall time \\
+\hline 
+\end{tabular}\\
+$^{*}$tol and upscatter tol = 1 $\times 10^{-5}$, $k$ tol = 1 $\times 10^{-3}$
+\end{center}
+\label{table:3D c5g7}
+\end{table}
+
+The 3D benchmark study shows the preconditioner can reduce the number of required Krylov iterations substantially for challenging problems. There was no effect on the number of eigenvalue iterations for a given tolerance set. The effect of preconditioning parameters was consistent with what was observed in other calculations. However, using large values for $r$ and $v$ made the calculation take too long to get results. On the oic machine, if a calculation exceeds wall time there is no way to get any of the results from the scratch space. Therefore, no conclusions can be drawn from this problem about the effect of substantial preconditioning when using power iteration for a real, 3D problem. 
+
+The degree to which the RQI-computed $k$ matched the benchmark was the same as PI: within 0.011 when the tighter calculation tolerance was used, but not within the reported uncertainty. The results are in Table~\ref{table:3D c5g7 rqi}. The maximum wall time was 12 hours here as well. 
+%
+\begin{table}[!h]
+\caption{3D C5G7 Benchmark, Preconditioning Parameter Scoping With Rayleigh Quotient Iteration}
+\begin{center}
+\begin{tabular}{c c c c l l}
+\hline
+Weight & Relaxations & V-cycles & Krylov & RQI & Time (s) \\[0.5ex]
 \hline
 0    & 0 & 0 & n/a     & n/a          & exceeded wall time \\
 1    & 1 & 1 & n/a     & n/a          & exceeded wall time \\
@@ -769,68 +789,79 @@ $^{\dagger}$tol and upscatter tol = 1 $\times 10^{-4}$, $k$ tol = 5 $\times 10^{
 \label{table:3D c5g7 rqi}
 \end{table}  
 
-What is likely happening when the problems with less preconditioning run out of time is that the eigenvector is not converging. As was seen before, the calculations take a long time when ever eigenvalue iteration uses 1,000 Krylov iterations. It may be that the eigenvalue is correct or nearly correct, but this machine does not store any output from jobs that exceed the wall time limit. Thus, no information about what is happening during the calculation can be gleaned. 
+A few things are going on here. What is likely happening when the problems with lower parameter values run out of time is that the eigenvector is not converging. As was seen before, the calculations take a long time when every eigenvalue iteration uses 1,000 Krylov iterations. Unfortunately, there is no way to confirm this theory or find out if the eigenvalue is close to correct since the output cannot be obtained. 
 
-When the problem does finish and return results in time, it does so in fewer eigenvalue iterations, fewer Krylov iterations, and less time than Power Iteration. It even manages to finish in time for a calculation when PI did not. 
-%-------------------------------------------------------------------------------------------------------
-  
-  *** conclusions about precond making rqi possible ***
+With an intermediate amount of preconditioning, RQI converged and performed better than the analogous PI cases. There are three cases where both problems finish and the same tolerances were used: $w1.3r2v2$, $w1r3v3$, $w1.5r3v3$. In all three RQI takes less time and fewer eigenvalue iterations. In the second two it also takes fewer Krylov iterations. RQI even finishes in time for the $w1r4v4$ calculation when PI did not. 
 
-*** conclusions about parameters based on all experiences ***
+The 3D benchmark problem shows that for at least some problems, preconditioned RQI converges more quickly in all senses than PI. It is pertinent that the case for which this is true is the most interesting problem shown. It seems that RQI can only be successful if it is preconditioned enough to get the eigenvector to converge. Finally, these results continue to confirm that a small amount of weight works well. Increasing $r$ and $v$ decrease iteration count, but at what can be a high time cost. An intermediate amount of preconditioning will likely provide the best balance of reduced iteration count for the time invested once the preconditioner is optimized. 
 
 %-------------------------------------------------------------------------------------------------------
 %-------------------------------------------------------------------------------------------------------
 \subsubsection{Multisets}
-Shows that preconditioner actually works great with multisets and we probably chose the right implementation.
+The last, but certainly not least, area of investigation was how the preconditioner faired when using multisets. To investigate the effect of multigrid in energy with multisets on the Krylov iterations without worrying about impacts of an eigenvalue calculation, the iron graphite fixed source problem was considereded first. This was run on orhtanc using an optimized version of the code. All previous parameter studies were used to pick preconditioning values that were likely to work well. 
 
-* multisets with fixed source, 27 groups (FeC\_vac)
-The last but certainly not least area of investigation was how the preconditioner faired when using multisets. To investigate its effect on the Krylov iterations without worrying about impacts of an eigenvalue calculation, the iron graphite fixed source problem was investigated. This was run on orhtanc using the optimized version of the code. 
+To make the problem large enough to be able to use energy sets, the grid was increased to $50 \times 50 \times 50$, though $S_{4}$ was used instead of $S_{8}$. The unpreconditioned version was compared to one with $w1r2v2$ on 1 to 10 sets. Note that with 27 groups, 10 sets is the maximum possible to still be able to use the preconditioner. In addition, 2 x-blocks, 2 y-blocks, and 1 z-block were used. The calculations therefore used between 4 and 40 cores. With all set combinations the preconditioned calculation took 27 GMRES iterations while the unpreconditioned took 123.
 
-To make the problem large enough to be able to use energy sets, the grid was increased to $50 \times 50 \times 50$, though $S_{4}$ was used instead of $S_{8}$. The unpreconditioned version was compared to one with w1r2v2 on 1 to 10 sets. Note that with 27 groups 10 sets is the maximum possible to still be able to use the preconditioner. In addition, 2 x-blocks, 2 y-blocks, and 1 z-block were used. The calculations therefore used between 4 and 40 cores. With all set combinations the preconditioned calculation took 27 GMRES iterations while the unpreconditioned took 123.
-
-Because the number of iterations did not change with sets, the only thing to compare is time. The focus here is on relative change in time rather than absolute time since there is still room for the preconditioner to be optimized. A Table with the data can be found in Appendix~\ref{sec:AppendixD}, Table~\ref{table:FeC multisets}.
-
-Three plots are shown in Figure~\ref{fig:FeC multisets}. From the top the first shows the wall time for the preconditioned and unpreconditioned (regular) calculations as a function of time. The second plots the ratio of the time the calculation with N sets took to the time with 1 set. The last plot is of the relative difference between the two times.
+Because the number of iterations did not change with sets, the only thing to compare was time. The focus is on relative change in time rather than absolute time since there is still room for the preconditioner to be optimized. Three plots are shown in Figure~\ref{fig:FeC multisets}. From the top, the first shows the wall time for the preconditioned and unpreconditioned (``regular'') calculations as a function of time. The second plots the ratio of the calculation time with N sets to the time with 1 set. The last plot is of the relative difference between the two times. The data that is plotted can be found in Appendix~\ref{sec:AppendixD}, Table~\ref{table:FeC multisets}.
 %
 \begin{figure}[!ht]
     \begin{center}
       \includegraphics [width=0.7\textwidth, height=0.8\textheight] {FeCmultisets}
    \end{center}
-   \caption{Multiset Study with Preconditioner for Iron Graphite Fixed Source Problem}
+   \caption{Iron Graphite Fixed Source Problem, Preconditioner Multiset Study}
    \label{fig:FeC multisets}
 \end{figure}
 
-This test was also run with increased preconditioning parameters for 1 set and 10 sets to see if that made a difference. The angle set was changed back to $S_{8}$ and there was no decomposition in space. When w1.3r4v4 was used the number of Krylov iterations decreased to 11. With 1 set this took 6.49 $\times 10^{4}$ sec to complete. With 10 sets this was reduced to 5.02 $\times 10^{3}$ sec. A 10 fold increase in computing power gave more than a 10 fold decrease in run time. 
+The 1 set wall time without preconditioning was 8.00 $\times 10^{3}$ seconds and the 10 set time was 1.34 $\times 10^{3}$ seconds. Without preconditioning a 10 fold increase in computing power gave about a 6 fold decrease in run time. With preconditioning the 1 set time was 3.64 $\times 10^{3}$ and the 10 set time was 3.63 $\times 10^{2}$. The scaling in this case was nearly one to one.
 
-When the problem was not preconditioned 124 Krylov iterations were needed. With 1 set the wall time was 8.81 $\times 10^{3}$ sec and with 10 sets it was 1.04 $\times 10^{3}$ sec. Without preconditioning a 10 fold increase in computing power gave less than a 10 fold decrease in run time.
-%-------------------------------------------------------------------------------------------------------
+This test was also run with increased preconditioning parameters for 1 set and 10 sets to see if that made a difference. The angle set was changed back to $S_{8}$ and there was no decomposition in space. With $w1.3r4v4$ the number of Krylov iterations decreased to 11. With 1 set this took 6.49 $\times 10^{4}$ sec to complete. With 10 sets this was reduced to 5.02 $\times 10^{3}$ sec. A 10 fold increase in computing power gave more than a 10 fold decrease in run time. Without preconditioning the 1 set wall time was 8.81 $\times 10^{3}$ seconds and the 10 set time was 1.04 $\times 10^{3}$ seconds, again less than one-to-one scaling.
 
-* multisets with power iteration, 27 groups (im\_pi)
-The infinite medium, 27 group problem was also used to study how the preconditioner faired with energy set decomposition. Because this problem has reflecting boundary conditions it could only be used with power iteration and not RQI (recall, RQI cannot do multisets with reflecting boundaries at this time). This problem was also run on orthanc using between 1 and 10 sets. No other problem parameters were changed from what was presented above. 
+The infinite medium, 27 group problem was also used to study how the preconditioner faired with energy set decomposition. Because this problem has reflecting boundary conditions it could only be used with power iteration (recall, RQI cannot do multisets with reflecting boundaries at this time). These calculations were also done on orthanc, using between 1 and 10 sets and an optimized version of the code. No other problem settings were changed from what was presented above. 
 
-The preconditioning parameters were w1r2v2 which brought the Krylov iterations from 180 (90 Krylov per PI with 2 PI) to 46 (23 Krylov per PI with 2 PI). Three plots are shown in Figure~\ref{fig:impi multisets}, they are of the same variables as in the iron cube problem. A table of the data can be found in Appendix~\ref{sec:AppendixD}, Table~\ref{table:impi multisets}.
+When the preconditioning parameters were $w1r2v2$, the Krylov iterations were reduced from 180 (90 Krylov per PI with 2 PI) to 46 (23 Krylov per PI with 2 PI). Three plots are shown in Figure~\ref{fig:impi multisets}, they are of the same trends as the iron graphite cube plot. A table of the data can be found in Appendix~\ref{sec:AppendixD}, Table~\ref{table:impi multisets}.
 %
 \begin{figure}[!ht]
     \begin{center}
       \includegraphics [width=0.7\textwidth, height=0.8\textheight] {impimultisets}
    \end{center}
-   \caption{Multiset Study with Preconditioner for Infinite Medium Eigenvalue Problem}
+   \caption{Infinite Medium Eigenvalue Problem, Preconditioned Multiset Study with Power Iteration}
    \label{fig:impi multisets}
 \end{figure}
 
-This test was run with increased preconditioning parameters for 1 set and 10 sets as well. When w1r4v4 was used the number of Krylov iterations decreased to 8 per eigenvalue iteration, and 2 eigenvalue iterations were needed. With 1 set this took 4.02 $\times 10^{2}$ sec to complete. With 10 sets this was reduced to 2.94 $\times 10^{1}$ sec. For this problem, too, a 10 fold increase in computing power gave more than a 10 fold decrease in run time. 
-
-When the problem was not preconditioned with 1 set the wall time was 56.9 sec and with 10 sets it was 7.32 sec. Once again, without preconditioning a 10 fold increase in computing power gave less than a 10 fold decrease in run time.
+This test was run with increased preconditioning parameters for 1 set and 10 sets as well. The number of Krylov iterations decreased to 8 per eigenvalue iteration, with 2 eigenvalue iterations when $w1r4v4$ was used. With 1 set this took 4.02 $\times 10^{2}$ seconds to complete. With 10 sets this was reduced to 2.94 $\times 10^{1}$ seconds. For this preconditioning set, too, a 10 fold increase in computing power gave more than a 10 fold decrease in run time. When the problem was not preconditioned and used 1 set, the wall time was 56.9 seconds; with 10 sets it was 7.32 seconds. Once again, without preconditioning a 10 fold increase in computing power gave less than a 10 fold decrease in run time. 
  
-* multisets with power iteration, 44 groups (Full\_PWR)
- 
-* multisets with rqi, 44 groups (Full\_PWR) 
+Finally, the Full PWR900 problem was calculated using both power iteration and Rayleigh quotient iteration on the Jaguar machine with multisets and preconditioning. This is the only large scale eigenvalue test with all vacuum boundary conditions, and therefore the only one that could use multisets with RQI. 
 
-*** conclusions about set - groups/set tradeoffs and overall usefulness of precond with multisets ***
+The 44-group, 1.7 trillion unknown version of the problem was used for this scaling study. The tolerance and $k$ tolerance were 1 $\times 10^{-3}$, and the upscattering tolerance was 1 $\times 10^{-4}$. The preconditioner settings were $w1r3v3$, and 1, 4, 11, and 22 sets were used. There were 578 $\times$ 578 $\times$ 700 mesh elements. With 22 sets, 96 x-blocks, 94 y-blocks, and 10 z-blocks were used. All other cases had 102 x-blocks, 100 y-blocks, and 10 z-blocks. All of the results are in Table~\ref{table:full PWR}. 
+%
+\begin{table}[!h]
+\caption{Full PWR, Preconditioned Strong Scaling Study}
+\begin{center}
+\begin{tabular}{l c c c l c c l}
+\hline
+Solver & Sets & Cores & $k$ & Krylov & Eigenvalue & Total (min) & Solver (min)\\[0.5ex]
+\hline
+RQI & 1   & 10,200   &  &   &                   &  &  \\
+PI    & 1   & 10,200   &  &  &       &  &  \\
+RQI & 4   & 40,800   &  &    &                   &  &  \\
+PI    & 4   & 40,800   &  &  &        &  &  \\
+RQI & 11 & 112,200 & 1.269 & 76   & 6                  & 331.43 & 330.38 \\
+PI    & 11 & 112,200 & 1.270 & 111 & 11$^{\dag}$ & 480.63 & n/a \\
+RQI & 22 & 198,528 & 1.269 & 76   & 6                  & 143.62 & 142.56 \\
+PI    & 22 & 198,528 & 1.271 & 161 & 16$^{*}$       & 285.92 & n/a \\
+\hline 
+\end{tabular}\\
+$^{*}$machine taken down for maintenance during calculation \\
+$^{\dag}$exceeded wall time limit of 480 minutes
+\end{center}
+\label{table:full PWR}
+\end{table}  
 
-1) this indicates that the improvement from the preconditioner does not come from the depth of V-cycle. If only going down 1 or 2 grids has as much of an impact as going down 6 perhaps it is not always necessary to coarsen down to one group. However, this is only one problem. 
+Comparison between PI and RQI with 11 and 22 sets is difficult because PI did not finish in either case. However, both clearly show that RQI is much faster and requires far fewer iterations than PI for this problem. In the 11 set case the author failed to choose a large enough wall time limit. Because RQI, which was run first, finished in about 5.5 hours, a wall time for PI of 8 hours was selected. In previous problems the solve time for PI was close to or faster than RQI, so 8 hours seemed reasonable. Partway through the 22 set calculation a portion of the jaguar machine was taken offline leaving only 162,240 cores, so the calculation was terminated. Nevertheless, the partial results are still informative. 
 
-2) preconditioning has a super-linear improvement with energy sets. This is because it keeps the number of iterations the same, but each application of the preconditioner becomes less costly since the V-cycle becomes shallower. Once it is optimized this may become less super-linear since it will take a smaller total fraction of the runtime. Nevertheless, this is a good property. 
+A few key conclusions can be drawn from the multiset studies about the tradeoff between the number of groups per set and about the overall usefulness of the multigrid in energy method with multisets. An important observation is that the number of GMRES iterations did not change with the number of sets. This means convergence improvement from the preconditioner does not come from the depth of V-cycle. Only going down 1 or 2 grids had as much of an impact as going down something like 6. This indicates it is not necessary to coarsen down to one group. 
+
+Preconditioning gives super-linear scaling in energy. This is because the total number of Krylov iterations does not change, but each application of the preconditioner becomes less costly with increasing sets. The preconditioning cost goes down because the V-cycle becomes shallower. That is, each application of the preconditioner is doing fewer total relaxations and is therefore less expensive. Once the preconditioner is optimized this may become less super-linear since it will take a smaller total fraction of the runtime. The scaling will also be less impressive if the preconditioner is modified to always use two grids instead of going down to one energy group. 
 
 %-------------------------------------------------------------------------------------------------------
 \subsection{Implications}
