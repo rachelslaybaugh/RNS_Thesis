@@ -3,6 +3,13 @@
 
 \chapter{Conclusions}
 \label{sec:Chp5}
+
+This means the preconditioner may be useful for many problems types. The preconditioner seemed to always work well for fixed source problems and with power iteration. For tough problems of either type the preconditioner could prove to be very beneficial once it has been optimized.  
+
+Problems that RQI could not solve without preconditioning converged with it. Preconditioned RQI was a little more brittle than fixed source or PI. The preconditioning did not always work well for problems that RQI could already solve. It did seem to work for all of the ones that it could not. In addition, reflecting boundaries seem to be much more troublesome for RQI than vacuum. 
+
+For the kinds of problems we actually care about, it seems like RQI works better than PI. For the easy problems, PI was better. We didn't have a lot of great test problems to really figure this out though. The multigrid method worked very well with multisets and scaled very well. 
+
 %This chapter provides a brief summary of the motivation for this research, the work that has been completed, and revisits the work that will be done. 
 
 %To enhance and improve the design of nuclear systems like reactors, high-fidelity neutron fluxes are required. Denovo is a 3-D, \Sn code that has the potential to calculate such fluxes. It has been shown that Denovo scales well and can compute accurate solutions, making it a very promising tool for advanced nuclear computation. 

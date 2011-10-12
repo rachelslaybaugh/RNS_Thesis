@@ -4,13 +4,13 @@
 \margl1440\margr1440\vieww13600\viewh14080\viewkind0
 \pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural\pardirnatural
 
-\f0\fs32 \cf0 1. Introduction\
+\f0\fs30 \cf0 1. Introduction\
 - why we care about nuclear technology\
 - what the neutron transport equation (TE) is, why it's important for development of nuclear technology, and why increased accuracy matters\
 - goal of this work and how this document will tell you about accomplishing that goal \
 
 \b    goal: "accelerate transport calculations with methods that use new computers fully, facilitating the design of better nuclear systems"
-\b0 \
+\b0\fs28 \
    Three complimentary methods have been implemented to accomplish this goal. In the following chapters background information, past work, mathematics and implementation, and results will be discussed for each method in turn. \
 \
 - preview of chapter: foundation for document\
@@ -97,7 +97,8 @@
  - parallelizing over another dimension will increase decomposition options such that load-balancing could be improved\
  - I did a strong scaling study of X problem with 2 conditions that test how the theoretical efficiency should act\
  - We found that when we use a large number of cores the problem blocks become too small so the communication costs dominate and we can't come close to the theoretical prediction.\
- - With a decomposition that keeps the computational spaces large enough to avoid communication problems, not enough work can be done at one time.\
+ - With a decomposition that keeps the computational spaces large enough to avoid communication problems, not enough work can be done 
+\fs30 at one time.\
  - This means that we need to keep problem blocks large. We can do this by parallelizing in energy.\
 \
  2.2 Background\
@@ -369,26 +370,164 @@ use IRAM for TE in serial to do PI, does not handle upscattering well. \
   - information about shifted and unshifted operator choice\
   - parallelization\
 \
- 4.3.2 Results\
- - lay out matrix of options: fixed, pi, rqi; few vs. many groups = energy set investigation; preconditioning parameters. \
- - fixed source results\
- - power iteration results\
- - rqi results\
- - effect of varying omega, relax count, and num V-cycles\
- - effect of shift in operator as a last comment\
+  4.3.2 Results\
+  - lay out matrix of options: fixed, pi, rqi; few vs. many groups = energy set investigation; preconditioning parameters. Explain syntax, comparing krylov iters more than timing\
+\
+
+\fs28    4.3.2.1 RQI Parameter Scoping\
+   - goal 1: verify preconditioner reduces Krylovs with RQI\
+   - goal 2: parameter scoping\
+   - goal 3: to shift or not to shift\
+    1) rqi unit test vac bcs unshifted\
+     - correct k and flux were found\
+     - preconditioning used fewer Krylov iterations \
+     - RQ iterations not affected by preconditioner\
+     - need more than just w1r1v1\
+     - increasing weight with low r and v requires more iterations\
+     - changing weight with large r and v had no effect\
+     - using high values for all did not cause the problem to breakdown \
+     - r and v have same effect\
+    2) rqi unit test vac bcs shifted\
+     - k and flux were correct when not preconditioned or sufficiently preconditioned\
+     - fewer iterations are needed with the shifted version\
+     - shifted version seems less robust\
+     - all other previous findings confirmed\
+    3) rqi unit test relf bcs unshifted\
+     - correct k and flux were found when the problem got the right eigenvector\
+     - increasing weight was never useful and can keep problem from converging\
+     - preconditioning reduced the number of RQ iterations\
+     - did not break down with high r and v values\
+    4) rqi unit test relf bcs shifted\
+     - this only worked with a lot of preconditioning\
+     - increasing weight was always bad\
+    all \
+     - don't use the shifted operator\
+     - correct k and flux were found when the problem converged\
+     - preconditioning used fewer Krylov iterations when the problem converged\
+     - reflecting decreased RQI, but vacuum didn't\
+     - with sufficient preconditioning and vacuum, increasing weight is useful\
+     - with reflecting, increasing weight is always bad\
+     - more r and v were always good, and they are interchangeable\
+   4.3.2.2 Fixed Source Parameter Scoping\
+   - goal: preconditioning parameters\
+    1) Small Vacuum Test\
+     - increasing the weight is beneficial with r1v1 up until some point; there was also a sweet spot.\
+     - increasing r and v reduced iteration count until a limit where no further benefit was seen.\
+     - lots of preconditioning didn't break anything.\
+    2) Small Reflecting Test\
+     - weight variation initially beneficial and then detrimental\
+     - higher r and v reduce iteration count\
+     - increased weight had more influence early on\
+     - eventually got down to one iteration\
+    all\
+     - didn't have trouble with weight at low r and v. small amount of weight is useful here. \
+     - confirm r and v trends \
+     - These tests were small and easy!\
+   4.3.2.3 Fixed Source Solver and Angle Comparisons\
+   - goal: compare solvers\
+    - preconditioning makes a big difference for this problem\
+    - timing was not so favorable\
+    - found using S2 in precond was way faster than S8.\
+   4.3.2.4 RQI Intermediate Problem\
+   - goal: can preconditioner converge the krylov iterations for a problem that did not converge with out it.\
+    - RQI basically failed at this for reasons that are unclear. Preconditioning didn't really help.\
+    - more r and v were again helpful; r = v in influence. \
+    - Tried with RQI and BiCGSTAB; fail.\
+    - solved successfully with PI; preconditioning dramatically reduced krylov iterations but took longer. \
+   4.3.2.5 2D c5g7 Benchmark\
+   - goal 1: can preconditioner converge the krylov iterations for a problem that did not converge with out it.\
+   - goal 2: rqi and pi comparison\
+   - goal 3: investigate precond parameters in real problems\
+    1) PI\
+     - all ks were right. \
+     - reduced eigenval iter count by 1\
+     - small amount of weight was beneficial for small r and v.\
+     - high weight prevented convergence\
+    2) RQI\
+     - all ks were right\
+     - with some preconditioning this is held on track enough to get the right k\
+     - with a lot of preconditioning everything works. \
+     - same weight observations\
+     - BiCGSTAB fail\
+     - PI had fewer Krylov, less time, but more eval iters on the only comparison case\
+   4.3.2.6 3D c5g7\
+   - goal: same as 2D, but this is more like an actual problem we want to solve.\
+    1) PI\
+     - ks all low\
+     - precond reduced cry it count substantially, no impact on eigen it\
+     - parameter behavior consistent with what was seen before.\
+     - with a lot of precond the calculation takes too long\
+    2) RQI\
+     - all ks low\
+     - with small amount of precond, exceeded wall time\
+     - with an intermediate amount of preconditioning, this worked great. \
+     - RQI beat PI on evals and time, often on Krylov\
+    all\
+     - RQI can beat PI \
+     - RQI needs to be sufficiently preconditioned\
+     - small amount of weight is best\
+     - intermediate amount of preconditioning is likely best. \
+   4.3.2.7 Multisets\
+   - goal: how does preconditioner act with multisets\
+    1) Fixed Source\
+     - all set combinations gave same krylov iteration count\
+
+\fs30      - preconditioner gives super-linear scaling\
+    2) infinite medium\
+     - all set combinations gave same krylov iteration count\
+     - preconditioner gives super-linear scaling\
+    3) Full PWR\
+     - This is the kind of problem we care about, uses all of the methods together!\
+     - RQI faster and fewer iterations than PI with preconditioning for 11 and 22 sets\
+\
+ - Summary of findings:\
+    - 
+\fs28 increasing r and v almost always decreases Krylov iteration count; sometimes decreased eigenvalue iteration count\
+    - r and v have equal effect, you can put it all in r or all v or split it. Though there is an effect on time. \
+    - increasing the weight a small amount is generally beneficial (up to about 1.3 or 1.4), but a large amount is usually detrimental. This is the least consistent parameter, behaving differently in different problems with different degrees of preconditioning. \
+    - a moderate amount of preconditioning seems to give the best payoff. Too little doesn't do enough and too much isn't worth the extra time.\
+    - improvement from preconditioning has a non-linear relationship, so can't predict ahead of time. \
+\
+    - the reduced angular expansion may have a lot of pay off. \
+    - the shifted operator is definitely a bad idea with reflecting boundaries and is probably a bad idea in general.\
+    - always pick GMRES over BiCGSTAB\
+\
+   - the depth of the V-cycles should probably be set to only one or 2 levels
+\fs30 \
 \
   4.3.3 Implications\
- - fewer iterations for fixed source and eigenvalue; enable use of RQI\
- - why it hasn't been done before: \
-     no motivation: really needed for RQI, made practical by parallelization in energy\
-     not practical without block krylov structure\
- - no one has done this before at all\
-- conclusion about impact: makes RQI possible and reduces number of outer iterations. \
+ - Why mg in energy:\
+  1) to enable RQI (which we want), we have to precondition the Krylov solver\
+  2) to use big machines we need something that parallelizes in energy easily.\
+ - This hasn't been done before because those two drivers didn't exist until recently\
+ - Goal of preconditioner is to reduce iteration count, enable rqi, and to be decomposable in energy. The preconditioner does this. 
+\fs28 It reduced it count,
+\fs30  makes RQI possible, and scales to hundreds of thousands of cores without trouble. \
   \
 \
 5. Summary and Conclusions\
 reinforce connections between methods and point out how they can be used individually. (build a table - but the legs are still useful)\
 \
+
+\fs28     - the preconditioner may useful for tough fixed source problems.\
+    - seems to work great with PI
+\fs30 \
+
+\fs28     - precond is a bit brittle with RQI for problems we could already solve. It seems to work for all of the ones that we couldn't.\
+   - reflecting boundaries seem to be much more troublesome for RQI than vacuum. \
+   - the preconditioner works great with multisets. \
+   - For the kinds of problems we actually care about, it seems like RQI works better than PI. For the easy problems, PI was better. We didn't have a lot of great test problems to really figure this out though. 
+\fs30 \
+\
+\
+
+\fs28  Future work\
+  - investigate smaller angle set in preconditioner; if worthwhile extend to reflecting\
+  - make rqi work the multisets when there are reflecting boundaries\
+  - try changing the depth of the V-cycle and redo a) comparison studies and b) scaling studies\
+  - find more high dominance ratio problems to more fully investigate RQI vs. PI\
+  - (real work) investigate changing the way convergence in handled in RQI.  
+\fs30 \
 \
 \
 References\
