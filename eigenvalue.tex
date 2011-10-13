@@ -127,9 +127,11 @@ As $\mu \to \lambda_1$, $\tau_1 \to \infty$ and all the other eigenvalues go to 
 
 The algorithm for shifted inverse iteration is much like that for power iteration, requiring only a few simple changes. Step 1 now becomes ``solve $(\ve{A}-\mu \ve{I})w = v$'' and Step 3 becomes $\lambda = \mu + \frac{w^{T}v}{w^{T}w}$; all other steps are the same. After convergence, the actual eigenvalue of interest is backed out using the eigenvector \cite{Sorensen1996}.  Shifted inverse iteration is identical to performing power iteration on $(\ve{A}-\mu \ve{I})^{-1}$. 
 
-Wielandt's method is a flavor of shifted inverse iteration that has been used widely in the neutron transport community, though it was originally developed in 1944 in an unrelated context \cite{Zinzani2008}, \cite{Itagaki1996}, \cite{Itagaki2002}, \cite{Ipsen}. In the transport equation formulation, Wielandt's method changes the eigenvalue problem from $\ve{A}\phi = \lambda \ve{F} \phi$ to $(\ve{A} - \lambda_e \ve{F})\phi = \delta \lambda \ve{F} \phi$ where $\lambda_e$ is an estimate for $\lambda_1$ and $\delta \lambda = \lambda_1 - \lambda_e$. The power method with iteration index $t$ is applied to this, giving $\phi^t = \delta \lambda^{t-1}(\ve{A} - \lambda_e \ve{F})^{-1}\ve{F}\phi^{t-1}$. The estimate, $\lambda_e$, can be improved on each iteration by starting with an initial guess of $0$ and setting $\lambda_e^t = \delta \lambda^{t-1} + \lambda_e^{t-1} + \alpha$. Here $\alpha$ is an optional small positive constant that is designed to keep roundoff error from dominating when $\lambda_e$ becomes very close to $\lambda_1$ \cite{Nakamura1977}. 
-
 On initial consideration it would seem shifted inverse methods might not work well when the shift is very good because the matrix becomes very ill-conditioned. If the shift is exact, i.e.\ when $\mu = \lambda_{1}$, the matrix is singular. It turns out this concern is unfounded. Peters and Wilkinson proved that ill-conditioning is not a problem for inverse iteration methods \cite{Peters1979}. Trefethen and Bau also assert that this is the case as long as the $\ve{A}w = v$ portion is solved with a backwards stable algorithm \cite{Trefethen1997}.
+
+Wielandt's method is a flavor of shifted inverse iteration that has been used widely in the neutron transport community, though it was originally developed in 1944 in an unrelated context \cite{Zinzani2008}, \cite{Itagaki1996}, \cite{Itagaki2002}, \cite{Ipsen}. In the transport equation formulation, Wielandt's method changes the eigenvalue problem from $\ve{A}\phi = \gamma \ve{F} \phi$ to $(\ve{A} - \gamma_e \ve{F})\phi = \delta \gamma \ve{F} \phi$ where $\gamma_e$ is an estimate for $\gamma_1$ and $\delta \gamma = \gamma_1 - \gamma_e$. This is formulated as a generalized eigenvalue problem and the eigenpair is $(\phi, \gamma)$, where $\gamma = \frac{1}{k}$.
+
+The power method with iteration index $k$ is applied to the system, giving $\phi^k = \delta \gamma^{k-1}(\ve{A} - \gamma_e \ve{F})^{-1}\ve{F}\phi^{k-1}$. The estimate, $\gamma_e$, can be improved on each iteration by starting with an initial guess of $0$ and setting $\gamma_e^k = \delta \gamma^{k-1} + \gamma_e^{k-1} + \alpha$. Here $\alpha$ is an optional small positive constant that is designed to keep roundoff error from dominating when $\gamma_e$ becomes very close to $\gamma_1$ \cite{Nakamura1977}. 
 
 Studies of reactor systems have found shifted inverse iteration to be faster than power iteration \cite{Allen2002}. In the general computational community, shifted inverse iteration has largely taken the place of power iteration when looking for eigenvectors associated with eigenvalues that are relatively well known at the outset of the calculation since this information allows for the selection of a good shift \cite{Ipsen}.  
 
@@ -296,21 +298,31 @@ Verd\'u et.\ al.\ extended Vidal et.\ al.'s 1998 work \cite{Vidal1998} to find m
 These different approaches have largely been applied to the diffusion approximation, though a few have been extended to the transport equation. Several of the diffusion solution methods make use of the Rayleigh quotient, though none have done Rayleigh Quotient Iteration itself. The author was unable to find any examples where RQI was used an eigenvalue solution method for the neutron transport equation. 
 
 \subsection{Denovo's Power Iteration}
-Before this work, the eigenvalue solution method used by Denovo was not too different from what has been done in other 3-D transport codes. Recall the operator form of the transport equation seen in Equation \eqref{eq:operator-form}. This equation can be combined with $\phi = \mathbf{D} \psi$ and then  rewritten and manipulated in the following ways:
+Before this work, the eigenvalue solution method used by Denovo was not too different from what has been done in other 3-D transport codes. Recall the operator form of the transport equation seen in Equation \eqref{eq:operator-form}. This equation can be combined with $\phi = \mathbf{D} \psi$ and manipulated in the following ways:
 %
 \begin{equation}
-  \phi = \ve{DL}^{-1}\ve{MS}\phi + \ve{DL}^{-1}\ve{M}\frac{1}{k}\ve{\chi} \ve{f}^{T} \phi \:, \\
+  \phi = \ve{DL}^{-1}\ve{MS}\phi + \ve{DL}^{-1}\ve{M}\frac{1}{k}\ve{\chi} \ve{f}^{T} \phi \:.
 \end{equation}
-\begin{alignat}{2}
-  \text{let } \ve{T} = \ve{DL}^{-1} \nonumber \:, \text{ then multiply both sides by }f^{T}
-\end{alignat}
+%
+Let $\ve{T} = \ve{DL}^{-1}$, rearrange, and multiply both sides by $f^{T}$:
+  %
 \begin{align}
-  f^{T}(\ve{I} - \ve{TMS})\phi &= \frac{f^{T}}{k} \ve{TM}\chi f^{T} \phi \:,
-    \label{eq:OperatorEvalForm} \\
-  f^{T}\phi^{k+1} &=  \frac{f^{T}}{k}(\ve{I} - \ve{TMS})^{-1} \ve{TM} \chi f^{T}\phi^{k} \:.
-  \label{eq:PowerItForm} 
+  f^{T}(\ve{I} - \ve{TMS})\phi &= \frac{f^{T}}{k} \ve{TM}\chi f^{T} \phi \:, \label{eq:OperatorEvalForm} \\
+  %
+  \text{define } \Gamma &= f^{T}\phi  \text{ and rearrange} \:, \nonumber \\
+  %
+  k \Gamma &= (\ve{I} - \ve{TMS})^{-1} \ve{TM} \chi \Gamma \:. \label{eq:OrdinaryEigenvalue}
 \end{align}
-Equation \eqref{eq:PowerItForm} is formulated using traditional power iteration. The outer iterations update the eigenvalue and there are two sets of inner iterations: energy, and space-angle. Originally, a Krylov solver was used for the space-angle inner iterations and Gauss Seidel was used for the energy iterations \cite{Evans2009a}, \cite{Evans2011}. Denovo uses Trilinos \cite{Heroux2003} to provide the Krylov solver, with a choice of either GMRES or BiCGSTAB \cite{Evans2009}.
+%
+All of that can be used to make the traditional form of power iteration where the eigenvalue iteration index is $k$:
+%
+\begin{equation}
+  \Gamma^{k+1} =  \frac{f^{T}}{k^{k}}(\ve{I} - \ve{TMS})^{-1} \ve{TM} \chi \Gamma^{k} \:.
+\label{eq:PowerItForm} 
+\end{equation}
+Note that Equation~\ref{eq:OrdinaryEigenvalue} is the ordinary form of the eigenvalue transport equation. In this case the eigenvalue-vector pair are $(\Gamma, k)$. 
+
+The outer iterations update the eigenvalue and there are two sets of inner iterations: energy, and space-angle. Originally, a Krylov solver was used for the space-angle inner iterations and Gauss Seidel was used for the energy iterations \cite{Evans2009a}, \cite{Evans2011}. Denovo uses Trilinos \cite{Heroux2003} to provide the Krylov solver, with a choice of either GMRES or BiCGSTAB \cite{Evans2009}.
 
 \subsection{Krylov Methods Concerns}
 As has been mentioned, Krylov methods have frequently been applied to the solution of the transport equation. It has often been found that these Krylov methods do not always converge well when they are not preconditioned. The first observation of unsatisfactory behavior was by Lewis in 1977 when CG was applied to the 1-D, symmetrised, $S_{N}$ transport equation. The formulation used had a large condition number and that likely caused the problem \cite{Lewis1977}, \cite{Gupta2002}. 
