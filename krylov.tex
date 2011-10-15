@@ -355,11 +355,11 @@ The results indicate that decomposing over energy does reduce solution time. Goi
 A 44 energy group cross section set was used with the PWR to study strong scaling in a more quantitative way than the toy problem. This many energy groups gave 1,728,684,249,900 degrees of freedom. Three decomposition combinations were used, detailed in Table~\ref{table:StrongCasesPWR}. Each case used power iteration and the MG Krylov solver. Because of the decomposition restrictions, 9,024 spatial domains was the closest available approximation to 10,200, and 5,040 domains was closest to half.
 %
 \begin{table}[!h]
-\caption{Strong Scaling for the Full PWR Problem Decomposition}
+\caption{Strong Scaling for the PWR Problem}
 \begin{center}
 \begin{tabular}{l c c c c}
 \hline
-Case & Blocks & Sets & Domains & Solver Time (min) \\[0.5ex]
+Case & Blocks & Sets & Domains & Solver Time (m) \\[0.5ex]
 \hline
 I   & 10,200 & 11 & 112,200 & 49.61 \\
 II  & 5,040   & 22 & 110,880 & 53.61 \\
@@ -373,39 +373,34 @@ III & 9,024   & 22 & 198,528 & 34.99 \\
 Case III was compared to Case I to examine the effect of doubling the number of energy groups with the spatial decomposition fixed. Case III was compared to Case II to examine the effect of doubling the spatial decomposition with the energy sets fixed. If perfect, i.e.\ linear, scaling were obtained, the solve time would be $(\frac{\text{base\_domains}}{\text{used\_domains}}) \times \text{base\_time}$. The efficiency can be defined as the $\frac{\text{t\_perfect}}{\text{t\_actual}}$. 
 
 \begin{table}[!h]
-\caption{Full PWR Case III Comparison}
+\caption{PWR Case III Comparison}
 \begin{center}
 \begin{tabular}{l c c c c}
 \hline
-Compare To & Perfect & Actual & Efficiency \\[0.5ex]
+Compare To & Perfect (m) & Actual (m) & Efficiency \\[0.5ex]
 \hline
-I  (energy)  & 28.04 & 34.99 & 0.80 \\
-II  (space) & 29.94 & 34.99 & 0.86\\
+I  (energy, original) & 28.04 & 34.99 & 0.80 \\
+I  (energy, new)      & 21.66 & 38.33 & 0.62 \\
+II  (space)               & 29.94  & 34.99 & 0.86 \\
 \hline
 \end{tabular}
 \end{center}
 \label{table:StrongPWRresults}
 \end{table}
 %
-The comparison results are shown in Table~\ref{table:StrongPWRresults}. The timing results, plotted with a linear scaling line for reference, are shown in Figure~\ref{fig:PWRstrongScaling}. Both of the results are quite good. Doubling the energy sets resulted in an efficiency of 80\%. This is slightly less than the efficiency of 86\% that came from doubling the spatial decomposition. Neither case differs drastically from linear scaling. 
+The comparisons are shown in Table~\ref{table:StrongPWRresults}. Doubling the energy sets resulted in an efficiency of 80\%. This is slightly less than the efficiency of 86\% that came from doubling the spatial decomposition. Neither case differed drastically from linear scaling. 
+
+Some general communication optimization was added to Denovo after these initial results were obtained and Cases I and III were re-run. The optimization greatly improved the Case I results, reducing the solve time from 49.61 minutes to 38.33 minutes. Unfortunately, there was a negligible difference in time for Case III. The new perfect scaling time became 21.66 minutes, and the scaling efficiency reduced to 62\%. Case II was not recomputed with optimized communication.
+
+The timing results, plotted with a linear scaling line for reference, are shown in Figure~\ref{fig:PWRstrongScaling}. The top plot compares Cases II and III, while the bottom compares Cases I and III. Both of the original results are quite good. The communication optimized case, plotted in the lower figure with the green line, is not nearly as good.
 %
 \begin{figure}[!h]
   \begin{center}
-    \includegraphics [width=.6\textwidth, height=.75\textheight ] {PWRstrongScaling}
+    \includegraphics [width=.7\textwidth, height=.75\textheight ] {PWRstrongScaling}
   \end{center}
   \caption{Strong Scaling Study for the Full PWR Calculation with 44 Groups}
   \label{fig:PWRstrongScaling}
 \end{figure}
-
-Some general communication optimization was added to Denovo after these initial results were obtained and Cases I and III were re-run. The optimization greatly improved the Case I results, reducing the solve time from 53.61 minutes to 38.33 minutes. Unfortunately, there was very little difference in run time for Case III and the scaling efficiency reduced to 62\%. %A plot of the new results and comparison to linear scaling can be seen in Figure~\ref{fig:NewStrongScaling}. 
-%%
-%\begin{figure}[!h]
-%  \begin{center}
-%    \includegraphics [width=.8\textwidth, height=.51\textheight ] {NewStrongScalingPWR}
-%  \end{center}
-%  \caption{Strong Scaling Study With Communication Optimization for the Full PWR Calculation with 44 Groups}
-%  \label{fig:NewStrongScaling}
-%\end{figure}
 
 A variety of reasons have been identified for why the 200,000-core case did not improve as much as the 100,000-core case. Many of these are beyond the scope of this work: it is likely that the problem is not large enough to demonstrate strong scaling well; the block decomposition was not optimal; there were communication collisions on the torus across the full machine that significantly slowed down communication. 
 
