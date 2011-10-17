@@ -485,6 +485,7 @@ use IRAM for TE in serial to do PI, does not handle upscattering well. \
 \fs28 increasing r and v almost always decreases Krylov iteration count; sometimes decreased eigenvalue iteration count\
     - r and v have equal effect, you can put it all in r or all v or split it. Though there is an effect on time. \
     - increasing the weight a small amount is generally beneficial (up to about 1.3 or 1.4), but a large amount is usually detrimental. This is the least consistent parameter, behaving differently in different problems with different degrees of preconditioning. \
+    - the weight effect is specific to this relaxation method while r and v are variables that will have to be considered for all relaxation methods.\
     - a moderate amount of preconditioning seems to give the best payoff. Too little doesn't do enough and too much isn't worth the extra time.\
     - improvement from preconditioning has a non-linear relationship, so can't predict ahead of time. \
 \
@@ -492,7 +493,7 @@ use IRAM for TE in serial to do PI, does not handle upscattering well. \
     - the shifted operator is definitely a bad idea with reflecting boundaries and is probably a bad idea in general.\
     - always pick GMRES over BiCGSTAB\
 \
-   - the depth of the V-cycles should probably be set to only one or 2 levels
+    - the depth of the V-cycles should probably be set to only one or 2 levels
 \fs30 \
 \
   4.3.3 Implications\
@@ -526,7 +527,8 @@ reinforce connections between methods and point out how they can be used individ
   - make rqi work the multisets when there are reflecting boundaries\
   - try changing the depth of the V-cycle and redo a) comparison studies and b) scaling studies\
   - find more high dominance ratio problems to more fully investigate RQI vs. PI\
-  - (real work) investigate changing the way convergence in handled in RQI.  
+  - (real work) investigate changing the way convergence in handled in RQI.  \
+  - consider other relaxation methods besides weighted Richardson.
 \fs30 \
 \
 \
