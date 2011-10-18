@@ -1,0 +1,31 @@
+% Thesis, Absatract
+% by Rachel Slaybaugh
+
+\noindent       % Don't indent this paragraph.
+To enhance and improve the design of nuclear systems, high-fidelity neutron fluxes are required. For today's problems, high-fidelity means thousands $\times$ thousands $\times$ thousands of mesh points, up to $\sim$150 energy groups, accurate scattering expansions, and the use of many directions. Leadership-class machines provide platforms on which problems of this size can be solved in a reasonable amount of time. Computing such fluxes accurately and efficiently requires numerical methods with good convergence properties and algorithms that can scale to hundreds of thousands of cores. 
+
+\vspace*{0.5em}
+\noindent       % Don't indent this paragraph.
+Many 3-D deterministic transport codes can scale in space and angle to tens of thousands of cores. They typically rely on methods such as Gauss Seidel for fixed source problems and power iteration for eigenvalue problems. Within group solvers range from source iteration to Krylov methods. In many cases these methods are accelerated with strategies like CMR, TTG, DSA, and others. Nevertheless, these problems can be slow to converge for challenging problems like those with highly scattering materials or high dominance ratios. 
+
+\vspace*{0.5em}
+\noindent       % Don't indent this paragraph.
+Three methods have been added to Denovo, a 3-D \Sn transport code, that are designed to improve convergence and enable the full use of cutting-edge computers. The first method added was a multigroup Krylov solver that improves convergence when compared to Gauss Seidel and dramatically increases the number cores Denovo can use. Tests show that the multigroup Krylov solver can substantially outperform Gauss Seidel in challenging problems. The energy decomposition added by the solver allowed Denovo to solve problems on 100,000 and 200,000 cores. 
+
+\vspace*{0.5em}
+\noindent       % Don't indent this paragraph.
+The second method is Rayleigh quotient iteration (RQI), an old method being applied in a new context. This eigenvalue solver finds the dominant eigenvalue in an optimal way, and theory indicates that RQI should converge in fewer iterations than traditional eigenvalue solvers. RQI creates an energy-block dense system that would be difficult for Gauss Seidel. The new Krylov solver treats this kind of system very efficiently, and RQI would not be a good choice without it. Unfortunately, RQI also creates poorly conditioned systems such that the method is only useful in very simple problems. However, preconditioning can alleviate this problem. 
+
+\vspace*{0.5em}
+\noindent       % Don't indent this paragraph.
+The final method is a multigrid in energy, physics-based preconditioner. The selection of using grids in energy rather than space or angle means the preconditioner can easily take advantage of energy parallelization. Further, the convergence behavior of the Krylov iterations inside RQI looks like the type of problem for which multigrid methods are most useful. The new preconditioner was very effective at reducing multigroup iteration count for many types of problems. In some cases it also reduced eigenvalue iteration count. The preconditioner scaled very well in energy, and was tested on up to 200,000 cores on a full-facility PWR.
+
+\vspace*{0.5em}
+\noindent       % Don't indent this paragraph.
+When RQI was preconditioned with multigrid in energy it was able to solve nearly all test problems in a small number of iterations. The preconditioned RQI calculations also scaled well in energy. For large, challenging problems RQI was also much faster than power iteration. Some more punchline-type statements.
+
+\vspace*{0.5em}
+\noindent       % Don't indent this paragraph.
+Some summarizing paragraph wrapping everything up. 
+
+
