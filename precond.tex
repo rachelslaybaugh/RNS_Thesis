@@ -223,7 +223,7 @@ In 2007 Chang et.\ al.\ used 2-D spatial \mg for the isotropic scattering case w
 
 In 2010 Lee developed a method to do \mg in space and angle simultaneously for two and three dimensions, isotropic and anisotropic scattering, one energy group, and a variety of spatial discretizations. The method can perform \mg only space, only angle, or some combination there of. It also handles thick and thin cells \cite{Lee2010}.
 
-This list is hardly comprehensive, but is intended to be representative of new and recent developments in this area. The author was unable to find any cases where \mg was used in the energy variable either as a solution technique or as a preconditioner. 
+This list is hardly comprehensive, but is intended to be representative of new and recent developments in this area. No cases were found where \mg was used in the energy variable either as a solution technique or as a preconditioner. 
 
 \subsubsection{Two-Grid Acceleration}
 The two-grid acceleration method developed by Adams and Morel was one of the earlier spatial \mg methods and it has been built upon by others \cite{Adams1993}. It is intended to accelerate convergence of the outer iterations for the transport equation when upscattering is present; the outer iteration method is Gauss Seidel. The original work was done for slab geometry with linear discontinuous (LD) discretization, and the method is a one-grid, one-cycle scheme in angle. The general approach is expounded upon here to provide an example of \mg methods applied to the transport equation and because a variation of this method is used in Denovo. 
@@ -621,7 +621,7 @@ These two sets of results confirm that increasing $r$ and/or $v$ decreases Krylo
 %-------------------------------------------------------------------------------------------------------
 %-------------------------------------------------------------------------------------------------------
 \subsubsection{Fixed Source Solver and Angle Comparisons} 
-Another fixed source problem was the half iron, half graphite, toy problem from Chapter~\ref{sec:Chp2}. For this calculation a grid of 10 $\times$ 10 $\times$ 10 was used with an $S_{8}$ angle set. The tolerance and upscatter tolerance were 1 $\times$ 10$^{-6}$. This problem has vacuum boundaries and 27 energy groups, 13 of which have upscattering. A few calculations were done with this setup to investigate the number of iterations with different solvers rather than the effect of preconditioning parameters. The solver comparisons can be seen in Table~\ref{table:FeC solvers}. 
+Another fixed source problem was the half iron, half graphite, small problem from Chapter~\ref{sec:Chp2}. For this calculation a grid of 10 $\times$ 10 $\times$ 10 was used with an $S_{8}$ angle set. The tolerance and upscatter tolerance were 1 $\times$ 10$^{-6}$. This problem has vacuum boundaries and 27 energy groups, 13 of which have upscattering. A few calculations were done with this setup to investigate the number of iterations with different solvers rather than the effect of preconditioning parameters. The solver comparisons can be seen in Table~\ref{table:FeC solvers}. 
 %
 \begin{table}[!h]
 \caption{Iron Graphite Fixed Source Cube, Solver and Preconditioning Comparison}
@@ -906,11 +906,11 @@ $^{\dag}$exceeded wall time limit
 \label{table:full PWR}
 \end{table}  
 
-Based on calculations previously done by Evans and Davidson, it looks like $k$ is about 1.27, though the author could not find any results where the dominance ratio was reported. The previous calculations that used PI with the multigroup Krylov and multisets had looser tolerances than these tests, so $k$ is not known more exactly and timing comparisons are not valid. 
+Based on the full PWR calculations done previously by Evans and Davidson, $k$ is approximately 1.27, though the there were no results where the dominance ratio was reported. The previous calculations that used PI with the multigroup Krylov and multisets had looser tolerances than these tests, so $k$ is not known more exactly and timing comparisons are not valid. 
 
 There were no cases where PI completed the calculation. Partway through the 22 set calculation a portion of the jaguar machine was taken offline for maintenance leaving only 162,240 cores, so the calculation was terminated. The calculation cannot be completed because machine will not be restored to the full 224,256 cores before this work must be submitted. 
 
-The other 3 PI problems did not finish before the wall time limit was reached. With both 11 and 4 sets the author failed to choose a large enough wall time limit. Limits of 8 and 16 hours, respectively, were chosen based on the RQI finish times of 5.5 and 13.4 hours. In previous problems the solve time for PI was close to or less than RQI, so the selected limits seemed reasonable. 
+The other 3 PI problems did not finish before the wall time limit was reached. With both 11 and 4 sets the wall time limit was not set high enough. Limits of 8 and 16 hours, respectively, were chosen based on the RQI finish times of 5.5 and 13.4 hours. In previous problems the solve time for PI was close to or less than RQI, so the selected limits seemed reasonable. 
 
 Neither solver completed the 1 set test. Jaguar limits problems that use fewer than 20,000 cores to a 12 hour wall limit. Because the 4 set times both took more than 12 hours it was not expected that the 1 set cases would finish. Because the preconditioner would need to go from 44 groups to 1 group (7 levels) and back on every V-cycle, the 1 set calculations would likely have taken a very long time to converge. The tests were still conducted for the purpose of comparing to one another how much progress towards solution was made in 12 hours. 
 
@@ -957,7 +957,7 @@ There were two primary motivations for the multigrid in energy preconditioner. P
 
 In addition, ever-expanding computers allow codes to use hundreds of thousands of cores for large computations. Any new preconditioner in Denovo must be able to use these machines efficiently. At its core, the multigroup in energy preconditioner is designed to take advantage of energy parallelization. The way it has been implemented, the multigrid in energy method does not require any inter-set communication so it should scale extremely well. The new energy decoupling provided by the MG Krylov solver is what allows this preconditioner to be parallelized in energy. Without that, the preconditioner would not be as attractive. 
 
-Using a multigrid method in the energy domain is new for the neutron transport equation. The author was unable to find a similar idea in the literature. This is not surprising because the motivation for the preconditioner is relatively new as well. Only in the last few years have energy parallelization and Rayleigh quotient iteration become feasible. Without those drivers there was no reason to do multigrid in energy. 
+Using a multigrid method in the energy domain is new for the neutron transport equation. No similar ideas were found in the literature. This is not surprising because the motivation for the preconditioner is relatively new as well. Only in the last few years have energy parallelization and Rayleigh quotient iteration become feasible. Without those drivers there was no reason to do multigrid in energy. 
 
 The goals for the new preconditioner were to decrease iteration count for at least some problems, to enable RQI, and to be decomposable in energy. All goals were achieved. The multigrid in energy preconditioner reduced the number of Krylov iterations for all problem types as long as the eigenvector converged. In some cases it reduced the number of eigenvalue iterations. The preconditioner also makes RQI possible and scales to hundreds of thousands of cores without trouble. 
 

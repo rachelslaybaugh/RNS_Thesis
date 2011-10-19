@@ -27,7 +27,7 @@ While all such approximations can be appropriate and give good results in some s
 \subsection{Problems of Interest}
 To get more accurate fluxes, typical transport problems today are three-dimensional, have up to thousands $\times$ thousands $\times$ thousands of mesh points, use up to $\sim$150 energy groups, include accurate expansions of scattering terms, and are solved over many directions. Some examples of problems solved recently using discrete ordinates codes on parallel machines are shown next. The exact meaning of the expansions will become clear in the next section.
 \begin{itemize}
-  \item In 1998, 30 million unknowns\footnote{In each example the number of unknowns assumes one unknown per cell.}: a 3-D time dependent shielding problem where a 10 $\times$ 10 $\times$ 10 cm innermost region containing water and a uniform source is surrounded by 10 cm of iron, which is surrounded by 30 more cm of water. Three energy groups, a 50 $\times$ 50 $\times$ 50 Cartesian mesh, $S_{8}$ scattering quadrature, $P_{0}$ scattering expansion, and the adaptive weighted diamond difference method were used \cite{Alcouffe1998}.
+  \item In 1998, 30 million unknowns\footnote{In each example the number of unknowns assumes one spatial unknown per cell; some spatial discretizations result in more than one spatial unknown per cell.}: a 3-D time dependent shielding problem where a 10 $\times$ 10 $\times$ 10 cm innermost region containing water and a uniform source is surrounded by 10 cm of iron, which is surrounded by 30 more cm of water. Three energy groups, a 50 $\times$ 50 $\times$ 50 Cartesian mesh, $S_{8}$ scattering quadrature, $P_{0}$ scattering expansion, and the adaptive weighted diamond difference method were used \cite{Alcouffe1998}.
   \item In 2004, 1.62 million unknowns: a cylinder with a 3.5 cm radius and 9 cm length containing layers of boron-10, water, and highly enriched uranium was solved with 13,500 cells, $S_{4}$ Chebyshev-Legendre quadrature, and five energy groups \cite{Warsa2004a}. 
   \item In 2010, 78.5 billion unknowns: a Pressurized Water Reactor (PWR)-900 with two groups, a 578 $\times$ 578 $\times$ 700 mesh, using $S_{16}$ level-symmetric quadrature, and with $P_{0}$ scattering was solved \cite{Davidson2010}. 
 \end{itemize}
@@ -39,7 +39,7 @@ The next phase of challenging problems are even more highly refined. High-fideli
 
 %--------------------------------------------------------------------------------
 \subsection{Enabling Technology}
-Nuclear transport computation began in the age of run tapes and punch cards with widely used codes being written in advanced programming languages such as FORTRAN IV \cite{Fortran1998}. Computer technology has evolved quickly and radically since that time. Now there are machines like Jaguar, which consists of two partitioned machines, the Cray XT4 and the Cray XT5. The XT4 has 84 cabinets of quad-core cores with eight gigabytes of memory per node. The XT5 has 200 cabinets of six-core cores with 16 gigabytes of memory per node, giving a total of 362 terabytes of high-speed memory \cite{Sciences2010}. A table of machine parameters can be seen in Figure~\ref{fig:jaguar}. 
+Nuclear transport computation began in the age of run tapes and punch cards with widely used codes being written in advanced programming languages such as FORTRAN IV \cite{Fortran1998}. Computer technology has evolved quickly and radically since that time. Now there are machines like Jaguar, which consists of two partitioned machines, the Cray XT4 and the Cray XT5. Jaguar has 84 XT4 cabinets containing 7,832 quad-core Opteron 1354 "Budapest" processors with eight gigabytes of DDR2-800 memory. The 200 XT5 cabinets have 37,376 six-core core Opteron 2435 "Istanbul" processors with 16 gigabytes of memory per node. The machine has a total of 362 terabytes of high-speed memory \cite{Sciences2010}. A table of machine parameters can be seen in Figure~\ref{fig:jaguar}. 
 
 \begin{figure}[!h]
   \begin{center}
@@ -79,7 +79,7 @@ If fission is not present the transport equation becomes a fixed source rather t
 
 A brief aside about some properties of the transport equation will aid in understanding the challenge of finding solution techniques that work for all problems of interest. In a void, the transport equation is like a hyperbolic wave equation. For highly-scattering regions where $\Macro_{s}$ is close to $\Macro$, the equation becomes elliptic for the steady-state case. If the scattering is forward-peaked then the equation is parabolic. All of these classes of equations have different solution strategies. The equation is linear, though non-linearities can be introduced if temperature-dependence of cross sections and other similar physics are considered \cite{Adams2002}.  The non-linear considerations are beyond the scope of this work and only the linear case is considered here.
 
-To numerically solve Equation \eqref{eq:neutron transport} it is discretized in space, angle, and energy. This work uses the multigroup approximation, the scattering term is expanded into Legendre polynomials, and discrete ordinates to treat direction of neutron travel. There are many spatial differencing methods available, the discussion of which are beyond the scope of this document as the proposed work is not dependent upon the spatial discretization employed. To ensure the new methods apply to the most general cases it will be assumed that the matrices resulting from discretization are be non-symmetric. 
+To numerically solve Equation \eqref{eq:neutron transport} it is discretized in space, angle, and energy. This work uses the multigroup approximation, the scattering term is expanded into Legendre polynomials, and discrete ordinates to treat direction of neutron travel. There are many spatial differencing methods available, the discussion of which are beyond the scope of this document as the proposed work is not dependent upon the spatial discretization employed. To ensure the new methods apply to the most general cases it will be assumed that the matrices resulting from discretization are not necessarily symmetric. 
 
 %--------------------------------------------------------------------------------
 \subsection{Multigroup Approximation}
@@ -184,7 +184,7 @@ The typical strategy for solving Equation \eqref{eq:operator-form} is to combine
 \begin{equation}
    (\ve{I} - \ve{DL}^{-1}\ve{MS})\phi = Q \:.
 \end{equation}  
-This is solved for $\phi$ and $\psi$ can be backed out at the end of the calculation.
+This is solved for $\phi$ from which $\psi$ can be determined at the end of the calculation.
 
 The size of the operators can be defined in terms of the granularity of discretization: \\
 %
@@ -215,7 +215,7 @@ Spherical harmonic moment ($Y$) & m & 0 & $l$ \\
 \end{table}
 %
 
-The structures of the vectors and matrices are shown in the next few equations as this will make some of the proposed methods easier to understand and visualize \cite{Evans2009}. The angular flux vector is explicitly written first, where each discrete set of angular fluxes, $ \psi^g_a$, includes all spatial unknowns, and the matrices follow: 
+The structures of the vectors and matrices are shown in the next few equations as this will make some of the proposed methods easier to understand and visualize \cite{Evans2009}. The angular flux vector is explicitly written first, where for each discrete angle, $a$, and energy group, $g$, the set of angular fluxes, $ \psi^g_a$, includes all spatial unknowns.
 %
  \begin{align}
     \psi &=     \begin{pmatrix}
@@ -293,17 +293,17 @@ Once the matrices are multiplied together, a series of single-group equations th
   \begin{aligned}
     \ve{L}[\psi]_1 &= [\ve{M}]\bigl([\ve{S}]_{11}[\phi]_1 + 
     [\ve{S}]_{12}[\phi]_2 + \ldots + [\ve{S}]_{1G}[\phi]_G\bigr) + 
-    \frac{1}{k}[\ve{M}][\ve{F}]_{1}[\phi]_{1} \:, \\
+    \frac{1}{k}[\ve{M}]\sum_{i=1}^{G}[\ve{F}]_{1i}[\phi]_{i} \:, \\
     %%
     \ve{L}[\psi]_2 &= [\ve{M}]\bigl([\ve{S}]_{21}[\phi]_1 + 
     [\ve{S}]_{22}[\phi]_2 + \ldots + [\ve{S}]_{2G}[\phi]_G\bigr) + 
-     \frac{1}{k}[\ve{M}][\ve{F}]_{2}[\phi]_{2} \:, \\
+     \frac{1}{k}[\ve{M}]\sum_{i=1}^{G}[\ve{F}]_{2i}[\phi]_{i} \:, \\
     %%
     &\vdots\\
     %%
     \ve{L}[\psi]_G &= [\ve{M}]\bigl([\ve{S}]_{G1}[\phi]_1 + 
     [\ve{S}]_{G2}[\phi]_2 + \ldots + [\ve{S}]_{GG}[\phi]_G\bigr) + 
-     \frac{1}{k}[\ve{M}][\ve{F}]_{G}[\phi]_{G} \:.
+     \frac{1}{k}[\ve{M}]\sum_{i=1}^{G}[\ve{F}]_{Gi}[\phi]_{i} \:.
   \end{aligned}
   \label{eq:group-equations}
 \end{equation}
@@ -316,15 +316,15 @@ Each ``within-group'' equation is solved for that group's flux. If the groups ar
 \section{Meeting the Goal}
 The fully discretized steady-state transport equation can become very large when trying to solve ``grand challenge'' types of problems. The continued improvement of computational resources has enabled the invention of massively parallel codes designed to work on leadership-class computers. The goal of this work is to develop and implement new methods that will accelerate transport calculations by efficiently taking advantage of cutting-edge computer architectures. 
 
-The code being used in this work is Denovo \cite{Evans2009}, a massively parallel discrete ordinates code being developed at Oak Ridge National Laboratory by Tom Evans, Greg Davidson, Josh Jarrell, and others. The code allows multiple combinations of spatial discretizations, quadrature sets, and solution methodologies. Denovo is three-dimensional, uses a non-uniform cartesian grid, has a flexible front end, and is capable of writing and reading input parameters rapidly for high performance computing. 
+The code being used in this work is Denovo \cite{Evans2009}, a massively parallel discrete ordinates code being developed at Oak Ridge National Laboratory. The code allows multiple combinations of spatial discretizations, quadrature sets, and solution methodologies. Denovo is three-dimensional, uses a non-uniform, structured, Cartesian grid, has a flexible front end, and is capable of writing and reading input parameters rapidly for high performance computing. 
 
 At the outset of this work, Denovo could be decomposed for parallel computation in five of the six dimensions of phase space over which the steady-state transport equation is solved. The nature of the decomposition dictated how many cores Denovo could use efficiently. Studies to be discussed in Chapter \ref{sec:Chp2} illustrate that the number of cores was not sufficient to solve the real problems of interest. 
 
 The original suite of solvers in Denovo included Source Iteration (SI) and Krylov as within group solvers, Gauss-Seidel (GS) as a multigroup solver, and Power Iteration (PI) as an eigenvalue solver. These solvers have some significant limitations in many cases of interest. Each method and its associated challenges will be described in detail in following chapters. 
 
-Significant acceleration of Denovo has been accomplished by implementing three complimentary solution strategies. The first is a multigroup solution option that decouples the energy groups for fixed source problems. The solver allows Denovo to be decomposed in energy such that multigroup solves can be parallelized in the energy dimension. This addition lets Denovo to take advantage of many more cores without significantly degrading the scaling. The \emph{multigroup Krylov solver} also converges more quickly than Gauss Seidel. This work is discussed in Chapter~\ref{sec:Chp2}.
+Significant acceleration of Denovo has been accomplished by implementing three complimentary solution strategies. The first is a multigroup solution option that allows the energy groups to be decomposed for fixed source problems. The solver allows Denovo to be decomposed in energy such that multigroup solves can be parallelized in the energy dimension. This addition lets Denovo to take advantage of many more cores without significantly degrading the scaling. The \emph{multigroup Krylov solver} also converges more quickly than Gauss Seidel. This work is discussed in Chapter~\ref{sec:Chp2}.
 
-The second strategy was to add an eigenvalue method with convergence properties that can be superior to Power Iteration, particularly for problems that are difficult to solve with PI. \emph{Rayleigh Quotient Iteration} (RQI) applies a shift to the equations that effectively couples all of the energy groups together. The multigroup Krylov solver enables RQI because it solves coupled groups efficiently and decomposes coupled groups for energy parallelization. The details of this work are discussed in Chapter~\ref{sec:Chp3}.
+The second strategy was to add an eigenvalue method with convergence properties that can be superior to Power Iteration, particularly for loosely coupled problems. \emph{Rayleigh Quotient Iteration} (RQI) applies a shift to the equations that improves the eigenvalue convergence properties. The shift also increases the degree of group-to-group coupling. The multigroup Krylov solver enables RQI because it solves coupled groups efficiently and decomposes coupled groups for energy parallelization. The details of this work are discussed in Chapter~\ref{sec:Chp3}.
 
 The third step was to add a new physics-based preconditioner that is a multigrid method in energy. This capitalizes on the energy decomposition added by the first method. Since energy groups can be treated independently, they can be combined and re-separated in a multi-grid like fashion very easily. The preconditioner is applicable to both fixed source problems and eigenvalue calculations, and it reduces the number of iterations required for convergence in all cases. The \emph{multigrid in energy preconditioner} is discussed in Chapter~\ref{sec:Chp4}.
 
