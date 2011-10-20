@@ -77,7 +77,11 @@ A few important conclusions can be drawn from the curves in Figure~\ref{fig:JagB
 
 Another relevant finding is that the theoretical and actual efficiencies match when there is a minimum block size. When larger computational spaces are used (smaller $B_{K}$) communication does not become a dominant factor. This restricts the extent of spatial decomposition by limiting the number of blocks used for a given spatial mesh. For a 500M cell problem, the limitation is 15,000 - 20,000 cores. 
 
-Once a problem is spatially decomposed beyond this limit, communication latency begins to dominate solution time and using more cores will be of little benefit. This is caused by the KBA algorithm. In order to take advantage of more cores for a given problem size, another area of phase space must be parallelized: energy, the remaining unparallelized dimension. 
+Once a problem is spatially decomposed beyond the minimum block size limit, communication latency begins to dominate solution time and using more cores will be of little benefit. This is caused by the KBA algorithm. In order to take advantage of more cores for a given problem size, another area of phase space must be parallelized: energy, the remaining unparallelized dimension. 
+
+It is worth noting that the phrase ``for a given problem size'' is important when stating that a problem cannot efficiently use more cores by being further decomposed in space alone. If a system is meshed more and more finely, then more cores can be used. For problems of interest today, however, using meshes large enough to use the full Jaguar machine efficiently necessitates meshing beyond discretizations of physical interest in nuclear engineering at this time. 
+
+One last point is that the current decomposition only allows for refining a problem in space and angle to increase parallelization and keep the wall time low as problems get larger. More finely resolving energy, which is desired for many of today's calculations, only makes the problem more expensive. No matter what mesh is used, KBA will never enable the use of more cores to get better energy resolution.
 
 %--------------------------------------------------------------------------------
 %--------------------------------------------------------------------------------
@@ -315,9 +319,11 @@ To implement the energy parallelization, the problem is divided into energy sets
   \label{fig:EnergyDecomp}
 \end{figure}
 
-It was demonstrated in Section \ref{sec:DenAndPar} that KBA becomes latency dominated when block size becomes small, limiting the number of cores that can be used for a given problem. Energy decomposition offers the ability to further decompose a problem, even after the practical limit of spatial performance has been reached, because scaling can be done across energy instead of space-angle. 
+It was demonstrated in Section \ref{sec:DenAndPar} that KBA becomes latency dominated when block size becomes small, limiting the number of cores that can be used for a given problem. Energy decomposition offers the ability to further decompose a problem, even after the practical limit of spatial performance for a given mesh has been reached, because scaling can be done across energy instead of space-angle. 
 
 The number of cores is determined by the number of domains. Previously, the number of domains was equal to the number of spatial blocks. Now it is the product of number of energy sets and the number of spatial blocks. For example, with 10,000 spatial blocks (which KBA can handle) and 10 energy sets, Denovo can use 100,000 cores \cite{Evans2011}, \cite{Evans2010}. KBA would not be able to efficiently use 100,000 spatial blocks. This dramatically increases the scalability of Denovo.
+
+Another benefit is having the option to scale in energy rather than space. Once a desired mesh resolution is reached, which is presumably the case otherwise one could continue to decompose in space, using finer resolution in energy without energy parallelization simply makes the problem more costly in terms of both time and memory. To obtain more detailed flux data, fine-grained energy groups are needed. The energy decomposition capability makes this affordable. 
 
 Before this work, no one had decomposed the transport equation in energy nor used one iteration level instead of two. This can now be done because there are machines large enough to store Krylov subspaces made from multiple group-sized iteration vectors, and these computers are large enough to warrant parallelization in energy . 
 
@@ -328,16 +334,34 @@ Note that the Jacobi method could have been used to decompose energy groups befo
 The new method, which will be referred to as multigroup (MG) Krylov or block Krylov, has been implemented in Denovo. Two test problems were used to investigate the benefits of the new method. One was a small problem intended for initial scoping, and the other was a full scale reactor calculation intended for more detailed study. Energy decomposition was investigated from the standpoint of both strong and weak scaling. The problems were also run without energy decomposition, i.e.\ using one energy set, to compare using Krylov instead of GS for the upscatter groups. First MG Krylov and GS are compared, then strong scaling studies are shown, and finally weak scaling is discussed.
 
 \subsubsection{Gauss Seidel vs. Block Krylov}
-The first problem used to compare GS to MG Krylov for multigroup upscattering was the small problem. This is a cube of half of iron and half graphite discretized with a 50 $\times$ 50 $\times$ 50 orthogonal mesh and decomposed into two spatial domains to use two cores. It is a 27-group problem with 13 upscattering groups and vacuum boundary conditions. An isotropic source is assigned everywhere to all energy groups, and the problem used $P_0$, and $S_4$. The iron plus graphite material composition was chosen for several reasons. Both materials are commonly found in nuclear reactors, graphite is highly scattering and creates a system with a large spectral radius for GS, and the cross sections were available with multiple upscattering groups.
+The small problem was used first to compare GS to MG Krylov for multigroup upscattering. This is a cube of half of iron and half graphite discretized with a 50 $\times$ 50 $\times$ 50 orthogonal mesh and decomposed into two spatial domains to use two cores. It is a 27-group problem with 13 upscattering groups and vacuum boundary conditions. An isotropic source is assigned everywhere to all energy groups, and the problem used $P_0$, and $S_4$. The iron plus graphite material composition was chosen for several reasons. Both materials are commonly found in nuclear reactors, graphite is highly scattering and creates a system with a large spectral radius for GS, and the cross sections were available with multiple upscattering groups.
 
 The calculation took $3.51 \times 10^{3}$ seconds using MG Krylov, and the upscattering block converged in 43 GMRES iterations. With GS, the calculation took $2.87 \times 10^{4}$ seconds, or 718\% longer. This case converged in 44 Gauss Seidel iterations, each of which took about 124 GMRES inner iterations, or $\sim$5455 GMRES iterations all together. Note that the Krylov iterations in MG Krylov needed a subspace with a length dimension of 13 energy groups while the Krylov iterations in GS had a length of 1 energy group. This means the cost of the GMRES applications is not the same between solvers. Despite this, GS was very clearly more costly.
 
-Next a more realistic problem, the full-facility PWR core from the first section's weak scaling study, was tested by Evans on the Jaguar machine. This PWR has 289 17 $\times$ 17 assemblies (157 fuel, 132 reflector) and vacuum boundary conditions. There are low, medium, and high enrichment fuel pins. A 2 $\times$ 2 spatial discretization per homogenized fuel pin was used giving 233,858,800 cells. $S_{12}$ was selected as the angular discretization. Two energy groups were used for this test to keep the total problem size small. To get a sense of the problem size, there were 78,576,556,800 unknowns.
+A version of this problem with a 10 $\times$ 10 $\times$ 10 grid and an $S_{8}$ angle set was also done. This compared GS, GS accelerated with a two-grid preconditioner (TTG; details are given in Section~\ref{sec:TTG}), and MG Krylov. The solver comparisons can be seen in Table~\ref{table:FeC GS Krylov}. This problem had no spatial or energy decomposition. The MG Krylov solver was faster than both accelerated and unaccelerated GS, and took far fewer Krylov iterations. 
+%
+\begin{table}[!h]
+\caption{Multigroup Krylov Compared to Gauss Seidel for Iron Graphite Fixed Source Cube}
+\begin{center}
+\begin{tabular}{l c l c}
+\hline
+Solver & GS iters & Krylov & time (s)\\[0.5ex]
+\hline
+GS &  12 & 1,727 & $1.12 \times 10^{2}$ \\
+GS TTG & 11 & 1,687 & $1.99 \times 10^{2}$  \\
+MG Krylov & n/a & 30 & $8.78 \times 10^{1}$ \\
+\hline
+\end{tabular}
+\end{center}
+\label{table:FeC GS Krylov}
+\end{table}
 
-It should be noted that Jaguar requires decompositions to be done in a certain way, which determines the number of domains that can be used. For example, exactly doubling domain size is typically not possible so the closest available approximation is chosen instead.
+Next a more realistic problem, the full-facility PWR core from the Section \ref{sec:DenAndPar}'s weak scaling study, was tested by Evans on the Jaguar machine. This PWR has 289 17 $\times$ 17 assemblies (157 fuel, 132 reflector) and vacuum boundary conditions. There are low, medium, and high enrichment fuel pins. A 2 $\times$ 2 spatial discretization per homogenized fuel pin was used giving 233,858,800 cells. $S_{12}$ was selected as the angular discretization. Two energy groups were used for this test to keep the total problem size small. To get a sense of the problem size, there were 78,576,556,800 unknowns.
+
+It should be noted that Jaguar requires decompositions to be done in a certain way, which determines the number of domains that can be used. For example, keeping the spatial domain size exactly same when changing the number of energy sets is typically not possible so the closest available approximation is chosen instead.
 
 \begin{table}[!h]
-\caption{Multigroup Krylov - Gauss Seidel Comparison for the Full PWR}
+\caption{Multigroup Krylov Compared to Gauss Seidel for the Full PWR}
 \begin{center}
 \begin{tabular}{l c c c c}
 \hline
@@ -351,93 +375,119 @@ PI + MG Krylov & 10,200 & 2 & 20,400 & 3.03 \\
 \label{table:MGkrylovPWR}
 \end{table}
 %
-Table~\ref{table:MGkrylovPWR} shows the results for the PWR900 problem. The goal was to compare MG Krylov and GS using the same number of domains, which required a different spatial decomposition. Power Iteration (described in Chapter~\ref{sec:Chp3}) was used for the eigenvalue solver in both cases; GS again used GMRES for the inner iterations. For this problem GS was accelerated with a two-grid preconditioner (TTG; details are given in Section~\ref{sec:TTG}). While GS had 15.5\% fewer domains than MG Krylov, it took 263\% longer. Clearly the MG Krylov method was much faster than GS for this problem, even when GS was preconditioned and MG Krylov was not. 
+Table~\ref{table:MGkrylovPWR} shows the results for the PWR900 problem. The goal was to compare MG Krylov and GS using the same number of domains, which required a different spatial decomposition. Power iteration (described in Chapter~\ref{sec:Chp3}) was used for the eigenvalue solver in both cases; GS again used GMRES for the inner iterations and GS was accelerated with TTG. While GS had 15.5\% fewer domains than MG Krylov, it took 263\% longer. Clearly the MG Krylov method was faster than GS for this problem, even when GS was preconditioned and MG Krylov was not. 
 
 In both test cases the new Krylov multigroup solver significantly outperformed Gauss Seidel. The Krylov method took much less time and many fewer iterations, even when Gauss Seidel was accelerated. This demonstrates that the new multigroup solver provides substantial convergence improvement with only space-angle parallelization, which will help solve large and challenging problems. 
 
 \subsubsection{Strong Scaling}
-The two test problems were also used to examine strong scaling with energy sets. 
+The two test problems plus an additional system were used to examine strong scaling with energy sets. The iron graphite cube was used first, largely to verify multiset functionality rather than rigorously test scaling. The cube was expanded to a 100 $\times$ 100 $\times$ 100 mesh and decomposed into four spatial blocks to make it large enough to warrant using multisets. It should be noted that it is not expected that this problem will scale particularly well because it is still a small problem and the number of upscattering groups is prime. 
 
-The iron graphite calculations were done first and were largely intended to verify multiset functionality rather than rigorously test scaling. The cube was expanded to a 100 $\times$ 100 $\times$ 100 mesh and decomposed into four spatial blocks to make it large enough to warrant using multisets. It should be noted that it is not expected that this problem will scale particularly well because it is such a small problem. 
-
-The number of energy sets was varied from 1 to 13. The test problems were run on the small Orthanc cluster at ORNL.  The downscattering groups were solved with forward substitution as before, and the upscattering was solved with the Krylov multigroup solver. The upscattering groups converged in 104 GMRES iterations. Every calculation gave the correct flux.
+The number of energy sets was varied from 1 to 13. The test problems were run on the small orthanc cluster at ORNL.  The downscattering groups were solved with forward substitution as before, and the upscattering was solved with the Krylov multigroup solver. The upscattering groups converged in 104 GMRES iterations. Every calculation gave the correct flux.
 
 \begin{figure}[!h]
   \begin{center}
-    \includegraphics [width=.75\textwidth, height=0.75\textheight ] {FeCKrylovMultisets}
+    \includegraphics [width=.75\textwidth, height=0.45\textheight ] {FeCKrylovMultisets}
   \end{center}
   \caption{Strong Scaling Study for the Iron-Graphite Problem}
   \label{fig:FeGraphiteStudy}
 \end{figure}
 %
-The top plot of Figure~\ref{fig:FeGraphiteStudy} shows the measured time and the ``load-adjusted linear'' time. Usually, the solve time for perfect, i.e.\ linear, scaling would be $(\frac{\text{base\_domains}}{\text{used\_domains}}) \times \text{base\_time}$. However, an alternative method was used to try to account for load imbalance caused by the energy sets. There is no way to evenly divide 13 groups among energy sets, meaning at least one set always has one more group than the others. The sets with fewer groups must wait for the sets with more groups. 
+Figure~\ref{fig:FeGraphiteStudy} shows the measured time and the ``load-adjusted linear'' time. The solve time for perfect, i.e.\ linear, scaling would usually be $(\frac{\text{base\_domains}}{\text{used\_domains}}) \times \text{base\_time}$. However, an alternative method was used to try to account for the load imbalance caused by the energy sets. There is no way to evenly divide 13 groups among energy sets, meaning at least one set always has one more group than the others. The sets with fewer groups must wait for the sets with more groups, which is not an efficient use of processing power. 
 
 To account for the load imbalance, a factor was added that weights the time by the number of groups required for perfect energy load balance divided by the number of groups used. To get this, the maximum number of groups per set was determined, e.g.\ 13 groups / 2 sets = 7 groups. This was multiplied by the number of sets to get the number of groups needed for load balancing, e.g.\ 7 $\times$ 2 = 14. The base case used 4 cores and took $3.19 \times 10^{3}$ seconds. For 2 sets on 8 cores, $t_{\text{linear}} = \frac{4}{8}\times\frac{2\times7}{13} \times 3.19 \times 10^{3} = 1.72 \times 10^{3}$.
 
-The lower plot shows efficiency vs. cores, where efficiency is the load-adjusted linear time divided by the measure time. As more sets are used the time difference increases and the efficiency decreases. This indicates that the energy parallelization can have a negative impact on scaling because of the increased communication. However, the results also show that decomposing over energy does reduce solution time, and the decomposition and solver work correctly.
+These results lead to a few conclusions. The actual time becomes increasingly different from the ideal time as the number of sets increases until about 5 sets where it is different by an approximately constant amount. The efficiency, where efficiency is defined as the ideal time over the observed time, is about 85\% with 2 sets and goes down to about 53\% with 5 sets. Another way to say this is that with 5 sets a speedup of 4.33 would be ideal and a speedup of only 2.30 was observed. 
 
-A 44 energy group cross section set was used with the PWR to study strong scaling in a more quantitative way than the iron and graphite cube. This many energy groups gave 1,728,684,249,900 degrees of freedom. Three decomposition combinations were used, detailed in Table~\ref{table:StrongCasesPWR}. Each case used power iteration and the MG Krylov solver. Because of the decomposition restrictions, 9,024 spatial domains was the closest available approximation to 10,200, and 5,040 domains was closest to half.
+Using multisets only had a good return on investment for a small number of sets with this test. However, this test is not a very good scaling measure because of this load balancing issue. This is illustrated by the fact that the ideal time does not change between 7 sets using 28 cores and and 12 sets using 48 cores. A problem that is not expected to change calculation time when the number of cores increases by 70\% is not a good scaling test. However, this problem did demonstrate that the multiset implementation works, gets the correct answer, and may provide speedup where it makes sense.  
+
+A 44 energy group cross section set was used with the PWR900 to study strong scaling in a more quantitative way than the iron and graphite cube. This many energy groups gave 1,728,684,249,900 degrees of freedom. Two spatial block - energy set combinations were used, detailed in Table~\ref{table:StrongCasesPWR}. Both cases used power iteration and the MG Krylov solver. Because of the decomposition restrictions, 9,024 spatial domains was the closest available approximation to 10,200.
+
+Some general communication optimization was added to Denovo after these initial results were obtained and the two cases were redone. In Table ~\ref{table:StrongCasesPWR} ``Initial'' is the time taken by the solver before optimization and ``Optimized'' is the time afterwards. The optimization greatly improved the Base case results, reducing the solve time from 49.61 minutes to 38.33 minutes. Unfortunately, there was a negligible difference in time the Study case. 
 %
 \begin{table}[!h]
 \caption{Strong Scaling for PWR900 Problem}
 \begin{center}
-\begin{tabular}{l c c c c}
+\begin{tabular}{l c c c c c}
 \hline
-Case & Blocks & Sets & Domains & Solver Time (m) \\[0.5ex]
+Case & Blocks & Sets & Domains & Initial (m) & Optimized (m) \\[0.5ex]
 \hline
-I   & 10,200 & 11 & 112,200 & 49.61 \\
-II  & 5,040   & 22 & 110,880 & 53.61 \\
-III & 9,024   & 22 & 198,528 & 34.99 \\
+Base   & 10,200 & 11 & 112,200 & 49.61 & 38.33 \\
+Study & 9,024    & 22 & 198,528 & 34.99 & 34.99 \\
 \hline
 \end{tabular}
 \end{center}
 \label{table:StrongCasesPWR}
 \end{table}
-
-Case III was compared to Case I to examine the effect of doubling the number of energy sets with the spatial decomposition fixed. Case III was compared to Case II to examine the effect of doubling the spatial decomposition with the energy sets fixed. The efficiency can be defined as the $\frac{\text{t\_perfect}}{\text{t\_actual}}$. 
-
-\begin{table}[!h]
-\caption{PWR900 Case III Comparison}
-\begin{center}
-\begin{tabular}{l c c c c}
-\hline
-Compare To & Perfect (m) & Actual (m) & Efficiency \\[0.5ex]
-\hline
-I  (energy, original) & 28.04 & 34.99 & 0.80 \\
-I  (energy, new)      & 21.66 & 38.33 & 0.62 \\
-II  (space)               & 29.94  & 34.99 & 0.86 \\
-\hline
-\end{tabular}
-\end{center}
-\label{table:StrongPWRresults}
-\end{table}
 %
-The comparisons are shown in Table~\ref{table:StrongPWRresults}. Doubling the energy sets resulted in an efficiency of 80\%. This is slightly less than the efficiency of 86\% that came from doubling the spatial decomposition. Neither case differed drastically from linear scaling. 
-
-Some general communication optimization was added to Denovo after these initial results were obtained and Cases I and III were re-run. The optimization greatly improved the Case I results, reducing the solve time from 49.61 minutes to 38.33 minutes. Unfortunately, there was a negligible difference in time for Case III. The new perfect scaling time became 21.66 minutes, and the scaling efficiency reduced to 62\%. Case II was not recomputed with optimized communication.
-
-The timing results, plotted with a linear scaling line for reference, are shown in Figure~\ref{fig:PWRstrongScaling}. The top plot compares Cases II and III, while the bottom compares Cases I and III. Both of the original results are quite good. The communication optimized case, plotted in the lower figure with the green line, is not nearly as good.
-%
+Originally, the perfect time for the Study case was 28.04 minutes, giving an efficiency of 80\%. After optimization, the perfect scaling time became 21.66 minutes, and the scaling efficiency reduced to 62\%. All of the data are plotted in Figure~\ref{fig:PWRstrongScaling}. 
 \begin{figure}[!h]
   \begin{center}
-    \includegraphics [width=.7\textwidth, height=.75\textheight ] {PWRstrongScaling}
+    \includegraphics [width=.7\textwidth, height=.45\textheight ] {PWRstrongScaling}
   \end{center}
-  \caption{Strong Scaling Study for the Full PWR Calculation with 44 Groups}
+  \caption{Strong Scaling Study for the Full PWR with 44 Groups}
   \label{fig:PWRstrongScaling}
 \end{figure}
 
-A variety of reasons have been identified for why the 200,000-core case did not improve as much as the 100,000-core case. Many of these are beyond the scope of this work: it is likely that the problem is not large enough to demonstrate strong scaling well; the block decomposition was not optimal; there were communication collisions on the torus across the full machine that significantly slowed down communication. 
+A variety of reasons have been identified for why the 200,000-core case did not improve as much as the 100,000-core case. Many of these are beyond the scope of this work: it is likely that the problem is not large enough to demonstrate strong scaling well; the block decomposition was not optimal; and there were communication collisions on the torus across the full machine that significantly slowed down communication \cite{Davidson2010}. 
 
 Pertinent to this work, however, is that the multiset communication was not optimal. After each matrix-vector multiply a global reduction and scatter were done. In that process each block on every set got the contribution from every other set, and the data it scattered out was for all groups. The message size for all groups is large and can therefore be slow.
 
-This communication pattern has since been improved to a global reduction followed by a local scatter. When each space-energy domain communicates its updated flux after the multiply, it only communicates to the sets that need its contribution. If the upscattering on one set does not contribute to another set, there is no communication between those sets. The big change, however, is that the data scattered out is only the size of the groups on that set, not all groups \cite{Evans2011b}. In a 44 group problem with 22 sets, that changes the message size from 44-group length to 2-group length. This improvement has been implemented, but the calculations have not yet been repeated. With this improvement alone, better strong scaling behavior would likely result. 
+This communication pattern has since been improved by Evans and Davidson to a global reduction followed by a local scatter. When each space-energy domain communicates its updated flux after the multiply, it only communicates to the sets that need its contribution. If the upscattering on one set does not contribute to another set, there is no communication between those sets. The big change, however, is that the data scattered out is only the size of the groups on that set, not all groups \cite{Evans2011b}. In a 44 group problem with 22 sets, that changes the message size from 44-group length to 2-group length. This improvement has been implemented, but the PWR strong scaling calculations have not been repeated. 
 
-Despite the reduction in strong scaling performance, one of the most important results from these calculations is the number of cores that were used successfully. Denovo was able to use 100,00 to 200,000 cores when it was previously limited to about 20,000. It also solved a problem with over 1.7 trillion degrees of freedom in 40 minutes. These results demonstrate that the multigroup Krylov solver allows for the use of leadership-class machines.
+To get an idea of the impact of the multiset reduction communication improvement, a fixed source 44 group problem was solved by Davidson with MG Krylov. Three different meshes and spatial decompositions were used for this problem, and each case used a variety of sets. The combinations can be seen in Table~\ref{table:MultisetCommOpt}.
+%
+\begin{table}[!h]
+\caption{Test Cases for Multiset Communication Optimization Study}
+\begin{center}
+\begin{tabular}{c c l}
+\hline
+Mesh & Decomposition & Sets Used \\[0.5ex]
+\hline
+204 $\times$ 204 $\times$ 90 & 30 $\times$  60 $\times$  2 & 2, 4, 11, 22, 44 \\
+408 $\times$ 408 $\times$ 90 & 60 $\times$  72 $\times$  2 & 1, 2, 4, 11, 44 \\
+816 $\times$ 816 $\times$ 90 & 120 $\times$  144 $\times$  2 & 1, 2, 4, 11 \\
+\hline
+\end{tabular}
+\end{center}
+\label{table:MultisetCommOpt}
+\end{table}
+
+To measure the benefit of multiset communication optimization, the percentage of solve time spent doing the reduction across energy sets in the original ``Global Sum'' method is compared to the new ``Reduced Scatter'' method. The results for each mesh - set combination can be seen in Figure~\ref{fig:MultisetCommOpt}. The x-axis is number of energy sets and the y-axis is the percentage of solver time. For example, if the y-value is 3 that means 3\% of the time spent in the solver was used in multiset reduction communication. 
+%
+\begin{figure}[!h]
+  \begin{center}
+    \includegraphics [width=.7\textwidth, height=0.85\textheight ] {MultisetCommOpt}
+  \end{center}
+  \caption{\% Time Used in Multiset Reduction Communication, Comparison of Old and New Strategies}
+  \label{fig:MultisetCommOpt}
+\end{figure}
+
+These plots show that in nearly all cases the percentage of time spent on the reduction decreased. As the number of sets increases, the difference between the values also increases. This makes sense because more sets require more reduction communication, so an improved method would have a bigger benefit. However, the spatial decomposition also plays a role since sets communicate across spatial boundaries. The benefit of the new strategy therefore differs for different meshes. In all cases though, the larger number of sets benefitted from the new implementation. 
+
+These 44 group fixed source tests were also used to study strong scaling when both the general and multiset-specific the communication optimizations were in place. These results, which can be seen in Figure~\ref{fig:FxdStrong}, are much better than both the iron graphite cube and PWR900 problems. 
+%
+\begin{figure}[!h]
+  \begin{center}
+    \includegraphics [width=.8\textwidth, height=0.9\textheight ] {FxdSrcKrylovStrongScaling}
+  \end{center}
+  \caption{Strong Scaling Study for Fixed Source, 44 Group Problem Using MG Krylov}
+  \label{fig:FxdStrong}
+\end{figure}
+
+The first mesh was only large enough for use on up to about 50,000 cores. The 2 set problem was used as the base case for computing linear time. The scaling on this problem was nearly perfect, with an efficiency of 95\% at 47,520 cores and 44 energy sets. 
+
+The scaling was not as close to perfect with the two larger meshes, but it was still much better than the test cases without multiset optimization. The medium and large mesh versions both used the 1 set data as the base cases. With the medium sized mesh the efficiency with 47,520 cores and 11 energy sets was 88\%, though the efficiency with 190,080 cores and 44 energy sets was only 64\%. Recall, however, that the PWR case compared 11 and 22 energy sets. If the 44 and 11 set cases are compared, the efficiency increases to 73\%.
+
+The largest number energy sets used with the largest mesh version was 11. The efficiency with 11 sets on 190,080 cores compared to 1 set and 17,280 cores was 68\%. When comparing the 4 set case that used 69,120 cores to the 11 set case, the efficiency is 98\%, or nearly perfect. 
+
+The 44 group, fixed source problem showed that the block Krylov solver can scale fairly well in energy for a variety of spatial discretizations. While strong scaling in energy was not perfect for the medium and large meshes, it was far better than what could be obtained by scaling in space alone for even the largest mesh. The difference between the measured and linear times was not huge compared to the total solution time. 
+
+Further, even when communication was not optimized the multigroup Krylov solver allowed Denovo to solve a real problem with over 1.7 trillion degrees of freedom in under 40 minutes. This problem would not have been practical to solve using the same 233M cell mesh without energy sets, relying on space-angle scaling alone. These results demonstrate that the block Krylov solver allows for the use of leadership-class machines for problems where KBA would not.
 
 \subsubsection{Weak Scaling}
-Finally, the full-facility PWR problem was used for a weak scaling study. The two-group, 17,424-block, GS calculation from the previous subsection (PI + TTG GS in Table~\ref{table:MGkrylovPWR}) was compared to the 44-group, 11-set, 10,200-block, MG Krylov calculation with the optimized communication strategy. 
+Finally, the full-facility PWR problem was used for a weak scaling study. The two-group, 17,424-block, GS calculation from the previous subsection (PI + TTG GS in Table~\ref{table:MGkrylovPWR}) was compared to the 44-group, 11-set, 10,200-block, MG Krylov calculation with the optimized general communication strategy, but without the multiset communication optimization. 
 
-Recall that there were 78,576,556,800 unknowns when using 2 groups with 1 set on 17,424 cores, and 1,728,684,249,900 unknowns when using 44 groups with 11 sets on 112,200 cores. With weak scaling the problem size/core is typically kept constant. In this case the problem size/core could not be held constant, so an adjustment factor was included. The number of energy groups were used to weight the problem size/core and that was used to get an adjusted solve time of 11.21 minutes for the MG Krylov calculation: $[(\frac{44}{2})(\frac{17,424}{112,200})]^{-1}\times38.33$ = 11.21. 
+Recall that there were 78,576,556,800 unknowns when using 2 groups with 1 set on 17,424 cores, and 1,728,684,249,900 unknowns when using 44 groups with 11 sets on 112,200 cores. With weak scaling the problem size/core is typically kept constant. In these tests the problem size/core could not be held constant, so an adjustment factor was included. The number of energy groups were used to weight the problem size/core and that was used to get an adjusted solve time of 11.21 minutes for the MG Krylov calculation: $[(\frac{44}{2})(\frac{17,424}{112,200})]^{-1}\times38.33$ = 11.21. 
 
 Efficiency for weak scaling is calculated by taking the ratio of the MG Krylov adjusted time to the reference time, or 11.21 over 11.00, giving an efficiency of 1.019. A plot of the weak scaling is shown in Figure~\ref{fig:PWRweakScaling}. Note that perfect weak scaling would maintain an efficiency of 1, thus the weak scaling observed here was very good. 
 %
@@ -451,11 +501,13 @@ Efficiency for weak scaling is calculated by taking the ratio of the MG Krylov a
 
 %-----------------------------------------------------
 \subsection{Implications}
-The tests just discussed show that the multigroup Krylov solver provides a time benefit both from using a Krylov solver for the equivalent of the outer iterations instead of Gauss Seidel and from the parallelization in energy that is enabled by this method. There were no deterministic transport codes found that decompose the upscatter calculation in energy, nor that only use one iteration level for the upscattering block. This decomposition is a new contribution to the field and helps alleviate the scaling limitations discussed earlier.   
+The tests just discussed show that the multigroup Krylov solver provides a time benefit both from using a Krylov solver for the equivalent of the outer iterations instead of Gauss Seidel and from the parallelization in energy that is enabled by this method. There were no deterministic transport codes found that decompose the upscatter calculation in energy, nor that only use one iteration level for the upscattering block. This decomposition is a new contribution to the field and helps alleviate the scaling limitations associated with KBA.   
 
 There are a few reasons this has not been pursued before, primarily based on computer architecture and existing code capability. Memory has only become large enough to accommodate the necessary Krylov subspaces recently. Only in the last several years have there been computers with enough processing capability to allow for scaling to hundreds of thousands of cores, motivating energy decomposition. In addition, the inner-outer paradigm is at the core of most transport codes and in many cases it would take substantial effort to modify that structure. 
 
 Note that an explicit block Jacobi method, which converges more slowly than GS by a factor of two, could have been used previously to decompose energy groups because it is explicit in energy and does not have the large memory footprint associated with Krylov methods. However, there was no need to scale to so many cores and so there was no motivation for this development. Now that the scaling need exists, there is sufficient memory for Krylov methods. Krylov methods are the clear choice because they often converge faster than Jacobi \cite{LeVeque2007}. 
 
-Overall, the strong scaling studies showed that the block Krylov solver works and provides reasonably good strong scaling in both energy and space, at least out to 100,000 cores. Each test problem illustrated that the block Krylov method solves fixed source problems with upscattering more quickly than the Gauss Seidel method. The weak scaling study showed that when compared to GS, the MG Krylov method has very good weak scaling properties. This new method decisively accomplishes the goal of accelerating transport calculations by using new computers fully.
+Transport codes could have used machines with hundreds of thousands of cores without energy parallelization by solving problems with extremely large meshes. Doing this, though, would typically involve refining a problem's mesh for the sake of refining its mesh and not because the quality of solution requires more spatial resolution. In addition, this strategy does not address the need for increased energy resolution while decomposing in energy does. 
+
+Overall, the strong scaling studies showed that the block Krylov solver works and provides reasonably good strong scaling in both energy and space. The test problems illustrated that the block Krylov method does the multigroup iterations more quickly than the Gauss Seidel method. The weak scaling study showed that when compared to GS, the MG Krylov method has very good weak scaling properties. This new method decisively accomplishes the goal of accelerating transport calculations by using new computers fully.
 
