@@ -5,8 +5,9 @@
 \label{sec:AppendixD}
 This appendix contains tables of the results for which there are only figures in Chapter~\ref{sec:Chp4}. The tables are titled with monikers matching those in the Preconditioning Chapter. 
 
+The data in Tables~\ref{table:FxdSrcTstVacWeight} and \ref{table:FxdSrcTstVacRV} are plotted in Figure~\ref{fig:FxdSrcVac}.
 \begin{table}[!h]
-\caption{Small Fixed Source Vacuum Boundary, Weight Variation Study}
+\caption{Small Fixed Source Problem with Vacuum Boundaries, Weight Variation Study}
 \begin{center}
 \begin{tabular}{c c c l}
 \hline
@@ -34,7 +35,7 @@ $^{\dagger}$ All tests failed
 \end{table}
 
 \begin{table}[!h]
-\caption{Small Fixed Source Vacuum Boundary, Relaxation Count and V-cycle Variation Study}
+\caption{Small Fixed Source Problem with Vacuum Boundaries, Relaxation Count and V-cycle Variation Study}
 \begin{center}
 \begin{tabular}{c c c c}
 \hline
@@ -55,8 +56,9 @@ Weight & Relaxations & V-cycles & Iterations \\[0.5ex]
 \label{table:FxdSrcTstVacRV}
 \end{table}
 
+The data in Tables~\ref{table:FxdSrcTstReflWeight} and \ref{table:FxdSrcTstReflRV} are plotted in Figure~\ref{fig:FxdSrcRefl}.
 \begin{table}[!h]
-\caption{Small Fixed Source Reflecting Boundary, Weight Variation Study}
+\caption{Small Fixed Source Problem with Reflecting Boundaries, Weight Variation Study}
 \begin{center}
 \begin{tabular}{c c c c}
 \hline
@@ -80,7 +82,7 @@ $^{\dagger}$ All tests failed
 \end{table}
 
 \begin{table}[!h]
-\caption{Small Fixed Source Reflecting Boundary, Relaxation Count and V-cycle Variation Study}
+\caption{Small Fixed Source Problem with Reflecting Boundaries, Relaxation Count and V-cycle Variation Study}
 \begin{center}
 \begin{tabular}{c c c c}
 \hline
@@ -106,10 +108,10 @@ Weight & Relaxations & V-cycles & Iterations \\[0.5ex]
 \label{table:FxdSrcTstReflRV}
 \end{table}
 
-In Table \ref{table:2-D c5g7} ``Krylov'' is the total number of Krylov iterations and ``PI'' is the total number of Eigenvalue iterations. 
+In Table \ref{table:2-D c5g7} ``Krylov'' is the total number of Krylov iterations and ``PI'' is the total number of Eigenvalue iterations. The data in Table~\ref{table:2-D c5g7} are plotted in Figure~\ref{fig:2-Dc5g7PI}.
 %
 \begin{table}[!h]
-\caption{2-D C5G7 Benchmark, Preconditioning Weight Variation With Power Iteration}
+\caption{2-D C5G7 Benchmark, Preconditioner Weight Variation with Power Iteration}
 \begin{center}
 \begin{tabular}{c c c c c c}
 \hline
@@ -128,8 +130,9 @@ Weight & Relaxations & V-cycles & Krylov & PI & Time (s) \\[0.5ex]
 \label{table:2-D c5g7}
 \end{table}
 
+The data in Table~\ref{table:FeC multisets} are plotted in Figure~\ref{fig:FeC multisets}. Here the preconditioned time is termed ``Precond T''  unpreconditioned time is ``Regular T''. ``Rel Diff'' is the preconditioned time minus the regular time divided by the regular time. ``P T Set N / 1'' is the preconditioned time with N sets divided by the preconditioned time with 1 set. The last column is the same thing, but for the unpreconditioned time.
 \begin{table}[!h]
-\caption{Multiset Study with Preconditioner for Iron Graphite Fixed Source Problem}
+\caption{Iron Graphite Fixed Source Problem, Preconditioned Multiset Study}
 \begin{center}
 \begin{tabular}{c c c c c c}
 \hline
@@ -151,8 +154,9 @@ Weight & Relaxations & V-cycles & Krylov & PI & Time (s) \\[0.5ex]
 \label{table:FeC multisets}
 \end{table}
 
+The data in Table~\ref{table:impi multisets} are plotted in Figure~\ref{fig:impi multisets} and the columns have the same meaning as the previous table. 
 \begin{table}[!h]
-\caption{Multiset Study with Preconditioner for Infinite Medium Eigenvalue Problem}
+\caption{Infinite Medium Eigenvalue Problem, Preconditioned Multiset Study with Power Iteration}
 \begin{center}
 \begin{tabular}{c c c c c c}
 \hline

@@ -408,12 +408,12 @@ A few calculations were done to investigate the improvement gained from RQI. The
 
 Before RQI was added to Denovo, an infinite medium scoping code was written in Python to test that the algorithm worked in that very simple case.  Using this code a 4-group, a 7-group, and a 27-group problem were run. In all cases RQI and PI both converged on the first iteration to the correct answer. 
 
-The first Denovo problem chosen was a small, few-group system intended to demonstrate the new solver's general functionality. This problem used a 3 $\times$ 3 $\times$ 3 grid with 0.1 spacing, vacuum boundary conditions, two materials, four groups with only downscattering, $S_{2}$, $P_{0}$, had all tolerances set to 1 $\times$ 10$^{-6}$, a dominance ratio of 0.1396, and a reference $k$ of 0.11752. The small dominance ratio implies that PI should preform reasonably well on this problem. The debug version of Denovo was used and the calculation and was not parallelized in any way. 
+The first Denovo problem chosen was a small, few-group system intended to demonstrate the new solver's general functionality. In fact, it is a unit test built into Denovo's test suite intended to verify that all parts of the code behave correctly. This problem used a 3 $\times$ 3 $\times$ 3 grid with 0.1 spacing, vacuum boundary conditions, two materials, four groups with only downscattering, $S_{2}$, $P_{0}$, had all tolerances set to 1 $\times$ 10$^{-6}$, a dominance ratio of 0.1396, and a reference $k$ of 0.11752. The small dominance ratio implies that PI should preform reasonably well on this problem. The debug version of Denovo was used and the calculation and was not parallelized in any way. 
 
 This problem was solved with RQI and PI, both using the MG Krylov solver for the multigroup iterations. Note that when PI is used with MG Krylov all the downscatter groups are still solved using the forward substitution method one group at a time rather than as a block. The RQI method uses MG Krylov over the whole block because of the effective upscattering added by the shift. GMRES was the Krylov method used in all cases unless noted otherwise.
 
 \begin{table}[!h]
-\caption{Small, Two Material, Four Group, Vacuum Boundary Problem RQI Test Results}
+\caption{RQI Unit Test with Vacuum Boundaries, Power Iteration Compared to Rayleigh Quotient Iteration}
 \begin{center}
 \begin{tabular}{l c c}
 \hline
@@ -431,10 +431,10 @@ total Krylov & 73 & 39 \\
 %
 The results are given in Table \ref{table:SmallVacuumRQI}. The term ``group iters'' either refers to the number of within group iterations (in the case of PI) or multigroup iterations where the Krylov vector is over all groups (in the case of RQI). Both RQI and PI got the correct answer. PI used a total of 73 Krylov iterations while RQI used a total of 39 Krylov iterations. The subspace sizes are not the same so the work per Krylov iteration is a little bit different, but RQI still used far fewer Krylov iterations than PI. 
 
-The second problem was nearly the same as the first, but was intended to test the reflecting boundary case. For this problem all boundaries were reflecting and only one material was used. These changes made the dominance ratio 1.630 $\times$ 10$^{-15}$ and $k$ became 2. These results can be seen in Table \ref{table:SmallReflectingRQI}. Again RQI needed fewer Krylov iterations than PI and both methods converged to the correct answer. 
+The second problem was nearly the same as the first, but was intended to test the reflecting boundary case. This is also a unit test. For this problem all boundaries were reflecting and only one material was used. These changes made the dominance ratio 1.630 $\times$ 10$^{-15}$ and $k$ became 2. These results can be seen in Table \ref{table:SmallReflectingRQI}. Again RQI needed fewer Krylov iterations than PI and both methods converged to the correct answer. 
 %
 \begin{table}[!h]
-\caption{Small, One Material, Four Group, Reflecting Boundary Problem RQI Test Results}
+\caption{RQI Unit Test with Reflecting Boundaries, Power Iteration Compared to Rayleigh Quotient Iteration}
 \begin{center}
 \begin{tabular}{l c c}
 \hline
@@ -465,7 +465,7 @@ This test was also tried using BiCGSTAB instead of GMRES for the Krylov solver s
 With an even more difficult problem RQI could not even nearly get the eigenvalue when using GMRES. The two dimensional C5G7 mox benchmark problem \cite{OECD-NEA2003} was selected for investigation and was run with an optimized version of Denovo. This problem used three enrichment levels, an external mesh file, two reflecting boundaries to make it 2-D, 10 materials, 7 groups, 4 upscattering groups, $S_{2}$, $P_{0}$, an overall tolerance and upscatter tolerance of 1 $\times$ 10$^{-3}$, an eigenvalue tolerance of 1 $\times$ 10$^{-5}$, $k_{0}$ set to 1.14, and had a dominance ratio of 0.7709. The reference $k$ is 1.18655 $\pm$ 0.008.
 
 \begin{table}[!h]
-\caption{2-D MOX C5G7 Benchmark RQI Results}
+\caption{2-D MOX C5G7 Benchmark, Power Iteration Compared to Rayleigh Quotient Iteration}
 \begin{center}
 \begin{tabular}{l c c c}
 \hline
@@ -490,7 +490,7 @@ The most important result, however, was that with RQI the eigenvector did not co
   \begin{center}
     \includegraphics [width=0.75\textwidth, height=0.4\textheight ] {RQIConvergenceFail}
   \end{center}
-  \caption{Residual as a Function of Upscatter Iteration Count for One Eigenvalue Iteration in the 2-D MOX Benchmark Problem}
+  \caption{2-D C5G7 Benchmark, Residual as a Function of Upscatter Iteration Count for One Eigenvalue Iteration}
   \label{fig:RQIConvergenceFail}
 \end{figure}
 %
@@ -516,3 +516,4 @@ RQI has not been applied to the transport equation before because it takes $O(n^
 
 Computers that facilitate enough parallelization to decompose in energy and have enough memory to store Krylov subspaces for the full transport equation make combining RQI and MG Krylov possible. The resulting convergence of the eigenvalue should be faster than PI for at least some problems. The energy decomposition will allow eigenvalue calculations to overcome the limitations of KBA and be scaled to many more cores. These ideas have never been used together in this way. New kinds of problems can be solved to a new level of fidelity using these methods. 
 
+\separatorpage{}

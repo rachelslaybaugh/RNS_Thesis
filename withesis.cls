@@ -385,7 +385,7 @@
   \addtolength{\majorheadskip}{-40pt}    % -24-16
   \addtolength{\headheight}{52pt}        %  36+16
   \addtolength{\headsep}{-12pt}          % -12
-  %\separatorpage{DISCARD THIS PAGE}
+  %\separatorpage{}
   \chapter*{#1}
   #5
   \relax\markboth{#1}{#1}
@@ -397,7 +397,7 @@
     \hbox to \hsize{\hfil\rm\thepage} \vfil
     \ifnum\value{#3}=1
       \ifnum\value{listofheading}=2
-        \hbox to \hsize{Appendix\hfil} \vspace{4pt} \fi
+        \hbox to \hsize{} \vspace{4pt} \fi
       \ifnum\value{listofheading}=1
         \stepcounter{listofheading} \fi
       \hbox to \hsize{#2 \hfil Page}
@@ -408,7 +408,7 @@
     \hbox to \hsize{\rm\thepage\hfil} \vfil
     \ifnum\value{#3}=1
       \ifnum\value{listofheading}=2
-        \hbox to \hsize{Appendix\hfil} \vspace{4pt} \fi
+        \hbox to \hsize{} \vspace{4pt} \fi
       \ifnum\value{listofheading}=1
         \stepcounter{listofheading} \fi
       \hbox to \hsize{#2 \hfil Page}
@@ -749,7 +749,7 @@
 
 \def\umiabstract{
              \thispagestyle{empty}
-                  \addtocounter{page}{-1}
+                  \addtocounter{page}{-2}
                 \begin{center}
                   {\bf\expandafter\uppercase\expandafter{\@title}}\\
                   \vspace{12pt}
@@ -758,9 +758,10 @@
                   Under the supervision of \@advisortitle\ \@advisorname\\
                   At the University of Wisconsin-Madison
                 \end{center}
+               
 }
 
-\def\endumiabstract{\vfill \hfill\@advisorname\par\newpage}
+\def\endumiabstract{\vfill \hfill\@advisorname\par \thispagestyle{empty}\newpage}
 
 
 

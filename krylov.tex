@@ -43,12 +43,12 @@ A strong scaling study was done as a part of this work that used the Jaguar mach
     \includegraphics [width=0.4\textwidth, height=0.3\textheight ] {Kobayashi1} \\
     \includegraphics [width=0.4\textwidth, height=0.3\textheight ] {Kobayashi1Front}
   \end{center}
-  \caption{Two Views of the Kobayashi Benchmark Problem 1}
+  \caption{Kobayashi Benchmark Problem 1, Two Views}
   \label{fig:Kob1}
 \end{figure}
 
 \begin{table}[h]
-  \caption{Cross Sections and Sources for Kobayashi Benchmark Problem 1}
+  \caption{Kobayashi Benchmark Problem 1, Cross Sections and Sources}
   \centering
   \begin{tabular}{|c|c|c|c|}
     \hline
@@ -69,7 +69,7 @@ One set of calculations was done using $B_{K}$ = 40, or relatively many blocks, 
   \begin{center}
     \includegraphics [width=.9\textwidth, height=0.5\textheight ] {JagBlockStudy}
   \end{center}
-  \caption{Efficiency as a Function of Number of Cores for the Modified Kobayashi 1 Problem}
+  \caption{Modified Kobayashi Problem 1, Efficiency as a Function of Number of Cores}
   \label{fig:JagBlockStudy}
 \end{figure}
 
@@ -341,7 +341,7 @@ The calculation took $3.51 \times 10^{3}$ seconds using MG Krylov, and the upsca
 A version of this problem with a 10 $\times$ 10 $\times$ 10 grid and an $S_{8}$ angle set was also done. This compared GS, GS accelerated with a two-grid preconditioner (TTG; details are given in Section~\ref{sec:TTG}), and MG Krylov. The solver comparisons can be seen in Table~\ref{table:FeC GS Krylov}. This problem had no spatial or energy decomposition. The MG Krylov solver was faster than both accelerated and unaccelerated GS, and took far fewer Krylov iterations. 
 %
 \begin{table}[!h]
-\caption{Multigroup Krylov Compared to Gauss Seidel for Iron Graphite Fixed Source Cube}
+\caption{Iron Graphite Fixed Source Cube, Multigroup Krylov Compared to Gauss Seidel}
 \begin{center}
 \begin{tabular}{l c l c}
 \hline
@@ -361,7 +361,7 @@ Next a more realistic problem, the full-facility PWR core from the Section \ref{
 It should be noted that Jaguar requires decompositions to be done in a certain way, which determines the number of domains that can be used. For example, keeping the spatial domain size exactly same when changing the number of energy sets is typically not possible so the closest available approximation is chosen instead.
 
 \begin{table}[!h]
-\caption{Multigroup Krylov Compared to Gauss Seidel for the Full PWR}
+\caption{PWR900 with 2 groups, Multigroup Krylov Compared to Gauss Seidel}
 \begin{center}
 \begin{tabular}{l c c c c}
 \hline
@@ -388,7 +388,7 @@ The number of energy sets was varied from 1 to 13. The test problems were run on
   \begin{center}
     \includegraphics [width=.75\textwidth, height=0.45\textheight ] {FeCKrylovMultisets}
   \end{center}
-  \caption{Strong Scaling Study for the Iron-Graphite Problem}
+  \caption{Iron Graphite Fixed Source Cube, Strong Scaling Study}
   \label{fig:FeGraphiteStudy}
 \end{figure}
 %
@@ -405,7 +405,7 @@ A 44 energy group cross section set was used with the PWR900 to study strong sca
 Some general communication optimization was added to Denovo after these initial results were obtained and the two cases were redone. In Table ~\ref{table:StrongCasesPWR} ``Initial'' is the time taken by the solver before optimization and ``Optimized'' is the time afterwards. The optimization greatly improved the Base case results, reducing the solve time from 49.61 minutes to 38.33 minutes. Unfortunately, there was a negligible difference in time the Study case. 
 %
 \begin{table}[!h]
-\caption{Strong Scaling for PWR900 Problem}
+\caption{PWR900 with 44 Groups, Strong Scaling Study}
 \begin{center}
 \begin{tabular}{l c c c c c}
 \hline
@@ -424,7 +424,7 @@ Originally, the perfect time for the Study case was 28.04 minutes, giving an eff
   \begin{center}
     \includegraphics [width=.7\textwidth, height=.45\textheight ] {PWRstrongScaling}
   \end{center}
-  \caption{Strong Scaling Study for the Full PWR with 44 Groups}
+  \caption{PWR900 with 44 Groups, Strong Scaling Study}
   \label{fig:PWRstrongScaling}
 \end{figure}
 
@@ -470,7 +470,7 @@ These 44 group fixed source tests were also used to study strong scaling when bo
   \begin{center}
     \includegraphics [width=.8\textwidth, height=0.9\textheight ] {FxdSrcKrylovStrongScaling}
   \end{center}
-  \caption{Strong Scaling Study for Fixed Source, 44 Group Problem Using MG Krylov}
+  \caption{Fixed Source Problem with 44 Groups, Strong Scaling Study}
   \label{fig:FxdStrong}
 \end{figure}
 
@@ -495,7 +495,7 @@ Efficiency for weak scaling is calculated by taking the ratio of the MG Krylov a
   \begin{center}
     \includegraphics [width=.8\textwidth, height=0.48\textheight ] {PWRmyWeakScaling}
   \end{center}
-  \caption{Weak Scaling Study for the Full PWR Calculation}
+  \caption{PWR900, Weak Scaling Study}
   \label{fig:PWRweakScaling}
 \end{figure}
 
@@ -511,3 +511,4 @@ Transport codes could have used machines with hundreds of thousands of cores wit
 
 Overall, the strong scaling studies showed that the block Krylov solver works and provides reasonably good strong scaling in both energy and space. The test problems illustrated that the block Krylov method does the multigroup iterations more quickly than the Gauss Seidel method. The weak scaling study showed that when compared to GS, the MG Krylov method has very good weak scaling properties. This new method decisively accomplishes the goal of accelerating transport calculations by using new computers fully.
 
+\separatorpage{}

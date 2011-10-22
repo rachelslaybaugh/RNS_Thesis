@@ -13,7 +13,7 @@
 %
 % for a 12 Point UW PhD Thesis without Margin Check
 %\documentclass[12pt, twosided]{withesis}
-\documentclass[12pt,msthesis]{withesis}
+\documentclass[12pt]{withesis}
 %
 % for a 10 Point UW PhD Thesis with Margin Check
 %\documentclass[10pt,margincheck]{withesis}
@@ -110,7 +110,7 @@
 %  \draftmargins command.  This command uses dvips's end-of-page hook
 %  This is only visible in the *.ps file (NOT the *.dvi file)!
 %
-\draftmargins
+%\draftmargins
 %
 %
 %  The word ``DRAFT'' can be diagonally printed across the page using
@@ -157,16 +157,16 @@
 \bibliographystyle{plain}
 
  \include{prelude}           % Title page, abstract, table of contents, etc
- +\include{intro}                 % Chapter 1. ``Introduction and Motivation''
- +\include{krylov}              % Chapter 2, ``Krylov for upscattering''
- +\include{eigenvalue}    % Chapter 3, ``Eigenvalue acceleration''
- +\include{precond}          % Chapter 4, ``preconditioning''
- +\include{conclusion}         % Chapter 5, ``comclusions'
+ \include{intro}                 % Chapter 1. ``Introduction and Motivation''
+ \include{krylov}              % Chapter 2, ``Krylov for upscattering''
+ \include{eigenvalue}    % Chapter 3, ``Eigenvalue acceleration''
+ \include{precond}          % Chapter 4, ``preconditioning''
+ \include{conclusion}         % Chapter 5, ``comclusions'
 
 \bibliography{Thesis}         % Make the bibliography
 
-\begin{appendices}       % Start of the Appendix Chapters.  
-                                          % If there is only one Appendix Chapter, then use \begin{appendix}
+% If there is only one Appendix Chapter, then use \begin{appendix}
+\begin{appendices}       % Start of the Appendix Chapters
 \include{diffusion}			 
 \include{arnoldi}
 \include{reflecting}

@@ -114,7 +114,7 @@ The rapid removal of oscillatory and slow removal of coarse error modes is often
     \begin{center}
       \includegraphics [width=0.7\textwidth, height=0.4\textheight] {MGerrorExample}
    \end{center}
-   \caption{Error As a Function of Iteration Count. Oscillatory Components Are Removed Rapidly, Leaving Smooth Components \cite{Briggs2000}}
+   \caption{Error As a Function of Iteration Count; Oscillatory Components Are Removed Rapidly, Leaving Smooth Components \cite{Briggs2000}}
    \label{fig:MGerrorExample}
 \end{figure}
 
@@ -421,7 +421,7 @@ The first two problems run with the preconditioner were the small Rayleigh quoti
 The small RQI unit test with vacuum boundary conditions was tested first. In all cases the correct $k$ and flux were found, and the preconditioned version used fewer Krylov iterations than the base case. The number of RQ iterations was not affected by the preconditioning. The tolerance used to compare the flux to the reference case was $1 \times 10^{-5}$. The results are shown in Table~\ref{table:RQIUnitTestVac}. ``Krylov'' is the total number of Krylov iterations and ``RQI'' is the total number of Eigenvalue iterations.
 %
 \begin{table}[!h]
-\caption{RQI Unit Test With Vacuum Boundaries, Preconditioning Parameter Study}
+\caption{RQI Unit Test with Vacuum Boundaries, Preconditioning Parameter Study}
 \begin{center}
 \begin{tabular}{c c c c c}
 \hline
@@ -463,7 +463,7 @@ Note that while the iteration count is the same, using a larger $v$ and a smalle
 This test was also tried with the shifted version of the operator in the preconditioner. Unless otherwise noted the correct $k$ and flux were found. The flux checking tolerance was again $1 \times 10^{-5}$. The results are shown in Table~\ref{table:RQIUnitTestVacShifted}.
 %
 \begin{table}[!h]
-\caption{RQI Unit Test With Vacuum Boundaries and Shifted Operator, Preconditioning Parameter Study}
+\caption{RQI Unit Test with Vacuum Boundaries and Shifted Operator, Preconditioning Parameter Study}
 \begin{center}
 \begin{tabular}{c c c c c}
 \hline
@@ -495,7 +495,7 @@ The different eigenvalues and incorrect fluxes were only found when precondition
 The next test was the small RQI unit test with reflecting boundary conditions. The flux was not tested against a very tight tolerance, either $1 \times 10^{-2}$ or $1 \times 10^{-3}$ unless otherwise noted. Unless the calculation failed, the correct eigenvalue-vector pair were found. The results are shown in Table~\ref{table:RQIUnitTestRefl}. The maximum number of Krylov iterations was set to 100 for this calculation.
 %
 \begin{table}[!h]
-\caption{RQI Unit Test With Reflecting Boundaries, Preconditioning Parameter Study}
+\caption{RQI Unit Test with Reflecting Boundaries, Preconditioning Parameter Study}
 \begin{center}
 \begin{tabular}{c c c c c c}
 \hline
@@ -539,7 +539,7 @@ Again, when $r$ and $v$ were increased iteration count went down noticeably. Thi
 The reflecting boundary test was repeated with the shifted version of the operator in the preconditioner as well. Many of these calculations did not pass the unit tests. The flux was tested against the same loose tolerance as the unshifted case unless otherwise noted. The results are show in Table~\ref{table:RQIUnitTestReflShifted}. The maximum number of Krylov iterations was 100.
 %
 \begin{table}[!h]
-\caption{RQI Unit Test With Reflecting Boundaries and Shifted Operator, Preconditioning Parameter Study}
+\caption{RQI Unit Test with Reflecting Boundaries and Shifted Operator, Preconditioning Parameter Study}
 \begin{center}
 \begin{tabular}{c c c l c c}
 \hline
@@ -653,7 +653,7 @@ This problem was also used to investigate the option of using a reduced angle se
 The intermediately-sized infinite medium problem from Chapter~\ref{sec:Chp3} that has 27 groups and a very small dominance ratio was solved with preconditioned RQI. This was the first test to see if the preconditioner can converge the Krylov iterations when they did not converge without it. Recall that originally RQI got an eigenvalue close to the correct answer, but was unable to converge the eigenvector. For this test both $k$ and the flux were compared to a reference solution. Like all the problems discussed so far, this was solved without any parallelization using the debug version of Denovo and GMRES. 
 
 \begin{table}[!h]
-\caption{Intermediate Problem With Rayleigh Quotient Iteration, Preconditioning Results}
+\caption{Infinite Medium Eigenvalue Problem, Preconditioning Results with Rayleigh Quotient Iteration}
 \begin{center}
 \begin{tabular}{c c c c l c c c c}
 \hline
@@ -720,7 +720,7 @@ A weight variation study was done with power iteration first. The results using 
     \begin{center}
       \includegraphics [width=0.7\textwidth, height=0.7\textheight] {2dc5g7PI}
    \end{center}
-   \caption{2-D C5G7 Benchmark, Preconditioner Weight Variation With Power Iteration}
+   \caption{2-D C5G7 Benchmark, Preconditioner Weight Variation with Power Iteration}
    \label{fig:2-Dc5g7PI}
 \end{figure}
 
@@ -731,7 +731,7 @@ Two other calculations with a higher level of preconditioning were also done. Wh
 The results from the RQI study are in Table~\ref{table:2-D c5g7 rqi}. In all cases, except the unpreconditioned one, $k$ was within the uncertainty of the benchmark value. The ``$<$ 1,000?'' column indicates whether or not the multigroup iterations converged during the RQI process. If the value is ``no'' that means the eigenvector only converged during the first iteration. A number indicates the last eigenvalue iteration for which the Krylov method took less than 1,000 iterations. All subsequent iterations required the full 1,000. A ``yes'' means all of the Krylov iterations converged.
 %
 \begin{table}[!h]
-\caption{2-D C5G7 Benchmark, Convergence Study With Rayleigh Quotient Iteration}
+\caption{2-D C5G7 Benchmark, Convergence Study with Rayleigh Quotient Iteration}
 \begin{center}
 \begin{tabular}{c c c l c c c}
 \hline
@@ -772,7 +772,7 @@ The preconditioner using both PI and RQI was also applied to the 3-D c5g7 benchm
 The power iteration results are in Table~\ref{table:3-D c5g7}. None of the $k$s were within the uncertainty bounds of the reported benchmark; all results were low by about 0.011. The wall time limit was 12 hours. 
 %
 \begin{table}[!h]
-\caption{3-D C5G7 Benchmark, Preconditioning Parameter Scoping With Power Iteration}
+\caption{3-D C5G7 Benchmark, Preconditioning Parameter Scoping with Power Iteration}
 \begin{center}
 \begin{tabular}{c c c c l l}
 \hline
@@ -800,7 +800,7 @@ The 3-D benchmark study shows the preconditioner can reduce the number of requir
 The degree to which the RQI-computed $k$ matched the benchmark was the same as PI: within 0.011 when the most common tolerance set was used, but not within the reported uncertainty. The results are in Table~\ref{table:3-D c5g7 rqi}. The maximum wall time was 12 hours here as well. 
 %
 \begin{table}[!h]
-\caption{3-D C5G7 Benchmark, Preconditioning Parameter Scoping With Rayleigh Quotient Iteration}
+\caption{3-D C5G7 Benchmark, Preconditioning Parameter Scoping with Rayleigh Quotient Iteration}
 \begin{center}
 \begin{tabular}{c c c c l l}
 \hline
@@ -834,7 +834,7 @@ The 3-D benchmark problem shows that for at least some problems, preconditioned 
 %-------------------------------------------------------------------------------------------------------
 %-------------------------------------------------------------------------------------------------------
 \subsubsection{Multisets}
-The last, but certainly not least, area of investigation was how the preconditioner faired when using multisets. To investigate the effect of multigrid in energy with multisets on the Krylov iterations without worrying about impacts of an eigenvalue calculation, the iron graphite fixed source problem was considereded first. This was run on orhtanc using an optimized version of the code. All previous parameter studies were used to pick preconditioning values that were likely to work well. 
+The last, but certainly not least, area of investigation was how the preconditioner faired when using multisets. To investigate the effect of multigrid in energy with multisets on the Krylov iterations without worrying about impacts of an eigenvalue calculation, the iron graphite fixed source problem was considered first. This was run on orhtanc using an optimized version of the code. All previous parameter studies were used to pick preconditioning values that were likely to work well. 
 
 To make the problem large enough to be able to use energy sets, the grid was increased to $50 \times 50 \times 50$, though $S_{4}$ was used instead of $S_{8}$. The unpreconditioned version was compared to one with $w1r2v2$ on 1 to 10 sets. Note that with 27 groups, 10 sets is the maximum possible to still be able to use the preconditioner. In addition, 2 x-blocks, 2 y-blocks, and 1 z-block were used. The calculations therefore used between 4 and 40 cores. The preconditioned calculation took 27 GMRES iterations while the unpreconditioned took 123 regardless of the number of sets used.
 
@@ -844,7 +844,7 @@ Because the number of iterations did not change with sets, the only thing to com
     \begin{center}
       \includegraphics [width=0.7\textwidth, height=0.8\textheight] {FeCmultisets}
    \end{center}
-   \caption{Iron Graphite Fixed Source Problem, Preconditioner Multiset Study}
+   \caption{Iron Graphite Fixed Source Problem, Preconditioned Multiset Study}
    \label{fig:FeC multisets}
 \end{figure}
 
@@ -884,7 +884,7 @@ Finally, the full-facility PWR (Full PWR or PWR900) problem was calculated using
 The 44-group, 1.7 trillion unknown version of the problem was used for this scaling study. The tolerance and $k$ tolerance were $1 \times 10^{-3}$, and the upscattering tolerance was $1 \times 10^{-4}$. The preconditioner settings were $w1r3v3$. 1, 4, 11, and 22 sets were used giving 44, 11, 4, and 2 groups per set and 7, 5, 3, and 1 energy grid(s), respectively. There were 578 $\times$ 578 $\times$ 700 mesh elements. With 22 sets, 96 x-blocks, 94 y-blocks, and 10 z-blocks were used. All other cases had 102 x-blocks, 100 y-blocks, and 10 z-blocks. All of the results are in Table~\ref{table:full PWR}. 
 %
 \begin{table}[!h]
-\caption{Full PWR, Preconditioned Strong Scaling Study}
+\caption{PWR900, Preconditioned Strong Scaling Study}
 \begin{center}
 \begin{tabular}{l c c c l c c l}
 \hline
@@ -963,6 +963,7 @@ The goals for the new preconditioner were to decrease iteration count for at lea
 
 
 
+\separatorpage{}
 
 
 

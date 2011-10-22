@@ -328,4 +328,6 @@ The second strategy was to add an eigenvalue method with convergence properties 
 
 The third step was to add a new physics-based preconditioner that is a multigrid method in energy. This capitalizes on the energy decomposition added by the first method. Since energy groups can be treated independently, they can be combined and re-separated in a multi-grid like fashion very easily. The preconditioner is applicable to both fixed source problems and eigenvalue calculations, and it reduces the number of iterations required for convergence in all cases. The \emph{multigrid in energy preconditioner} is discussed in Chapter~\ref{sec:Chp4}.
 
-Fast and scalable codes are necessary for solving truly large and challenging neutron transport problems. This work developed methods that accelerated an existing transport code by allowing it to scale to hundreds of thousands of cores and converge more quickly than the previous methods, thus enabling the development of new and useful nuclear energy systems. These methods may also be beneficial for the larger computational community.  
+Fast and scalable codes are necessary for solving truly large and challenging neutron transport problems. This work developed methods that accelerated an existing transport code by allowing it to scale to hundreds of thousands of cores and converge more quickly than the previous methods, thus enabling the development of new and useful nuclear energy systems. These methods may also be beneficial for the larger computational community.
+
+\separatorpage{}  

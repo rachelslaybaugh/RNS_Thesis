@@ -1,0 +1,21 @@
+% Thesis, Absatract
+% by Rachel Slaybaugh
+
+\noindent       % Don't indent this paragraph.
+To improve the design of nuclear systems, high-fidelity neutron fluxes are required. Leadership-class machines provide platforms on which very large problems can be solved. Computing such fluxes efficiently requires numerical methods with good convergence properties and algorithms that can scale to hundreds of thousands of cores. Many 3-D deterministic transport codes can only scale in space and angle, limiting them to tens of thousands of cores, and rely on methods such as Gauss Seidel for fixed source problems and power iteration for eigenvalue problems. These methods can be slow to converge for challenging problems like those with highly scattering materials or high dominance ratios. 
+
+\vspace*{0.5em}
+\noindent       % Don't indent this paragraph.
+Three methods have been added to the 3-D \Sn transport code Denovo that are designed to improve convergence and enable the full use of cutting-edge computers. The first is a multigroup Krylov solver that converges more quickly than Gauss Seidel and parallelizes the code in energy such that Denovo can use hundreds of thousand of cores effectively. 
+
+\vspace*{0.5em}
+\noindent       % Don't indent this paragraph.
+The second is Rayleigh quotient iteration (RQI), an old method applied in a new context. This eigenvalue solver finds the dominant eigenvalue in an optimal way, and RQI should converge in fewer iterations than power iteration. RQI creates energy-block dense equations that the new Krylov solver treats efficiently. Unfortunately, RQI creates poorly conditioned systems that cause convergence problems. This can be overcome with preconditioning. 
+
+\vspace*{0.5em}
+\noindent       % Don't indent this paragraph.
+The third method is a multigrid in energy preconditioner. The preconditioner takes advantage of the new energy decomposition because the grids are in energy rather than space or angle. The preconditioner greatly reduces iteration count for many problem types and scales well in energy. It also allows RQI to be successful for problems it could not solve otherwise. 
+
+\vspace*{0.5em}
+\noindent       % Don't indent this paragraph.
+The methods added to Denovo accomplish the goals of this work. They converge more quickly than traditional methods and enable the use of hundreds of thousands of cores. Each method can be used individually, with the multigroup Krylov solver and multigrid in energy preconditioner being particularly successful on their own. For ``grand challenge'' eigenvalue problems, though, the true benefit comes from using these methods in concert. 
