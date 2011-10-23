@@ -15,7 +15,7 @@ The first step in applying this approximation is to integrate the angular depend
 where the following definitions have been used:\\
 \indent $J(\vec{r},E) = \int d\vOmega \:\vOmega \psi(\vec{r}, \vOmega, E)$ is the neutron current \\
 \indent  $\phi(\vec{r},E) = \int d\vOmega \:\psi(\vec{r}, \vOmega, E)$ is the scalar flux, and \\
-\indent $Q_{ex} (\vec{r},E)= \int d\vOmega \:q_{ex}(\vec{r}, \vOmega, E)$ is the external source, \cite{Duderstadt1976}.
+\indent $Q_{ex} (\vec{r},E)= \int d\vOmega \:q_{ex}(\vec{r}, \vOmega, E)$ is the external source.
 
 Unfortunately, this simplifying approximation added another unknown, $J$, which leaves one equation with two unknowns. In an attempt to eliminate one of these unknowns, Equation \eqref{eq:continuity} is multiplied by $\hat{\Omega}$ and integrated over angle again to obtain the first angular moment:
 %
@@ -27,16 +27,20 @@ Unfortunately, this simplifying approximation added another unknown, $J$, which 
 %
 where $\Macro_{s1}  = \int d\vOmega \:\vOmega \Macro_{s}$. The first angular moment form of the equation cannot be solved either because the streaming (first) term is still unknown. 
 
-To make Equation \eqref{eq:current1} solvable, the original assumption is modified to assert that the angular flux is weakly, in fact linearly, dependent on angle rather than independent of angle. To implement this assumption the angular flux is expanded in angle and only the first two terms are retained (see Equation \eqref{eq:angExpand}). The truncated angular flux is then inserted into the streaming term in Equation \eqref{eq:current1}, giving Equation \eqref{eq:firstTerm}.
+To make Equation \eqref{eq:current1} solvable, the original assumption is modified to assert that the angular flux is weakly, in fact linearly, dependent on angle rather than independent of angle. To implement this assumption the angular flux is expanded in angle and only the first two terms are retained:  
 %
-\begin{align}
-\psi(\vec{r}, \vOmega, E) &\cong \frac{1}{4 \pi} \phi(\vec{r}, E) + \frac{3}{4 \pi}J(\vec{r}, E) \cdot \vOmega \:, \qquad \text{ which gives} \label{eq:angExpand} \\
-\nabla \cdot \int d \vOmega \:\vOmega \vOmega \psi(\vec{r}, \vOmega, E)  &\cong \frac{1}{3} \nabla \phi(\vec{r}, E) \:. \label{eq:firstTerm}
-\end{align}
+\begin{equation}
+  \psi(\vec{r}, \vOmega, E) \cong \frac{1}{4 \pi} \phi(\vec{r}, E) + \frac{3}{4 \pi}J(\vec{r}, E) \cdot \vOmega \:.
+  \label{eq:angExpand} 
+\end{equation}
+The truncated angular flux is then inserted into the streaming term in Equation \eqref{eq:current1}, giving 
+%
+\begin{equation}
+  \nabla \cdot \int d \vOmega \:\vOmega \vOmega \psi(\vec{r}, \vOmega, E)  \cong \frac{1}{3} \nabla \phi(\vec{r}, E) \:. 
+  \label{eq:firstTerm}
+\end{equation}
 
-Next, the scattering source term is simplified in angle and energy. To address the angular dependence define $\bar{\mu}_{0}$ as the average cosine of the scattering angle, which, temporarily suppressing energy, gives $\Macro_{s1} = \bar{\mu}_{0}\Macro_{s}$. For elastic scattering from stationary nuclei when s-wave scattering is present in the center of mass frame, $\bar{\mu_{0}} = \frac{2}{3A}$ where $A$ is atomic mass number. A common procedure to simplify the energy dependence is to neglect the anisotropic contribution to energy transfer in a scattering collision. Mathematically this means $\Macro_{s1}(E' \to E) = \Macro_{s1}(E) \delta(E' = E)$, giving $\int dE' \:\Macro_{s1}(\vec{r}, E' \to E)J(\vec{r},E') = \bar{\mu_{0}}\Macro_{s}(\vec{r},E)J(\vec{r},E)$. 
-
-Finally, it is assumed that the external source is isotropic, $\int  d\vOmega \int d\vOmega \:\vOmega q_{ex} = 0$.
+Next, the scattering source term is simplified in angle and energy. To address the angular dependence define $\bar{\mu}_{0}$ as the average cosine of the scattering angle, which, temporarily suppressing energy, gives $\Macro_{s1} = \bar{\mu}_{0}\Macro_{s}$. For elastic scattering from stationary nuclei when s-wave scattering is present in the center of mass frame, $\bar{\mu_{0}} = \frac{2}{3A}$ where $A$ is atomic mass number. A common procedure to simplify the energy dependence is to neglect the anisotropic contribution to energy transfer in a scattering collision. Mathematically this means $\Macro_{s1}(E' \to E) = \Macro_{s1}(E) \delta(E' = E)$, giving $\int dE' \:\Macro_{s1}(\vec{r}, E' \to E)J(\vec{r},E') = \bar{\mu_{0}}\Macro_{s}(\vec{r},E)J(\vec{r},E)$. Finally, it is assumed that the external source is isotropic, $\int  d\vOmega \int d\vOmega \:\vOmega q_{ex} = 0$.
 
 If these approximations are all included and Equation \eqref{eq:current1} is solved for $J$, the result is Fick's Law:
 %
