@@ -3,15 +3,13 @@
 
 \chapter{Supplementary Preconditioning Results}
 \label{sec:AppendixD}
-This appendix contains tables of the results for which there are only figures in Chapter~\ref{sec:Chp4}. The tables are titled with monikers matching those in the Preconditioning Chapter. 
-
-The data in Tables~\ref{table:FxdSrcTstVacWeight} and \ref{table:FxdSrcTstVacRV} are plotted in Figure~\ref{fig:FxdSrcVac}.
+This appendix contains tables of the results for which there are only figures in Chapter~\ref{sec:Chp4}. The tables are titled with monikers matching those in the Preconditioning Chapter. The data in Tables~\ref{table:FxdSrcTstVacWeight} and \ref{table:FxdSrcTstVacRV} are plotted in Figure~\ref{fig:FxdSrcVac}.
 \begin{table}[!h]
 \caption{Small Fixed Source Problem with Vacuum Boundaries, Weight Variation Study}
 \begin{center}
-\begin{tabular}{c c c l}
-\hline
-Weight & Relaxations & V-cycles & Iterations \\[0.5ex]
+\begin{tabular}{| c | c | c | c |}
+\hline 
+Weight & Relaxations & V-cycles & Krylov \\[0.5ex]
 \hline
 0    & 0 & 0 & 10 \\
 1    & 1 & 1 & 7 \\
@@ -37,9 +35,9 @@ $^{\dagger}$ All tests failed
 \begin{table}[!h]
 \caption{Small Fixed Source Problem with Vacuum Boundaries, Relaxation Count and V-cycle Variation Study}
 \begin{center}
-\begin{tabular}{c c c c}
+\begin{tabular}{|c| c| c| c|}
 \hline
-Weight & Relaxations & V-cycles & Iterations \\[0.5ex]
+Weight & Relaxations & V-cycles & Krylov \\[0.5ex]
 \hline
 0  & 0 & 0 & 10 \\
 1 & 1 & 1 & 7 \\
@@ -60,9 +58,9 @@ The data in Tables~\ref{table:FxdSrcTstReflWeight} and \ref{table:FxdSrcTstReflR
 \begin{table}[!h]
 \caption{Small Fixed Source Problem with Reflecting Boundaries, Weight Variation Study}
 \begin{center}
-\begin{tabular}{c c c c}
+\begin{tabular}{|c| c| c| c|}
 \hline
-Weight & Relaxations & V-cycles & Iterations \\[0.5ex]
+Weight & Relaxations & V-cycles & Krylov \\[0.5ex]
 \hline
 0    & 0 & 0 & 15 \\
 1    & 1 & 1 & 11 \\
@@ -84,9 +82,9 @@ $^{\dagger}$ All tests failed
 \begin{table}[!h]
 \caption{Small Fixed Source Problem with Reflecting Boundaries, Relaxation Count and V-cycle Variation Study}
 \begin{center}
-\begin{tabular}{c c c c}
+\begin{tabular}{|c |c |c |c|}
 \hline
-Weight & Relaxations & V-cycles & Iterations \\[0.5ex]
+Weight & Relaxations & V-cycles & Krylov \\[0.5ex]
 \hline
 0  & 0 & 0 & 15 \\
 1 & 1 & 1 & 11 \\
@@ -108,12 +106,12 @@ Weight & Relaxations & V-cycles & Iterations \\[0.5ex]
 \label{table:FxdSrcTstReflRV}
 \end{table}
 
-In Table \ref{table:2-D c5g7} ``Krylov'' is the total number of Krylov iterations and ``PI'' is the total number of Eigenvalue iterations. The data in Table~\ref{table:2-D c5g7} are plotted in Figure~\ref{fig:2-Dc5g7PI}.
+In Table \ref{table:2-D c5g7} ``Krylov'' is the total number of Krylov iterations and ``PI'' is the total number of eigenvalue iterations. The data in Table~\ref{table:2-D c5g7} are plotted in Figure~\ref{fig:2-Dc5g7PI}.
 %
 \begin{table}[!h]
 \caption{2-D C5G7 Benchmark, Preconditioner Weight Variation with Power Iteration}
 \begin{center}
-\begin{tabular}{c c c c c c}
+\begin{tabular}{|c |c |c |c |c |c|}
 \hline
 Weight & Relaxations & V-cycles & Krylov & PI & Time (s) \\[0.5ex]
 \hline
@@ -134,7 +132,7 @@ The data in Table~\ref{table:FeC multisets} are plotted in Figure~\ref{fig:FeC m
 \begin{table}[!h]
 \caption{Iron Graphite Fixed Source Problem, Preconditioned Multiset Study}
 \begin{center}
-\begin{tabular}{c c c c c c}
+\begin{tabular}{|c |c |c |c |c |c|}
 \hline
 \# Sets & Precond T (s) & Regular T (s) & Rel Diff & P T Set N / Set 1 & R T Set N / Set 1 \\[0.5ex]
 \hline
@@ -158,7 +156,7 @@ The data in Table~\ref{table:impi multisets} are plotted in Figure~\ref{fig:impi
 \begin{table}[!h]
 \caption{Infinite Medium Eigenvalue Problem, Preconditioned Multiset Study with Power Iteration}
 \begin{center}
-\begin{tabular}{c c c c c c}
+\begin{tabular}{|c |c |c |c |c |c|}
 \hline
 \# Sets & Precond T (s) & Regular T (s) & Rel Diff & P T Set N / Set 1 & R T Set N / Set 1 \\[0.5ex]
 \hline
