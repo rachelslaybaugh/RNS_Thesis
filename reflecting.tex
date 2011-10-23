@@ -4,7 +4,7 @@
 \chapter{Reflecting Boundaries}
 \label{sec:AppendixC}
 
-Algorithm \ref{algo:RQI+MGkrylov} works for problems with vacuum boundary conditions. However, with reflecting boundary conditions some modifications must be made to the calculation of the Rayleigh quotient. To compute the correct RQ the reflected boundary terms must be excluded when computing the dot products, but their contribution to the real moments must be included properly. It was not possible to do this using the solvers in Denovo when this work was begun. How Denovo handles reflecting boundary conditions and what was done to fix this problem is detailed here. The information in this section is derived from conversations with Tom Evans \cite{Evans2011a} and a paper by Warsa et.\ al.\ \cite{Warsa2004}.
+Algorithm \ref{algo:RQI+MGkrylov} in Chapter~\ref{sec:Chp3} works for problems with vacuum boundary conditions. However, with reflecting boundary conditions some modifications must be made to the calculation of the Rayleigh quotient. To compute the correct RQ the reflected boundary terms must be excluded when computing the dot products, but their contribution to the real moments must be included properly. It was not possible to do this using the solvers in Denovo when this work was begun. How Denovo handles reflecting boundary conditions and what was done to fix this problem are detailed here. The information in this section is derived from conversations with Tom Evans \cite{Evans2011a} and a paper by Warsa et.\ al.\ \cite{Warsa2004}.
 
 Denovo stores the boundary condition information between the flux moments in the solution vector. For the following discussion let the moments for group $g$ be held in $\phi_{g}$, which is of length $f_{g} = t \times c \times u$ (these sizes are defined in Chapter \ref{sec:Chp1}). Let the reflected angular flux for that group be $\psi_{r,g}$, which is of length $m = n \times c_{r} \times u$ where $c_{r}$ is the number of cells on the reflecting boundaries. For each group the solution vector and associated source are of length $f_{g} + m$ and look like
 %
@@ -36,9 +36,9 @@ To include reflecting boundaries, the operators are expanded in the appropriate 
  \ve{\tilde{S}} = \begin{pmatrix} \ve{S} & 0 \\ 0 & \ve{I}_{r} \end{pmatrix} \:. \nonumber
 \end{alignat}
 %
-The operators in Equation \eqref{eq:transportMoments} can now be replaced by the reflecting operators, and then doing a transport solve will converge both the moments and the reflected terms at once. 
+The operators in Equation \eqref{eq:transportMoments} can now be replaced by the reflecting operators, and then doing a transport solve will converge both the moments and reflected terms at once. 
 
-When computing the Rayleigh quotient, however, the operator is applied but a full solve is not done. With the standard implementation this does not converge $\psi_{r}$ and those terms therefore do not contribute to the solution properly. 
+When computing the Rayleigh quotient, however, the operator is applied but a full solve is not done. With Denovo's standard implementation this does not converge $\psi_{r}$ and therefore those terms do not contribute to the solution properly. 
 
 To address this the reflecting boundaries must be converged first by solving each group separately while excluding within-group scattering. Explicitly multiplying the reflecting matrices illustrates what is happening here. The inverse of the reflecting transport operator is
 %
@@ -84,13 +84,13 @@ In practice, the process to apply $\ve{A}$ in Denovo when calculating the Raylei
 %
 Now Equation \eqref{eq:calcRQ} looks just like Equation \eqref{eq:transport} where the within-group scattering source is set to zero ($\ve{S} = 0$) and $v = q$. 
 
-An alternative way to express the same idea using the traditional operators using the $\ve{L}_{v}$ and $\ve{L}_{r}$ terms can be informative as well. This is presented in source iteration notation, where the reflecting boundaries are lagged. This is exactly the same idea as above, though iteration indices were excluded.
+An alternative way to express the same idea using the traditional operators with the $\ve{L}_{v}$ and $\ve{L}_{r}$ terms can be informative as well. This is presented in source iteration notation, where the reflecting boundaries are lagged. This is exactly the same idea as above, though iteration indices were excluded.
 \begin{align}
   \psi^{l+1} &= \ve{L}_{v}^{-1} \bigl( \ve{MS} \phi^{l} - \ve{L}_{r} \ve{P} \psi_{r}^{l} \bigr) + \ve{D}q 
 \label{eq:laggedSI} \\
   \phi^{l+1} &= \ve{D}\psi^{l+1} \:.
 \end{align}
 
-A new solver was written that solves each group separately to converge the reflecting boundaries. This solver is used to compute the Rayleigh quotient when there are reflecting boundaries. This has worked well, but has not been implemented for multisets because each group must be solved separately. 
+A new solver was written that solves each group separately to converge the reflecting boundaries. This solver is used to compute the Rayleigh quotient when there are reflecting boundaries. This has worked well, but has not yet been implemented for multisets because each group must be solved separately. 
 
 
