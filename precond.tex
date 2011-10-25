@@ -26,7 +26,7 @@ The matrix $\ve{A}\ve{G}^{-1}$ is not formed in practice. The preconditioner can
 
 Functionally, a good preconditioner should make the system easier to solve and result in faster convergence. It should also be cheap to construct and apply. These tend to be competing goals in that the easier a preconditioner is to construct and apply the less it typically does to improve convergence. A preconditioner is considered good if $\ve{A}\ve{G}^{-1}$ is not too far from normal and its eigenvalues are clustered \cite{Trefethen1997}. 
 
-There are many different types of preconditioners, but they can be put into two general categories: matrix-based and physics-based. Matrix-based preconditioners rely entirely on the structure of the matrix $\ve{A}$ regardless of the physics going on in the problem. That is, these methods do not change when the underlying problem changes. This can be a very useful property because matrix-based methods are then broadly applicable and do not require any understanding of the physical problem. Extrapolation methods and incomplete factorizations are examples of matrix-based preconditioners \cite{Trefethen1997}.
+There are many different types of preconditioners, but they can be put into two general categories: matrix-based and physics-based. Matrix-based preconditioners rely entirely on the structure of the matrix $\ve{A}$ regardless of the physics of the problem. That is, these methods do not change when the underlying problem changes. This can be a very useful property because matrix-based methods are then broadly applicable and do not require any understanding of the physical problem. Extrapolation methods and incomplete factorizations are examples of matrix-based preconditioners \cite{Trefethen1997}.
 
 Physics-based preconditioning uses knowledge about the physics of the problem in question to guide the creation of the preconditioner. This means that some methods only work with certain kinds of problems, and that the preconditioners may have to be tailored or adapted for different applications. However, such methods take advantage of knowing something about the problem and can be more effective than matrix-based methods for the range of problems for which they are intended. Rebalance and synthetic acceleration are examples of physics-based preconditioners \cite{Trefethen1997}.
 
@@ -74,7 +74,7 @@ Original DSA formulations exhibited instability in some instances. In 1977 Alcou
 
 DSA can be implemented a few different ways, each of which performs a transport sweep and then solves a corrected diffusion equation. Different terms in the diffusion equation can be corrected for different problem types \cite{Alcouffe1977}. DSA has been found to degrade in the presence of material discontinuities in addition to when it is not consistently derived. However, Warsa et.\ al.\ found that when DSA is used as a preconditioner for Krylov iterative methods, it is effective even when only partially consistent \cite{Warsa2004}.
 
-To address the concerns about spatial discretization associated with DSA, a low-order transport solve could be used to find the correction term instead. Larsen and Miller developed a method that neglects scattering in the low-order transport equation, but this can cause instability in multi-dimensional problems. Ramone et.\ al.\ proposed including some scattering by using a tunable parameter. A high-order transport equation is solved first, then a transport equation with a coarse quadrature and reduced scattering is solved to find the correction that is applied to the new iterate of the scalar flux \cite{Ramone1997}. This algorithm can be viewed as Richardson iteration with a coarse operator preconditioner. Synthetic acceleration methods are widely used and actively researched in the transport community today.
+To address the concerns about spatial discretization associated with DSA, a low-order transport solve could be used to find the correction term instead. Larsen and Miller developed a method that neglects scattering in the low-order transport equation, but this can cause instability in multi-dimensional problems \cite{Larsen1986}. Ramone et.\ al.\ proposed including some scattering by using a tunable parameter. A high-order transport equation is solved first, then a transport equation with a coarse quadrature and reduced scattering is solved to find the correction that is applied to the new iterate of the scalar flux \cite{Ramone1997}. This algorithm can be viewed as Richardson iteration with a coarse operator preconditioner. Synthetic acceleration methods are widely used and actively researched in the transport community today.
 
 %-----------------------------------------------------------------------------------------------------
 \subsection{Multigrid Methods}
@@ -108,7 +108,7 @@ Iterative methods, also referred to as smoothers or relaxers, remove high freque
    \label{fig:FourierError}
 \end{figure}
 %
-The rapid removal of oscillatory and slow removal of coarse error modes is often seen in practice. Figure~\ref{fig:MGerrorExample} shows an error plot that exhibits this behavior
+The rapid removal of oscillatory and slow removal of smooth error modes is often seen in practice. Figure~\ref{fig:MGerrorExample} shows an error plot that exhibits this behavior
 %
 \begin{figure}[!ht]
     \begin{center}
@@ -164,7 +164,7 @@ Multigrid methods can be thought of as stationary iterative schemes that can be 
 \section{Past Work}
 This section discusses some past work from most of the categories of preconditioners that were presented above. The focus is on methods that have been used to precondition Krylov solvers and on multigrid methods. This section is intended to illustrate the need for preconditioning Krylov methods in transport and to demonstrate the new preconditioner's originality. 
 
-As an aside, it is important to note that how well a preconditioner is going to do for a certain problem when using Krylov methods cannot be known \emph{a priori}. At this time there are no set methods or procedures for predicting preconditioner behavior with Krylov methods. As a result, preconditioning Krylov methods is somewhat ``guess and check.'' Despite this, the rewards of preconditioning Krylov methods ensure that they are an essential part of their practical use \cite{Knoll2004}, \cite{Benzi2002}. 
+As an aside, it is important to note that how well a preconditioner is going to perform for a certain problem when using Krylov methods cannot be known \emph{a priori}. At this time there are no set methods or procedures for predicting preconditioner behavior with Krylov methods. As a result, preconditioning Krylov methods is somewhat ``guess and check.'' Despite this, the rewards of preconditioning Krylov methods ensure that they are an essential part of their practical use \cite{Knoll2004}, \cite{Benzi2002}. 
 
 %-------------------------------------------------------------------------------------------------------
 \subsection{Rebalance}
@@ -226,22 +226,21 @@ In 2010 Lee developed a method to do \mg in space and angle simultaneously for t
 This list is hardly comprehensive, but is intended to be representative of new and recent developments in this area. No cases were found where \mg was used in the energy variable either as a solution technique or as a preconditioner. 
 
 \subsubsection{Two-Grid Acceleration}
-The two-grid acceleration method developed by Adams and Morel was one of the earlier spatial \mg methods and it has been built upon by others \cite{Adams1993}. It is intended to accelerate convergence of the outer iterations for the transport equation when upscattering is present; the outer iteration method is Gauss Seidel. The original work was done for slab geometry with linear discontinuous (LD) discretization, and the method is a one-grid, one-cycle scheme in angle. The general approach is expounded upon here to provide an example of \mg methods applied to the transport equation and because a variation of this method is used in Denovo. 
+The two-grid acceleration method developed by Adams and Morel was one of the earlier spatial \mg methods and it has been built upon by others \cite{Adams1993}. It is intended to accelerate convergence of the outer iterations for the transport equation when upscattering is present; the outer iteration method is Gauss Seidel and the method is only applied to upscattering groups. The original work was done for slab geometries with linear discontinuous (LD) discretization. The general approach is expounded upon here to provide an example of \mg methods applied to the transport equation and because a variation of this method is used in Denovo. 
 
 Adams and Morel create a within group error equation by subtracting the GS equation from the transport equation. If the error in iteration $k$ is $\epsilon^k$ and the $l$th moment of the residual is $R_l^k$, then for group $g$ in 1-D this gives:
 %
 \begin{align}
    \mu \frac{\partial \epsilon_{g}^{k+1}(\mu)}{\partial x} + \Macro_{t,g} \epsilon_{g}^{k+1}(\mu) &= \sum_{l=0}^{L}\frac{2l+1}{4\pi} \bigl( \sum_{g'=1}^{G}\Macro_{s,g' \to g, l} \epsilon_{g',l}^{k+1} 
    +  R_{g,l}^{k+1}\bigr) P_{l}(\mu) \:,\label{eq:GSerror} \\
-   % \nonumber \\
   \epsilon_{g}^{k+1}(\mu) &= \psi_{g}(\mu) - \psi_{g}^{k+1}(\mu) \:, \\
   \epsilon_{g',l}^{k+1} &= 2\pi \int_{-1}^{1}\epsilon_{g'}^{k+1}(\mu') P_{l}(\mu') d\mu' \:, \\ 
-  R_{g,l}^{k+1} &=  \sum_{g'=g+1}^{G}\Macro_{s,g' \to g, l} \bigl( \phi_{g',l}^{k+1} - \Macro_{g',l}^{k} \bigr) \:.
+  R_{g,l}^{k+1} &=  \sum_{g'=g+1}^{G}\Macro_{s,g' \to g, l} \bigl( \phi_{g',l}^{k+1} - \phi_{g',l}^{k} \bigr) \:.
 \end{align}
 %
-The diffusion approximation is applied to Equation \eqref{eq:GSerror}, giving a coarse grid equation. The coarse grid equation is then solved on the coarse grid for the error, which is in turn added to the flux approximation. 
+The diffusion approximation is applied to Equation \eqref{eq:GSerror}, giving a coarse grid equation. The fine grid is the \Sn equations for the upscattering groups. The coarse grid is the isotropic, one-group, diffusion equation. 
 
-Next, it is assumed that the zeroth moment of the error is a product of a spectral shape function, $\xi_g$ and a space-dependent modulation function, $E(x)$:
+It is assumed that the zeroth moment of the error is a product of a spectral shape function, $\xi_g$ and a space-dependent modulation function, $E(x)$:
 %
 \begin{align}
   \epsilon_{g,0}^{k+1}(x) &= E(x)\xi_{g} \:, \text{ and} \label{eq:errorExpand} \\
@@ -250,9 +249,11 @@ Next, it is assumed that the zeroth moment of the error is a product of a spectr
 %
 The spectral shape function corresponds to the slowest converging error mode, i.e.\ the mode to be eliminated. To find the shape function, Fourier analysis is performed on the GS iterative method. The zeroth moment of the cross sections is used to form the Fourier matrix, and then an eigenproblem can be formed. The spectral radius of the isotropic GS matrix is the eigenvalue, and the corresponding eigenvector is the shape function. Because the shape function is dependent on materials, one such calculation must be done for each material region. Note that by using the zeroth moment only the isotropic component of the solution is accelerated.
 
+To restrict the residual, which is used as the source, to the coarse grid in the angular dimension, the anisotropic terms are truncated. To restrict to one energy group, the residual is simply summed in energy. The coarse grid equation is then solved on the coarse grid for the error. That error is prolonged to the fine grid and used to correct the flux there. The anisotropic terms are not recovered in the prolongation. The shape functions are used to expand the one group diffusion solution (error) into multiple groups. 
+
 The coarse grid diffusion equations that result from Equations \eqref{eq:GSerror} and \eqref{eq:errorExpand} differ slightly in form from the standard diffusion equation in that there is an extra term containing the gradient of the shape function. This is zero in homogeneous regions, but undefined at material interfaces. Adams and Morel found that neglecting the gradient term all together still gave good results for their test problems. This may not be true for more complex cases.
 
-The two-grid method requires the diffusion operator to be consistent with the transport operator, just like in DSA. This requirement can be difficult to meet for multi-dimensional problems, particularly for some spatial discretizations. 
+The two-grid method requires the diffusion operator to be consistent with the transport operator, just like in DSA. This requirement can be difficult to meet for multi-dimensional problems, particularly for some spatial discretizations \cite{Adams1993}. 
 
 \subsubsection{Two-Grid in Denovo}
 \label{sec:TTG}
