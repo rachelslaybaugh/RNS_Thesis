@@ -3,7 +3,7 @@
 
 \chapter{Preconditioning}
 \label{sec:Chp4}
-The new ``grand challenge'' problems facing the nuclear transport community are large and complex. Cutting edge methods are required to solve them. While the second and third chapters discussed new methods that enable the solution of such problems, low-cost preconditioners that can reduce the number of iterations needed for convergence will be invaluable. In Benzi et.\ al.'s 2002 survey paper on preconditioning techniques for large linear systems they state ``it is widely recognized that preconditioning is the most critical ingredient in the development of efficient solvers for challenging problems in scientific computation \cite{Benzi2002}.'' 
+The new ``grand challenge'' problems facing the nuclear transport community are large and complex. Cutting edge methods are required to solve them. While the second and third chapters discussed methods that enable the solution of such problems, low-cost preconditioners that can reduce the number of iterations needed for convergence will be invaluable. In Benzi et.\ al.'s 2002 survey paper on preconditioning techniques for large linear systems they state ``it is widely recognized that preconditioning is the most critical ingredient in the development of efficient solvers for challenging problems in scientific computation \cite{Benzi2002}.'' 
 
 This is true for Krylov methods in particular because the memory required and cost per iteration increase dramatically with the number of iterations \cite{Benzi2002}. And, as discussed in Chapter \ref{sec:Chp3}, Krylov methods can converge very slowly for poorly conditioned systems. When this happens the eigenvector is not converged in a reasonable number of iterations and RQI cannot converge the eigenvalue. Preconditioning is therefore required to make RQI useful. 
 
@@ -22,11 +22,11 @@ The general idea of preconditioning is to transform the system of interest into 
 
 If $\ve{A}$ and/or $\ve{G}$ are non-normal then each of the preconditioning constructs will likely give different behavior, though they will converge to the same answer because the matrices are similar and therefore have the same eigenvalues  \cite{Benzi2002}. Right preconditioning leaves the right hand side of the equation unaffected and does not change the norm of the residual, which is used for convergence testing in most iterative methods. Right preconditioning is usually preferred over left preconditioning for iterative solvers for this reason \cite{Knoll2004}. A right preconditioner was implemented in this work, and the remaining discussion will be presented in right preconditioner format. 
 
-There are two extremes between which all other preconditioners lie: $\ve{G} = \ve{A}$, in which case the solution can be found directly, and $\ve{G} = \ve{I}$, which will have no effect. The matrix $\ve{A}\ve{G}^{-1}$ is not formed in practice. The preconditioner can be applied by using some method to solve $\ve{G}y=c \to y \approx \ve{G}^{-1}c$, or by otherwise implementing the action of $\ve{G}^{-1}$ without ever explicitly forming and inverting $\ve{G}$ \cite{Benzi2002}, \cite{Trefethen1997}. 
+The matrix $\ve{A}\ve{G}^{-1}$ is not formed in practice. The preconditioner can be applied by using some method to solve $\ve{G}y=c \to y \approx \ve{G}^{-1}c$, or by otherwise implementing the action of $\ve{G}^{-1}$ without ever explicitly forming and inverting $\ve{G}$. There are two extremes between which all other preconditioners lie: $\ve{G} = \ve{A}$, in which case the solution can be found directly, and $\ve{G} = \ve{I}$, which will have no effect \cite{Benzi2002}, \cite{Trefethen1997}. 
 
 Functionally, a good preconditioner should make the system easier to solve and result in faster convergence. It should also be cheap to construct and apply. These tend to be competing goals in that the easier a preconditioner is to construct and apply the less it typically does to improve convergence. A preconditioner is considered good if $\ve{A}\ve{G}^{-1}$ is not too far from normal and its eigenvalues are clustered \cite{Trefethen1997}. 
 
-There are many different types of preconditioners, but they can be put into two general categories: matrix-based and physics-based. Matrix-based preconditioners rely entirely on the structure of the matrix $\ve{A}$ regardless of the physics going on in the problem. That is, these methods do not change when the underlying problem changes. This can be a very useful property because matrix-based methods are then broadly applicable and do not require any understanding of the physical problem. Extrapolation methods and incomplete factorizations are examples of a matrix-based preconditioners \cite{Trefethen1997}.
+There are many different types of preconditioners, but they can be put into two general categories: matrix-based and physics-based. Matrix-based preconditioners rely entirely on the structure of the matrix $\ve{A}$ regardless of the physics going on in the problem. That is, these methods do not change when the underlying problem changes. This can be a very useful property because matrix-based methods are then broadly applicable and do not require any understanding of the physical problem. Extrapolation methods and incomplete factorizations are examples of matrix-based preconditioners \cite{Trefethen1997}.
 
 Physics-based preconditioning uses knowledge about the physics of the problem in question to guide the creation of the preconditioner. This means that some methods only work with certain kinds of problems, and that the preconditioners may have to be tailored or adapted for different applications. However, such methods take advantage of knowing something about the problem and can be more effective than matrix-based methods for the range of problems for which they are intended. Rebalance and synthetic acceleration are examples of physics-based preconditioners \cite{Trefethen1997}.
 
@@ -49,7 +49,7 @@ Coarse mesh rebalance (CMR) has been more successful than the fine version and i
 \subsubsection{Incomplete Factorizations}
 Incomplete factorization methods were first introduced in the 1950s by Buleev, and independently by Varga. In the late 1970s these methods started gaining popularity, and since then have been under active development. The idea is to partially factor the matrix $\ve{A}$ such that the resulting matrices are sparse enough to take advantage of sparse solver methods, but close enough to $\ve{A}$ to be valuable as preconditioners \cite{Benzi2002}.
 
-Incomplete Cholesky (IC) or incomplete LU (ILU) factorization have both been extensively used within the nuclear community. The Cholesky version is used when $\ve{A}$ is symmetric and LU when non-symmetric. Factorizations typically destroy sparsity, resulting in matrices that are denser than the originals and making their use more costly. Different variations of incomplete factorization methods address this by permitting the new matrices to have values only in positions where $\ve{A}$ has values, allowing a prescribed amount of fill in or only saving entries greater than some tolerance \cite{Trefethen1997}, \cite{Patton2002}, \cite{Oliveira1998}.
+Incomplete Cholesky (IC) or incomplete LU (ILU) factorization have both been extensively used within the nuclear community. The Cholesky version is used when $\ve{A}$ is symmetric and LU when non-symmetric. Factorizations typically destroy sparsity, resulting in matrices that are denser than the originals and making their use more costly. Different variations of incomplete factorization methods address this by permitting the new matrices to have values only in positions where $\ve{A}$ has values, allowing a prescribed amount of fill in, or only saving entries greater than some tolerance \cite{Trefethen1997}, \cite{Patton2002}, \cite{Oliveira1998}.
 
 \subsubsection{Synthetic Acceleration}
 In synthetic acceleration a low-order approximation to the transport operator is used to accelerate the full transport problem \cite{Lewis1993}. If a system is discretized with a high-order method it can be preconditioned with a lower-order approximation. The low-order method is often much sparser than the original, but still captures the general behavior of the problem \cite{Trefethen1997}. This is generally done with either the diffusion equation, giving diffusion synthetic acceleration (DSA), or a transport equation  that is simpler than the one actually being solved, giving transport synthetic acceleration (TSA). These can be used for fission or fixed source problems \cite{Adams2002}. 
@@ -80,7 +80,7 @@ To address the concerns about spatial discretization associated with DSA, a low-
 \subsection{Multigrid Methods}
 The new preconditioner added to Denovo does multigrid in the energy dimension. To understand why multigrid in energy makes sense, why multigrid methods work must be understood. The material presented here is largely from \emph{A Multigrid Tutorial} by Briggs, Henson, and McCormick \cite{Briggs2000}, supplemented by Dr. Strang's lectures on multigrid and preconditioners available as MIT Open Courseware \cite{Strang}.
 
-In what follows, the system of equations will be denoted as $\ve{A}u=b$ where $u$ will represent the exact solution and $v$ will indicate the approximate solution. The algebraic error is given by $e = u - v$. Since $e$ cannot be calculated exactly (otherwise the answer would be known), the residual, $r = b - \ve{A}v$ is often used. A certain grid will be denoted as $\Omega^{h}$ where $h$ is the grid spacing, and vectors on that grid are $u^{h}$. 
+In what follows, the system of equations will be denoted as $\ve{A}u=b$ where $u$ will represent the exact solution and $v$ will indicate the approximate solution. The algebraic error is given by $e = u - v$. Since $e$ cannot be calculated exactly (otherwise the answer would be known), the residual $r = b - \ve{A}v$ is used instead. A certain grid will be denoted as $\Omega^{h}$ where $h$ is the grid spacing, and vectors on that grid are $u^{h}$. 
 
 The error in any guess can be written as a combination of Fourier modes. A Fourier mode is described by a wavenumber, $k$, which denotes the frequency of oscillation. The $j$th Fourier mode is 
 % 
@@ -118,7 +118,7 @@ The rapid removal of oscillatory and slow removal of coarse error modes is often
    \label{fig:MGerrorExample}
 \end{figure}
 
-The idea of multigrid methods is to take advantage of the smoothing effect by making smooth error look oscillatory so it can be more easily removed. Error that is low frequency on a fine grid can be mapped onto a coarser grid where it is oscillatory. This change can be thought of as increasing the number of oscillations per grid point. Look at Figure~\ref{fig:FourierGridError} for an example. When $n$ = 12, the maximum number of half-sine waves is 12, so $k$ = 4 is relatively smooth. When mapped to $n$ = 6, $k$ = 4 is relatively oscillatory. 
+The idea of multigrid methods is to take advantage of the smoothing effect by making smooth error look oscillatory so it can be removed more easily. Error that is low frequency on a fine grid can be mapped onto a coarser grid where it is oscillatory. This change can be thought of as increasing the number of oscillations per grid point. Look at Figure~\ref{fig:FourierGridError} for an example. When $n$ = 12, the maximum number of half-sine waves is 12, so $k$ = 4 is relatively smooth. When mapped to $n$ = 6, $k$ = 4 is relatively oscillatory. 
 %
 \begin{figure}[!ht]
     \begin{center}
@@ -135,18 +135,18 @@ Using this information, multigrid methods can be understood. The error is mapped
   \label{algo:MG}
   \begin{list}{}{\hspace{2.5em}}
     \item Relax $\nu_1$ times on $\ve{A}^h u^h = b^h$ on the fine grid $\Omega^h$ using initial guess $v^h$.
-    \item Compute the residual, $r^h = b^h - \ve{A} v^h$. 
+    \item Compute the residual $r^h = b^h - \ve{A} v^h$. 
     \item Using some restriction operator, $\ve{R}_h^{2h}$, restrict the residual to a coarser grid: $r^{2h} =  \ve{R}_h^{2h} r^h$. 
-    \item Solve the residual equation, $\ve{A}^{2h} e^{2h} = r^{2h}$, on coarse grid $\Omega^{2h}$. 
+    \item Solve the residual equation $\ve{A}^{2h} e^{2h} = r^{2h}$ on the coarse grid $\Omega^{2h}$. 
     \item Using some prolongation operator, $\ve{P}_{2h}^h$, prolong (interpolate) the coarse grid error back to a finer grid: $e^h = \ve{P}_{2h}^h e^{2h}$. 
-    \item Add the error to the fine grid guess: $v^h \rightarrow v^h + e^h$. 
+    \item Add the error to the fine grid guess: $v^h \leftarrow v^h + e^h$. 
     \item Relax $\nu_2$ times on $\ve{A}^h u^h = b^h$ on $\Omega^h$ to get an improved solution. 
    \end{list}
 \end{algorithm}
 
 The details of how restriction and prolongation are done are problem dependent. Simple iterative schemes can have very simple operators while more complex schemes may require more complex mappings. Other implementation choices are what relaxer to use and how many relaxations to do on each grid.
 
-There are many variations of how multigrid methods are put together. All methods, however, are built on the basic v-cycle correction scheme. A V-cycle is an extension of the v-cycle. Instead of only using two grids, many grids are used. The problem is restricted from grid to grid until it is on some grid which is coarse enough to directly invert the equations. Then the errors are prolongated back up the chain, continuously correcting on finer grids, until the finest grid is reached. Multigrid methods are differentiated by how many times the V-cycle is done and how many grids are used. A five-grid V-cycle can be seen in Figure~\ref{fig:Vcycle} (a). A W-cycle is when V-cycles are repeated to further improve the answer. An example can be seen in Figure~\ref{fig:Vcycle} (b). 
+There are many variations of how multigrid methods are put together. All methods, however, are built on the basic v-cycle correction scheme. A V-cycle is an extension of the v-cycle. Instead of only using two grids, many grids are used. The problem is restricted from grid to grid until it is on some grid which is coarse enough to directly invert the equations. Then the errors are prolonged back up the chain, continuously correcting on finer grids, until the finest grid is reached. Multigrid methods are differentiated by how many times the V-cycle is done and how many grids are used. A five-grid V-cycle can be seen in Figure~\ref{fig:Vcycle} (a). A W-cycle is when V-cycles are repeated to further improve the answer. An example can be seen in Figure~\ref{fig:Vcycle} (b). 
 \begin{figure}
     \begin{center}
       \includegraphics [width=0.7\textwidth, height=0.7\textheight, angle=180 ] {multigridFig}
@@ -164,7 +164,7 @@ Multigrid methods can be thought of as stationary iterative schemes that can be 
 \section{Past Work}
 This section discusses some past work from most of the categories of preconditioners that were presented above. The focus is on methods that have been used to precondition Krylov solvers and on multigrid methods. This section is intended to illustrate the need for preconditioning Krylov methods in transport and to demonstrate the new preconditioner's originality. 
 
-As an aside, it is important to note that how well a preconditioner is going to do for a certain problem when using Krylov methods cannot be known a priori. At this time there are no set methods or procedures for predicting preconditioner behavior with Krylov methods. As a result, preconditioning Krylov methods is somewhat ``guess and check.'' Despite this, the reward of preconditioning Krylov methods ensure that they are an essential part of their practical use \cite{Knoll2004}, \cite{Benzi2002}. 
+As an aside, it is important to note that how well a preconditioner is going to do for a certain problem when using Krylov methods cannot be known \emph{a priori}. At this time there are no set methods or procedures for predicting preconditioner behavior with Krylov methods. As a result, preconditioning Krylov methods is somewhat ``guess and check.'' Despite this, the rewards of preconditioning Krylov methods ensure that they are an essential part of their practical use \cite{Knoll2004}, \cite{Benzi2002}. 
 
 %-------------------------------------------------------------------------------------------------------
 \subsection{Rebalance}
@@ -183,7 +183,7 @@ The bandwidth of $\ve{A}$ increases as the number of energy groups and/or discre
 %\end{equation}
 %%
 %where $\ve{L}$ is the streaming plus removal term, $\ve{S}_{in}$ is the inscattering source, and $\ve{Q}$ contains the external source. Patton and Holloway use $(\ve{L} - \ve{S}_{down})^{-1}$ as the preconditioner, where  $\ve{S}_{down}$ is the downscatter part of the $\ve{S}$ matrix. They use source iteration as the within-group solver such that each new guess is obtained by applying $(\ve{L} - \ve{S}_{down})^{-1}(\ve{S}_{in} - \ve{S}_{down})$ to the old guess. 
-A matrix splitting method was chosen that used physics rather than generic structural properties to inform how to do the splitting. They used source iteration as the within-group solver. For the 1-D case they found that this physics-based preconditioner was faster than the matrix-based factorization preconditioner, but that DSA was faster than both \cite{Patton2002}. This is not surprising for the 1-D case with diamond difference. 
+A matrix splitting method was chosen that used physics rather than generic structural properties to inform how to do the splitting. They used source iteration as the within-group solver. For the 1-D case they found that this physics-based preconditioner was faster than the matrix-based factorization preconditioner, but that DSA was faster than both \cite{Patton2002}. This is not surprising because DSA is so effective for 1-D with diamond difference. 
 
 In 2004 Chen and Sheu compared preconditioned conjugate gradient methods with SOR for 3-D, multigroup neutron transport. They used ILU and MILU to precondition both conjugate gradient squared (CGS) and BiCGSTAB. They chose these iterative techniques because they have good residual error control procedures that give good convergence rates in general \cite{Chen2004}.
 
@@ -191,7 +191,7 @@ Kozlowski, Downar, and Lewis investigated a Krylov preconditioning method for th
 
 %-------------------------------------------------------------------------------------------------------
 \subsection{Synthetic Acceleration}
-DSA has been under continuous development since Alcouffe's 1977 paper. For example, a recent research string began when Wareing, Larsen, and Adams developed a simple DSA scheme for bilinear discontinuous (BLD) discretizations schemes in 2-D. An unconditionally efficient multigrid technique for solving these 2-D, BLD equations was derived by Morel, Dendy, and Wareing. This was later extended to bilinear nodal differencing and bilinear characteristic differencing \cite{Adams2002}. New versions of DSA are applied to Krylov solvers in current transport codes.
+DSA has been under continuous development since Alcouffe's 1977 paper. For example, a recent research string began when Wareing, Larsen, and Adams developed a simple DSA scheme for bilinear discontinuous (BLD) discretizationss in 2-D. An unconditionally efficient multigrid technique for solving these 2-D, BLD equations was derived by Morel, Dendy, and Wareing. This was later extended to bilinear nodal differencing and bilinear characteristic differencing \cite{Adams2002}. New versions of DSA are applied to Krylov solvers in current transport codes.
 
 Very recently Rosa et.\ al.\ performed detailed Fourier Analysis on TSA combined with Inexact Parallel Block-Jacobi (IPBJ) splitting applied to the one- and two-dimensional transport cases. They noted that both experience in the nuclear community and analytical work have shown that solution methods such as GMRES(m) can stagnate for problems containing optically thin spatial regions. Rosa et.\ al.'s analysis and results show that using modified TSA improves the spectral properties such that convergence can be obtained using a relatively small m when using GMRES(m) \cite{Rosa2010}.
 
@@ -205,7 +205,7 @@ The DSA-preconditioned one-group equation is:
   \label{DSA1group}
 \end{equation}
 %
-Here $\ve{C}$ is the diffusion operator defined in Appendix~\ref{sec:AppendixA}; $\ve{R}$ is the restriction operator, which maps the transport solution onto the diffusion vector; and $\ve{P}$ is the projection operator, which maps the diffusion vector onto the transport solution. Denovo does not actually form these operators, instead it solves the diffusion equation and updates the $\phi_{00}$ moments. In practice this means that for a Krylov iteration
+Here $\ve{C}$ is the diffusion operator defined in Appendix~\ref{sec:AppendixA}; $\ve{R}$ is the restriction operator that maps the transport solution onto the diffusion vector; and $\ve{P}$ is the projection operator that maps the diffusion vector onto the transport solution. Denovo does not actually form these operators, instead it solves the diffusion equation and updates the $\phi_{00}$ moments. In practice this means that for a Krylov iteration
 %
 \begin{equation}
   \ve{C}z = \ve{RS}\bigl(\ve{I} - \ve{DL}^{-1}\ve{SM}\bigr) v
@@ -221,7 +221,7 @@ In 1996 Sjoden and Haghighat used a simplified spatial \mg method that does not 
 
 In 2007 Chang et.\ al.\ used 2-D spatial \mg for the isotropic scattering case with corner balance finite difference in space and a four-color block-Jacobi relaxation scheme. A bilinear interpolation operator and its transpose were used for grid transfer. The method had some trouble with heterogeneous problems. The authors assert their algorithm is parallelizable \cite{Chang2007}.
 
-In 2010 Lee developed a method to do \mg in space and angle simultaneously for two and three dimensions, isotropic and anisotropic scattering, one energy group, and a variety of spatial discretizations. The method can perform \mg only space, only angle, or some combination there of. It also handles thick and thin cells \cite{Lee2010}.
+In 2010 Lee developed a method to do \mg in space and angle simultaneously for two and three dimensions, isotropic and anisotropic scattering, one energy group, and a variety of spatial discretizations. The method can perform \mg in only space, only angle, or some combination there of. It also handles thick and thin cells \cite{Lee2010}.
 
 This list is hardly comprehensive, but is intended to be representative of new and recent developments in this area. No cases were found where \mg was used in the energy variable either as a solution technique or as a preconditioner. 
 
@@ -231,9 +231,9 @@ The two-grid acceleration method developed by Adams and Morel was one of the ear
 Adams and Morel create a within group error equation by subtracting the GS equation from the transport equation. If the error in iteration $k$ is $\epsilon^k$ and the $l$th moment of the residual is $R_l^k$, then for group $g$ in 1-D this gives:
 %
 \begin{align}
-   \mu \frac{\partial \epsilon_{g}^{k+1}(\mu)}{\partial x} + \Macro_{t,g} \epsilon_{g}^{k+1}(\mu) &= \sum_{l=0}^{L}\frac{2l+1}{4\pi} \bigl( \sum_{g'=1}^{g}\Macro_{s,g' \to g, l} \epsilon_{g',l}^{k+1} 
-   +  \label{eq:GSerror} \\
-   &\sum_{g'=g+1}^{G}\Macro_{s,g' \to g, l} \phi_{g',l}^{k} + R_{g,l}\bigr) P_{l}(\mu) \:, \nonumber \\
+   \mu \frac{\partial \epsilon_{g}^{k+1}(\mu)}{\partial x} + \Macro_{t,g} \epsilon_{g}^{k+1}(\mu) &= \sum_{l=0}^{L}\frac{2l+1}{4\pi} \bigl( \sum_{g'=1}^{G}\Macro_{s,g' \to g, l} \epsilon_{g',l}^{k+1} 
+   +  R_{g,l}^{k+1}\bigr) P_{l}(\mu) \:,\label{eq:GSerror} \\
+   % \nonumber \\
   \epsilon_{g}^{k+1}(\mu) &= \psi_{g}(\mu) - \psi_{g}^{k+1}(\mu) \:, \\
   \epsilon_{g',l}^{k+1} &= 2\pi \int_{-1}^{1}\epsilon_{g'}^{k+1}(\mu') P_{l}(\mu') d\mu' \:, \\ 
   R_{g,l}^{k+1} &=  \sum_{g'=g+1}^{G}\Macro_{s,g' \to g, l} \bigl( \phi_{g',l}^{k+1} - \Macro_{g',l}^{k} \bigr) \:.
@@ -282,9 +282,9 @@ The operators with over-bars use the collapsed cross sections given in Equations
 The $\zeta_g$ term is calculated from the eigenvalue problem obtained through Fourier analysis of the GS method using isotropic scattering, just like the original two-grid method:
 %
 \begin{equation}
-  \bigl(\ve{T}_{\Macro} - \ve{S}_L + \ve{S}_D\bigr)^{-1} \ve{S}_U\zeta = \rho\zeta \:,
+  \bigl(\ve{T} - \ve{S}_L + \ve{S}_D\bigr)^{-1} \ve{S}_U\zeta = \rho\zeta \:,
 \end{equation}
-where $\ve{T}_{\Macro}$ is the diagonal, total cross section matrix. As with the original two-grid method, the TTG method is limited to correcting only the isotropic flux moments. This is an adequate limitation as these moments are dominant in thermal groups where upscattering is most prevalent\cite{Evans2009d}.   
+where $\ve{T}$ is the diagonal, total cross section matrix. As with the original two-grid method, the TTG method is limited to correcting only the isotropic flux moments. This is an adequate limitation as these moments are dominant in thermal groups where upscattering is most prevalent\cite{Evans2009d}.   
 
 The additional cost of the method is like solving one extra group, so for cases with many upscattering groups the cost can be amortized. The acceleration equation can be preconditioned with DSA for additional speed. Finally, a reduced quadrature set can be used when solving Equation~\eqref{TTGerrorEqn} to limit the cost. Some test problems have shown TTG to be quite effective in improving the speed of convergence for upscatter problems when compared to unaccelerated GS \cite{Evans2009d}.
 
@@ -296,19 +296,19 @@ Clearly, a wide variety of preconditioning techniques have been applied to the n
 \section{Multigrid in Energy}
 Preconditioning is a very important part of increasing the robustness of Krylov methods. This is particularly true in this work for two reasons. The first is that the multigroup Krylov solver can create very large Krylov subspaces because it forms the subspaces with multiple-group-sized vectors. As a result, any reduction in iteration count will have a large benefit in terms of both memory and cost per iteration. The second is that preconditioning is needed to compensate for the ill-conditioned systems created by RQI so that the eigenvector can be converged. 
 
-A new physics-based preconditioner has been added to Denovo to improve the performance of the Krylov solves. It does multigrid in energy. Choosing a physics-based preconditioner supports the goal of accelerating a code that solves a specific equation, not developing an all purpose preconditioner. It makes sense to take advantage of information specific to the neutron transport equations. The past work section showed physics-based preconditioners often provide more benefit than matrix-based methods. Further, the matrix $\ve{A}$ is never formed in Denovo, making matrix-based preconditioners impossible. 
+A new physics-based preconditioner has been added to Denovo to improve the performance of the Krylov solves. It does multigrid in energy. Choosing a physics-based preconditioner supports the goal of accelerating a code that solves a specific equation, not developing an all purpose preconditioner. It makes sense to take advantage of information specific to the neutron transport equations. The past work section showed physics-based preconditioners often provide more benefit than matrix-based methods. Further, the matrix $\ve{A}$ is never formed in Denovo, ruling out matrix-based preconditioners. 
 
-The concept of multigrid in energy is that the grid is in energy, not space or angle like methods used in other work. There are two pieces to this choice, the multigrid piece and the in energy piece. The selection of multigrid is based on the fact that multigrid methods have been successful at accelerating the transport equation and that the convergence behavior of the Krylov iterations inside RQI looks like a very good candidate for multigrid methods. 
+The concept of multigrid in energy is that the grid is in energy, not space or angle like methods used in other work. There are two pieces to this choice, the multigrid piece and the in energy piece. The selection of multigrid is based on the fact that multigrid methods have been generally successful at accelerating the transport equation, and that the residual behavior in the Krylov iterations inside RQI looks like the ideal case for multigrid methods. 
 
-The selection of using grids in energy rather than space or angle means the preconditioner can easily take advantage of energy parallelization. The preconditioner works with the MG Krylov method. Having grids in energy means that each energy set can work on its own grids without communicating with other sets. An additional benefit is the simplicity of energy grids. Energy is only one dimension, which makes the grids much less complex (and likely less costly) than angular or multi-D spatial grids. 
+The selection of using grids in energy rather than space or angle means the preconditioner can easily take advantage of energy parallelization. The preconditioner works with the MG Krylov method. Having grids in energy means that each energy set can use its own grids without communicating with other sets. An additional benefit is the simplicity of energy grids. Energy is one dimensional, which makes the grids much less complex (and likely less costly) than angular or multi-D spatial grids. 
 
 %-------------------------------------------------------------------------------------------------------
 \subsection{Method}
-To make energy grids, the energy group structure is coarsened so each lower grid has fewer groups on it. The finest grid is the input energy structure, and the coarsest grid has one or a few groups. Each level has half as many groups as the previous level, rounded up if applicable. This is conceptually straightforward because the equations are only one-dimensional in energy and energy groups can be combined (restricted) and separated (prolonged) linearly. 
+To make energy grids, the energy group structure is coarsened so each lower grid has fewer groups on it. The finest grid is the input energy structure, and the coarsest grid has one or a few groups. Each level has half as many groups as the previous level, rounded up if applicable. This is conceptually straightforward because the energy groups can be combined (restricted) and separated (prolonged) linearly. 
 
 The implemented restriction operator is a simple averaging scheme. Neighboring fine data are averaged together to make coarse data. Recall that for a grid with spacing $h$, $2h$ is the next-coarser grid. The moments are restricted as $\phi_{g}^{2h} = \frac{1}{2}(\phi_{2g}^{h} + \phi_{2g+1}^{h})$ for $g = 1,...,G$, where $G$ is the number of groups on coarse grid and $2G+1$ is the number of groups on the fine grid. If there are an odd number of groups the lowest energy group is just copied. This scheme was chosen so that the thermal energy groups would retain more granularity, which should improve accuracy for thermal reactors. The moments are restricted every time there is transfer to a coarser grid.
 
-The cross sections are restricted from the finest to the coarsest grid during problem initialization and they do not change thereafter. The total and fission cross sections are restricted in the same way as the moments. Scattering is slightly more complicated since it is in two dimensions, $g$ and $g'$. When there are an even number of groups all cross sections are treated the same way. For $g' = 1,..., G'$ and $g = 1, ..., G$,
+The cross sections are restricted from the finest to the coarsest grid during problem initialization and they do not change thereafter. The total and fission cross sections are restricted in the same way as the moments. Scattering is slightly more complicated since it has two indices, $g$ and $g'$. When there are an even number of groups all cross sections are treated the same way. For $g' = 1,..., G'$ and $g = 1, ..., G$,
 \begin{equation}
   \Sigma_s^{2h}(g,g') = \frac{1}{4}[\Sigma_s^{h}(2g,2g') + \Sigma_s^{h}(2g+1,2g') + \Sigma_s^{h}(2g,2g'+1) + \Sigma_s^{h}(2g+1,2g'+1)] \:. 
   \label{eq:XSSeven}
@@ -323,7 +323,7 @@ Unless there is upscattering in every group, some of the entries in Equation~\eq
 
 To prolong from a coarse grid to a fine, the points that line up between the grids are mapped directly: $\phi_{2g}^{h} = \phi_{g}^{2h}$. To fill in the intermediate points on the fine grid, the adjacent coarse values are linearly interpolated: $\phi_{2g+1}^{h} = \frac{1}{2}(\phi_{g}^{2h} + \phi_{g+1}^{2h})$. The moments are prolonged every time there is a transfer to a finer grid. Since cross sections do not change they are never prolonged. 
 
-The choice of how to restrict and prolong between grids is hard-coded into the preconditioner. There are other multigrid method choices that are easier to vary and some of these are taken as user inputs. The number of V-cycles is a user input. One V-cycle goes from the finest grid to the coarsest grid and back up, but the user can choose to do more than one V-cycle per application. That means that for one application of the preconditioner ($v \leftarrow \ve{G}(v,b)$), any number of the large Vs seen in Figure~\ref{fig:Vcycle} (a) are concatenated together. One cycle looks like one V, two cycles looks like one W, and so on. The default number of V-cycles is 2. The idea is that each additional V-cycle will remove more error. 
+The choice of how to restrict and prolong between grids is hard-coded into the preconditioner. There are other multigrid method choices that are easier to vary and some of these are taken as user inputs. The number of V-cycles is a user input. One V-cycle goes from the finest grid to the coarsest grid and back up to the finest. The user can choose to do more than one V-cycle per application of the preconditioner. That means that for one application ($v \leftarrow \ve{G}(v,b)$), any number of the large Vs seen in Figure~\ref{fig:Vcycle} (a) are concatenated together. One cycle looks like one V, two cycles looks like one W, and so on. The default number of V-cycles is 2. The idea is that each additional V-cycle will remove more error. 
 
 At this time the depth of the V-cycle is prescribed by the number of groups. This is set such that the grids will be coarsened until there is only one energy group. The number of grids needed is given by \cite{BinaryTree2011}
 \begin{equation}
@@ -331,9 +331,9 @@ At this time the depth of the V-cycle is prescribed by the number of groups. Thi
   \label{eq:NumGrids}
 \end{equation}
 %
-This is handled differently with energy sets, as discussed below. The depth of the cycle is an option that could be changed in the future if it is found that restricting down to only one group is unnecessary, particularly if there are a large number of groups. Investigating the optimal V-cycle depth is an important issue, but beyond the scope of this work. 
+This is handled differently when using energy sets, as discussed below. The depth of the cycle is an option that could be changed in the future if it is found that restricting down to only one group is unnecessary, particularly if there are a large number of groups. Investigating the optimal V-cycle depth is an important issue, but beyond the scope of this work. 
 
-Some number of relaxations are performed on each grid that makes up a V-cycle. The number of relaxations per level, $\nu_{1,2}$ from Algorithm~\ref{algo:MG}, is a user input choice with a default of 2. Doing more relaxations per grid should remove more error overall. The implemented relaxation method is weighted Richardson iteration, whose $k$th step is
+Some number of relaxations are performed on each level while traversing up and down the grids in a V-cycle. The number of relaxations per level, $\nu_{1,2}$ from Algorithm~\ref{algo:MG}, is a user input choice with a default of 2. Doing more relaxations per grid should remove more error overall. The implemented relaxation method is weighted Richardson iteration, whose $k$th step is
 %
 \begin{equation}
   \phi^{k} = \phi^{k-1} + \omega^{k}\ve{P}^{-1}(b^{k-1} - \ve{A}\phi^{k-1}) \:.
@@ -350,7 +350,7 @@ In this work $\ve{P} = \ve{I}$ and $\ve{P}^{-1} = \ve{I}$, and $\omega$ is a con
   \label{eq:relax}
  \end{align}
   
-An important principle is that the preconditioner is only attempting to roughly invert $\ve{A}$, so choosing to simplify the solver beyond the method alone, i.e.\ Richardson instead of Krylov, is reasonable. In this vein there is an option to use a smaller angle set in the preconditioner than the rest of the solution. For example, the whole problem can be solved at $S_{10}$, but the preconditioner would only use $S_{2}$. There is an input option to specify what to use in preconditioner; the default is whatever is being used by the entire problem. This is only available for problems with vacuum boundary conditions at this time. 
+An important principle is that the preconditioner is only attempting to roughly invert $\ve{A}$, so choosing to simplify the solver beyond the method alone, i.e.\ using Richardson instead of Krylov, is reasonable. In this vein there is an option to use a smaller angle set in the preconditioner than the rest of the code. For example, the whole problem can be solved at $S_{10}$, but the preconditioner would only use $S_{2}$. There is an input option to specify what to use in preconditioner; the default is to use the same angle set as the rest of the problem. At this time this option has only been implemented for vacuum boundary conditions. 
 
 Recall that right preconditioning is applied as $\ve{A} \ve{G}^{-1} \ve{G} \phi = b$, where $\ve{A} = \ve{I} - \ve{TMS}$. To implement this in Denovo, the problem must be broken up into several steps: 
 %
@@ -360,9 +360,9 @@ Recall that right preconditioning is applied as $\ve{A} \ve{G}^{-1} \ve{G} \phi 
   \text{After finding }y\text{, the final step is} \qquad \phi &= \ve{G}^{-1}y \:.
 \end{align}
 %
-The Krylov solvers cannot be modified easily because they are provided by an external library, so carrying out the second step means the preconditioner must be applied to the iteration vectors handed to the solver. Equations~\eqref{eq:invertG}, \eqref{eq:ApplyA}, and \eqref{eq:findPhi} show how this works.  
+The Krylov solvers cannot be modified easily because they are provided by an external library, so carrying out the second step means the preconditioner must be applied to the iteration vector that is handed to the solver. Equations~\eqref{eq:invertG}, \eqref{eq:ApplyA}, and \eqref{eq:findPhi} show how this works.  
 
-Let $v^{j}$ be an iteration vector that represents $y$, and let $z^{j}$ be an intermediate iteration vector. At each step below the equations are shown three ways to make clear what is going on algorithmically: the equation being solved, the symbolic representation of the outcome, and the way this is written in multigrid syntax. The first thing is to apply the preconditioner to the intermediate vector: %to affect the inversion of $\ve{G}$,
+Let $v^{j}$ be an iteration vector that represents $y$, and let $z^{j}$ be an intermediate iteration vector. In each step below the equations are shown three ways to make clearly show is going on algorithmically: the equation being solved, the symbolic representation of the outcome, and the way this is written in multigrid syntax. The first thing is to apply the preconditioner to the intermediate vector: %to affect the inversion of $\ve{G}$,
 %
 \begin{align}
   \ve{G}z^{j} &= v^{j} \:,  \label{eq:invertG} \\
@@ -389,41 +389,41 @@ The operator is used within the preconditioner to compute the residual, $r = \ve
 
 An important attribute of this preconditioner is that it is parallelizable in energy because it can use the energy sets introduced earlier in this work. There are two ways to handle energy grids and energy sets together. One way is to restrict from $G$ groups down to $1$ group just as if there were no energy sets. This requires cross-set communication as soon as there are fewer groups than sets. This also causes some logistical difficulties related to what data is held by which sets at various points in the calculation. 
 
-The other way is to prohibit cross-set communication by having each set do its own ``mini'' V-cycle. Each set restricts, prolongs, and relaxes on only its groups. Instead of restricting to one group overall, each set restricts to one or two group(s), giving approximately num\_sets groups overall. This strategy requires there be at least two groups on every set. The number of grids needed is determined by the set with the minimum number of groups since it will be the first to reach a grid with one group. To choose the number of levels, Algorithm~\ref{algo:multisetsGrids} is used. 
+The other way is to prohibit cross-set communication by having each set do its own ``mini'' V-cycle. Each set restricts, prolongs, and relaxes on only its groups. Instead of restricting to one total group overall, each set restricts to one or two group(s), giving approximately $num\_sets$ total groups across sets at the coarsest level. This strategy requires there to be at least two groups on every set. The number of grids needed is determined by the set with the minimum number of groups since it will be the first to reach a grid with one group. To choose the number of levels, Algorithm~\ref{algo:multisetsGrids} is used. 
 %
 \begin{algorithm}
   \caption{ Calculating the Number of Preconditioner Grids When There Are Energy Sets}
   \label{algo:multisetsGrids}
-   num\_groups = $G$, num\_levels = 1, num\_local\_min = floor$\bigl( \frac{\text{num\_groups}}{\text{num\_sets}}\bigr)$ \\
-   while (num\_local\_min $>$ 1)
+   $num\_groups$ = $G$, $num\_levels$ = 1, $num\_local\_min$ = floor$\bigl( \frac{num\_groups}{num\_sets}\bigr)$ \\
+   while ($num\_local\_min$ $>$ 1)
   \begin{list}{}{\hspace{2.5em}}
-    \item num\_levels = num\_levels + 1
-    \item num\_groups = (num\_groups + 1) / 2
-    \item num\_local\_min = floor$\bigl( \frac{\text{num\_groups}}{\text{num\_sets}}\bigr)$
+    \item $num\_levels$ = $num\_levels$ + 1
+    \item $num\_groups$ = ($num\_groups$ + 1) / 2
+    \item $num\_local\_min$ = floor$\bigl( \frac{num\_groups}{num\_sets}\bigr)$
    \end{list}
 \end{algorithm}
 
-The communication costs and logistical complications of the first strategy seem likely to overwhelm the benefit gained by going to one group instead of num\_sets groups. The second strategy was chosen because it involves much less communication and overhead cost. The validity of this choice will be commented upon in the results section. 
+The communication costs and logistical complications of the first strategy seem likely to overwhelm the benefit gained by going to one group instead of $num\_sets$ groups. The second strategy was chosen because it involves much less communication and overhead cost. The validity of this choice will be commented upon in the Results section. 
 
-With the implemented energy set strategy there are tradeoffs between the number of sets and number of grids for a fixed number of groups. When there are more sets, more cores can be used at one time and wall time should decrease. When there are fewer sets each V-cycle can go deeper so the preconditioner should be more effective, which will reduce iteration count and hopefully decrease wall time. This tradeoff is also investigated.
+With the implemented energy set strategy there are tradeoffs between the number of sets and number of grids for a fixed number of groups. When there are more sets, more cores can be used at once and wall time should decrease. When there are fewer sets each V-cycle can go deeper so the preconditioner should be more effective, which will reduce iteration count and hopefully decrease wall time. This tradeoff is also investigated.
 
 %-------------------------------------------------------------------------------------------------------
 \subsection{Results}
-Fully characterizing the behavior of the preconditioner is not simple because there are so many variables. The variety of knobs to turn are grouped into three categories: 1) problem and solver type, 2) preconditioning parameters, 3) number of groups and sets. The problem types and solvers are fixed source, eigenvalue with power iteration, and eigenvalue with Rayleigh quotient iteration. All were solved with the multigroup Krylov solver unless otherwise noted. 
+Fully characterizing the behavior of the preconditioner is not simple because there are so many variables. The variety of knobs to turn are grouped into three categories: 1) problem and solver type, 2) preconditioning parameters, 3) number of groups and sets. The problem types and solvers are fixed source, eigenvalue with power iteration, and eigenvalue with Rayleigh quotient iteration. All tests were solved with the multigroup Krylov solver unless otherwise noted. 
 
-The preconditioning parameters are weight, number of V-cycles, and number of relaxations per level. The syntax used throughout this section will be $w\#$ is the weight, $r\#$ is the number of relaxations per level, and $v\#$ is the number of V-cycles, e.g.\ $w1r1v1$ is one relaxation per level, one V-cycle, and a weight of 1. ``More'' or a ``larger amount of'' preconditioning means larger values of $w$ and/or $r$ and/or $v$. The group consideration deals with whether there are many or few groups and how many groups per set were used when doing multisets. Calculations were done to investigate as much of the problem space as possible.
+The preconditioning parameters are weight, number of V-cycles, and number of relaxations per level. The syntax used throughout this section will be that $w\#$ is the weight, $r\#$ is the number of relaxations per level, and $v\#$ is the number of V-cycles, e.g.\ $w1r1v1$ is one relaxation per level, one V-cycle, and a weight of 1. ``More'' or a ``larger amount of'' preconditioning means larger values of $w$ and/or $r$ and/or $v$. The group consideration deals with whether there are many or few groups and how many groups per set were used when doing multisets. Calculations were done to investigate as much of the problem space as possible.
 
 In all tests the number of Krylov iterations over the whole calculation are compared. These subspaces are over all groups unless otherwise noted. Some problems report timing as well. Timing comparisons of most problems should be considered somewhat heuristically. In cases where the calculations were done on a single core, the machine was not dedicated to these calculations and times could vary if the same calculations were repeated. Further, little effort has been put into optimizing the preconditioner for speed. Once the multigrid in energy solver has been optimized for efficiency, the preconditioned times should decrease. How much improvement can be gained is a matter for future study. 
 
 \subsubsection{RQI Parameter Scoping}
-The first two problems run with the preconditioner were the small Rayleigh quotient iteration unit tests reported on in Chapter~\ref{sec:Chp3}. These easy problems were done to find out three things. The first was to check that the preconditioner reduces the number of Krylov iterations used in an RQI calculation. The second was to get some guidance on the effect of the preconditioning parameters. The third was find out whether or not the shifted version of the operator should be used in the preconditioner. All tests were run on one processor using the debug version of Denovo with GMRES as the multigroup Krylov solver.
+The first two problems calculated with preconditioning were the small Rayleigh quotient iteration unit tests reported on in Chapter~\ref{sec:Chp3}. These easy problems were done to find out three things. The first was to check that the preconditioner reduces the number of Krylov iterations used in an RQI calculation. The second was to get some guidance on the effect of the preconditioning parameters. The third was find out whether or not the shifted version of the operator should be used in the preconditioner. All tests used the debug version of Denovo on one processor with GMRES as the multigroup Krylov solver.
 
-The small RQI unit test with vacuum boundary conditions was tested first. In all cases the correct $k$ and flux were found, and the preconditioned version used fewer Krylov iterations than the base case. The number of RQ iterations was not affected by the preconditioning. The tolerance used to compare the flux to the reference case was $1 \times 10^{-5}$. The results are shown in Table~\ref{table:RQIUnitTestVac}. ``Krylov'' is the total number of Krylov iterations and ``RQI'' is the total number of Eigenvalue iterations.
+The small RQI unit test with vacuum boundary conditions was tested first. In all cases the correct $k$ and flux were found and the preconditioned version used fewer Krylov iterations than the base case. The number of RQ iterations was not affected by the preconditioning. The tolerance used to compare the flux to the reference case was $1 \times 10^{-5}$. The results are shown in Table~\ref{table:RQIUnitTestVac}. ``Krylov'' is the total number of Krylov iterations and ``RQI'' is the total number of eigenvalue iterations.
 %
 \begin{table}[!h]
 \caption{RQI Unit Test with Vacuum Boundaries, Preconditioning Parameter Study}
 \begin{center}
-\begin{tabular}{c c c c c}
+\begin{tabular}{| c | c | c | c | c |}
 \hline
 Weight & Relaxations & V-cycles & Krylov & RQI \\[0.5ex]
 \hline
@@ -453,9 +453,9 @@ Weight & Relaxations & V-cycles & Krylov & RQI \\[0.5ex]
 \label{table:RQIUnitTestVac}
 \end{table}
 
-To get much benefit from preconditioning this problem, larger values for the $r$ and $v$ parameters were needed. With $w1r1v1$ the Kyrlov iteration count was only reduced from 39 to 27; with $w1r3v3$ it went to 6. When only a small amount of preconditioning is used ($r1v1$), increasing the weight actually increases the number of Krylov iterations needed. When $r$ and $v$ are larger, changing the weight had no effect. Another important finding was that the problem did not break down when large values were used for the preconditioning parameters. 
+To get much benefit from preconditioning this problem, larger values for the $r$ and $v$ parameters were needed. With $w1r1v1$ the Kyrlov iteration count was only reduced from 39 to 27; with $w1r3v3$ it went to 6. When only a small amount of preconditioning was used ($r1v1$), increasing the weight increased the number of Krylov iterations needed. When $r$ and $v$ were larger, changing the weight had no effect. Another important finding was that the problem did not break down when large values were used for the preconditioning parameters. 
 
-Increasing $r$ or $v$ or both reduced the number of Krylov iterations, with a lower limit of 1 Krylov iteration per Rayleigh quotient iteration. The effect of $r$ and $v$ on iteration count were the same. That is $r1v2$ gives the same result as $r2v1$. This is not a surprising finding because both of those combinations result in the same number of relaxations being done on the flux moments on each energy grid. In the first case one relaxation is done on every grid and each grid is cycled through twice. In the second case two relaxations are done on every grid and each grid is visited once. Both versions result in two relaxations per grid. 
+Increasing $r$ or $v$ or both reduced the number of Krylov iterations, with a lower limit of 1 Krylov iteration per Rayleigh quotient iteration. The effect of $r$ and $v$ on iteration count were the same. That is $r1v2$ gave the same result as $r2v1$. Both of those combinations result in the same number of relaxations being done on the flux moments on each energy grid. In the first case one relaxation is done on every grid and each grid is cycled through twice. In the second case two relaxations are done on every grid and each grid is visited once. Both versions result in two relaxations per grid. 
 
 Note that while the iteration count is the same, using a larger $v$ and a smaller $r$ may be more time consuming than a smaller $v$ and a larger $r$. Doing more V-cycles requires more prolongation and restriction operations to transfer between grids whereas doing more relaxations per level does not. 
 
@@ -465,7 +465,7 @@ This test was also tried with the shifted version of the operator in the precond
 \begin{table}[!h]
 \caption{RQI Unit Test with Vacuum Boundaries and Shifted Operator, Preconditioning Parameter Study}
 \begin{center}
-\begin{tabular}{c c c c c}
+\begin{tabular}{| c | c | c | c | c |}
 \hline
 Weight & Relaxations & V-cycles & Krylov & RQI \\[0.5ex]
 \hline
@@ -487,9 +487,9 @@ $^{*}$flux was not correct and $k$ was 0.17632 instead of 0.17528 \\
 \label{table:RQIUnitTestVacShifted}
 \end{table}
 
-Fewer Krylov iterations were needed with the shifted operator than with the unshifted operator. For example, using $w1r2v3$ yielded 6 iterations while the same parameters in the unshifted version yielded 10. However, the two $r1v1$ cases did not get quite the right eigenvalue, suggesting the shifted operator may not be as robust as the unshifted version. This study demonstrated the same patterns for weight, number of relaxations per level, and number of V-cycles as the unshifted study. 
+Fewer Krylov iterations were needed with the shifted operator than with the unshifted operator. For example, using $w1r2v3$ yielded 6 iterations while the same parameters in the unshifted version yielded 10. However, the two $r1v1$ cases did not get quite the right eigenvalue, suggesting the shifted operator may not be as robust as the unshifted version. This study exhibitied the same patterns for weight, number of relaxations per level, and number of V-cycles as the unshifted study. 
 
-The different eigenvalues and incorrect fluxes were only found when preconditioning parameters were small. That wrong answers were found at all is surprising because the problem was simple enough that the eigenvector and value converged without preconditioning. However, applying the shift to the preconditioner could be causing conditioning problems inside of the preconditioner. It could be that more preconditioning overall is needed to compensate for the ill-conditioned preconditioner.  
+The different eigenvalues and incorrect fluxes were only found when preconditioning parameters were small. That wrong answers were found was unexpected because the problem was simple enough that the eigenvector and value converged without preconditioning. However, applying the shift to the preconditioner could be causing conditioning problems inside of the preconditioner. It could be that more preconditioning overall is needed to compensate for the ill-conditioned preconditioner.  
 
 %-------------------------------------------------------------------------------------------------------
 The next test was the small RQI unit test with reflecting boundary conditions. The flux was not tested against a very tight tolerance, either $1 \times 10^{-2}$ or $1 \times 10^{-3}$ unless otherwise noted. Unless the calculation failed, the correct eigenvalue-vector pair were found. The results are shown in Table~\ref{table:RQIUnitTestRefl}. The maximum number of Krylov iterations was set to 100 for this calculation.
@@ -497,7 +497,7 @@ The next test was the small RQI unit test with reflecting boundary conditions. T
 \begin{table}[!h]
 \caption{RQI Unit Test with Reflecting Boundaries, Preconditioning Parameter Study}
 \begin{center}
-\begin{tabular}{c c c c c c}
+\begin{tabular}{| c | c | c | c | c | c |}
 \hline
 Weight & Relaxations & V-cycles & $k$ & Krylov & RQI \\[0.5ex]
 \hline
@@ -531,7 +531,7 @@ $^{\dag}$at least one eigenvector iteration did not converge
 \label{table:RQIUnitTestRefl}
 \end{table}
 
-The results show that the number of RQ iterations were reduced when preconditioning was used, and the number of  Krylov iterations were reduced as long as the eigenvector converged. This problem was more sensitive to increasing the weight than the vacuum problem was. There were no cases in which increasing weight reduced iteration count. With $r1v1$, increasing the weight prevented the Krylov iterations from converging. 
+The results show that the number of RQ iterations was reduced when preconditioning was used, and the number of  Krylov iterations was reduced as long as the eigenvector converged. This problem was more sensitive to increasing the weight than the vacuum problem was. There were no cases in which increasing weight reduced iteration count. With $r1v1$, increasing the weight prevented the Krylov iterations from converging. 
 
 Again, when $r$ and $v$ were increased iteration count went down noticeably. This calculation also showed that exchanging the values of $r$ and $v$ gave the same iteration count. High $r$ and $v$ values reduced iteration count and did not cause breakdown. 
 
@@ -541,22 +541,22 @@ The reflecting boundary test was repeated with the shifted version of the operat
 \begin{table}[!h]
 \caption{RQI Unit Test with Reflecting Boundaries and Shifted Operator, Preconditioning Parameter Study}
 \begin{center}
-\begin{tabular}{c c c l c c}
+\begin{tabular}{| c | c | c | l | c | c |}
 \hline
 Weight & Relaxations & V-cycles & $k$ & Krylov & RQI \\[0.5ex]
 \hline
 0    & 0 & 0 & 2 & 35 & 2 \\
-1    & 1 & 1 & test failed \\
-1.4 & 1 & 1 & test failed \\
-1    & 2 & 2 & test failed \\
-1.4 & 2 & 2 & test failed \\
-1    & 3 & 3 & test failed \\
-1.4 & 3 & 3 & test failed \\
-1    & 4 & 1 & test failed \\
-1    & 4 & 2 & test failed \\
-1    & 4 & 3 & test failed \\
+1    & 1 & 1 & test failed & & \\
+1.4 & 1 & 1 & test failed & & \\
+1    & 2 & 2 & test failed & & \\
+1.4 & 2 & 2 & test failed & & \\
+1    & 3 & 3 & test failed & & \\
+1.4 & 3 & 3 & test failed & & \\
+1    & 4 & 1 & test failed & & \\
+1    & 4 & 2 & test failed & & \\
+1    & 4 & 3 & test failed & & \\
 1    & 4 & 4 & 2 & 18 & 6 \\ 
-1    & 3 & 4 & test failed \\
+1    & 3 & 4 & test failed & & \\
 1.2 & 3 & 4 & 2.0024 & 41 & 6 \\
 1.3 & 3 & 4 & 1.9997 & 1200 & 12 \\
 1.4 & 3 & 4 & 2.0037 & 4100 & 41 \\
@@ -569,9 +569,9 @@ $^{*}$used a tighter comparison tolerance of $1 \times 10^{-5}$ and still passed
 \label{table:RQIUnitTestReflShifted}
 \end{table}
 
-This problem only managed to pass and get the right answer with a lot of preconditioning, and only with a few sets of parameters. When the problem did not fail, increasing the weight made the behavior worse. Of the four cases in which all the Krylov iterations converged, one took more multigroup iterations than the unpreconditioned case. All of test used more RQ iterations than the base case. Overall the shifted operator did not work well at all for this problem.
+This problem only managed to pass and get the right answer with a lot of preconditioning, and only with a few sets of parameters. When the problem did not fail, increasing the weight made the behavior worse. Of the four cases in which all the Krylov iterations converged, one took more multigroup iterations than the unpreconditioned case. All of tests used more RQ iterations than the base case. Overall the shifted operator did not work well at all for this problem.
 
-Some preliminary conclusions were drawn from the RQI unit tests that were used to steer subsequent investigation. A major finding is that using the shifted operator is not useful in the reflecting case, and likely not worth the risk in the vacuum case. With reflecting boundaries the shifted operator nearly always failed. And, while it reduces the number of iterations needed for the vacuum tests, that was only true if ``enough'' preconditioning was used to converge the problem. There is no way to determine whether sufficient preconditioning was done to get the correct answer without a reference solution. That is, with the shifted operator in the preconditioner the wrong answer might be found and there is no warning that this has happened. 
+Some preliminary conclusions were drawn from the RQI unit tests that were used to steer subsequent investigation. A major finding is that using the shifted operator is not useful in the reflecting case, and likely not worth the risk in the vacuum case. With reflecting boundaries the shifted operator nearly always failed. And, while it reduced the number of iterations needed for the vacuum tests, that was only true if ``enough'' preconditioning was used to converge the problem. There is no way to determine whether sufficient preconditioning was done to get the correct answer without a reference solution. That is, with the shifted operator in the preconditioner the wrong answer might be found and there is no warning that this has happened. 
 
 It is not so surprising that the shifted operator can be troublesome in the preconditioner. Using an ill-conditioned system inside a preconditioner designed to mitigate the effects of ill-conditioning does not make much sense. Just as in the unpreconditioned RQI results, when the shift works it works very well, but most of the time it does not converge. The shifted operator was not investigated further in this work.
 
@@ -581,11 +581,11 @@ With vacuum boundary conditions, increasing the weight in the relaxation method 
 
 %-------------------------------------------------------------------------------------------------------
 \subsubsection{Fixed Source Parameter Studies}
-Some fixed source tests were done next, informed by the initial information about the effect of preconditioning parameters on the RQI unit tests. These tests are particularly useful because the preconditioner can be studied apart from eigenvalue iterations. All tests were run on one processor using the debug version of Denovo with GMRES as the multigroup Krylov solver.
+Some fixed source tests were done next, with the selection of preconditioning parameters informed by the RQI unit tests. The fixed source calculations are particularly useful because the preconditioner can be studied apart from eigenvalue iterations. All tests were used the debug version of Denovo on one processor with GMRES as the multigroup Krylov solver.
 
 The first test was a small vacuum boundary test. It used 1 material, 10 groups, 5 upscattering groups, $P_{0}$, $S_{4}$, a 3 $\times$ 3 $\times$ 3 grid, and a tolerance and upscatter tolerance of 1 $\times$ 10$^{-6}$. The first 3 groups had an isotropic source. This problem was used to further study the effects of weight, relaxations per level, and V-cycles.
 
-In one set of tests the weight was varied with the relaxations per level and number of V-cycles both set to 1. The results can be seen in the top plot in Figure~\ref{fig:FxdSrcVac}; note that the y-axis is on a log scale. It is clear that increasing the weight is initially beneficial, reducing the iteration count to 6 from the unpreconditioned 10. After a certain level, though increased weight begins to increase the number of iterations. A weight of 2 seems to be a ``sweet spot'' that reduced the number of iterations again, though only to 7. However, when a weight of 2.1 was used the problem did not converge. All of the data for the weight study can be found in Appendix~\ref{sec:AppendixD} in Table~\ref{table:FxdSrcTstVacWeight}.
+In one set of tests the weight was varied with the relaxations per level and number of V-cycles both set to 1. The results can be seen in the top plot in Figure~\ref{fig:FxdSrcVac}; note that the y-axis is on a log scale. It is clear that increasing the weight is initially beneficial, reducing the iteration count to 6 from the unpreconditioned 10. After a certain level, though increased weight begins to increase the number of iterations. A weight of 2 seems to be a ``sweet spot'' that reduced the number of iterations again, though only to 7. However, when a weight of 2.1 was used the problem did not converge. All of the data for the weight study can be found in Appendix~\ref{sec:AppendixD}, Table~\ref{table:FxdSrcTstVacWeight}.
 %
 \begin{figure}[!ht]
     \begin{center}
@@ -599,10 +599,10 @@ Next the number of relaxations per grid and the number of V-cycles were varied w
 
 Initially, increasing $r$ and $v$ reduced the number of iterations needed for convergence. After enough preconditioning was done that only 4 iterations were needed, no additional amount of preconditioning reduced the iteration count further. The data from this plot is in Appendix~\ref{sec:AppendixD}, Table~\ref{table:FxdSrcTstVacRV}. 
 
-A calculation using $w1.3r10v10$, the largest preconditioning parameters test yet, also yielded 4 iterations. This both confirms that more preconditioning did not improve results, and demonstrated that a lot of preconditioning did not cause breakdown. 
+A calculation using $w1.3r10v10$, the largest set of preconditioning parameters tested, also yielded 4 iterations. This both confirms that more preconditioning did not improve results, and demonstrated that a lot of preconditioning did not cause breakdown. 
 
 %-------------------------------------------------------------------------------------------------------
-The previous problem was repeated with reflecting boundary conditions and both a weight variation and $r$/$v$  variation study were done. This time the tolerance and upscatter tolerance were 1 $\times$ 10$^{-6}$. A plot of results for varying the weight with 1 relaxation per level and 1 V-cycle is in the top plot of Figure~\ref{fig:FxdSrcRefl}. The results for varying with number of relaxations per grid and the number of V-cycles with the weight fixed at 1 can be seen in the bottom plot. A few $r$/$v$ variations were also done using a weight of 1.3, indicated by large green dots.
+The previous problem was repeated with reflecting boundary conditions, and both a weight variation and $r$/$v$  variation study were done. This time the tolerance and upscatter tolerance were 1 $\times$ 10$^{-6}$. A plot of results for varying the weight with 1 relaxation per level and 1 V-cycle is in the top of Figure~\ref{fig:FxdSrcRefl}. The results for varying with number of relaxations per grid and the number of V-cycles with the weight fixed at 1 can be seen in the bottom plot. A few $r$/$v$ variations were also done using a weight of 1.3, indicated by large green dots.
 %
 \begin{figure}[!ht]
     \begin{center}
@@ -621,12 +621,12 @@ These two sets of results confirm that increasing $r$ and/or $v$ decreases Krylo
 %-------------------------------------------------------------------------------------------------------
 %-------------------------------------------------------------------------------------------------------
 \subsubsection{Fixed Source Solver and Angle Comparisons} 
-Another fixed source problem was the half iron, half graphite, small problem from Chapter~\ref{sec:Chp2}. For this calculation a grid of 10 $\times$ 10 $\times$ 10 was used with an $S_{8}$ angle set. The tolerance and upscatter tolerance were 1 $\times$ 10$^{-6}$. This problem has vacuum boundaries and 27 energy groups, 13 of which have upscattering. A few calculations were done with this setup to compare 1 set of preconditioning parameters to a few solvers with no preconditioning. The solver comparisons can be seen in Table~\ref{table:FeC solvers} (note, the first three values in this table were shown in Chapter \ref{sec:Chp2}. 
+Another fixed source problem was the half iron, half graphite cube from Chapter~\ref{sec:Chp2}. For this calculation a grid of 10 $\times$ 10 $\times$ 10 was used with an $S_{8}$ angle set. The tolerance and upscatter tolerance were 1 $\times$ 10$^{-6}$. This problem has vacuum boundaries and 27 energy groups, 13 of which have upscattering. A few calculations were done with this setup to compare one set of preconditioning parameters to a few solvers without preconditioning. The solver comparisons can be seen in Table~\ref{table:FeC solvers} (note, the first three values in this table were shown in Chapter \ref{sec:Chp2}). 
 %
 \begin{table}[!h]
 \caption{Iron Graphite Fixed Source Cube, Solver and Preconditioning Comparison}
 \begin{center}
-\begin{tabular}{l c l c}
+\begin{tabular}{| l | c | l | c |}
 \hline
 Solver & GS iters & Krylov & time (s)\\[0.5ex]
 \hline
@@ -643,19 +643,19 @@ w1.3 r4 v4 & n/a & 4 & $1.29 \times 10^{3}$ \\
 
 All of the calculations using the block Krylov solver dramatically reduced the number of Krylov iterations for this problem, which contains highly scattering material. While the Krylov subspace sizes are made from smaller vectors when GS is used, all the problems using MG Krylov took many fewer iterations. The preconditioner also had a big impact. The highly preconditioned problem needed 4 Krylov iterations while the unpreconditioned Krylov case took 30 and unaccelerated Gauss Seidel needed 1,727.  
 
-The timing comparison is not so favorable. With the current unoptimized state of the preconditioner, using it for fixed source problems increases rather than decreases run time. Even though many fewer Krylov iterations are taken, the overall preconditioned run times are longer than all other calculations. This may not be the best problem for examining timing, however. Accelerated GS was slower than unaccelerated GS, which is not typical.
+The timing comparison is not so favorable. With the current unoptimized state of the preconditioner, using it for fixed source problems increases rather than decreases run time. Even though many fewer Krylov iterations are taken, the overall preconditioned run times are longer than all other calculations. This may not be the best problem for examining timing, however. Accelerated GS was slower than unaccelerated GS, which is atypical.
 
-This problem was also used to investigate the option of using a reduced angle set within the preconditioner. The preconditioning parameters were $w1r2v2$. The overall problem was solved with $S_{8}$, but the preconditioner used $S_{2}$. Changing the number of solution directions did not change the number of iterations. The solution time was reduced from $7.07 \times 10^{2}$ seconds to $1.57 \times 10^{2}$ seconds, a factor of 4.5. With this option the solve time was even less than accelerated GS. Using fewer solve directions inside the preconditioner had a very positive impact; it reduced time but did not impact the number of iterations.
+This problem investigated the option of using a reduced angle set within the preconditioner. The preconditioning parameters were $w1r2v2$. The overall problem was solved with $S_{8}$, but the preconditioner used $S_{2}$. Changing the number of solution directions did not change the number of iterations. The solution time was reduced from $7.07 \times 10^{2}$ seconds to $1.57 \times 10^{2}$ seconds, a factor of 4.5. With this option the solve time was less than with accelerated GS. Using fewer solve directions inside the preconditioner had a very positive impact; it reduced time but did not impact the number of iterations.
 
 %-------------------------------------------------------------------------------------------------------
 %-------------------------------------------------------------------------------------------------------
 \subsubsection{RQI Intermediate Problem}
-The intermediately-sized infinite medium problem from Chapter~\ref{sec:Chp3} that has 27 groups and a very small dominance ratio was solved with preconditioned RQI. This was the first test to see if the preconditioner can converge the Krylov iterations when they did not converge without it. Recall that originally RQI got an eigenvalue close to the correct answer, but was unable to converge the eigenvector. For this test both $k$ and the flux were compared to a reference solution. Like all the problems discussed so far, this was solved without any parallelization using the debug version of Denovo and GMRES. 
+The intermediate-size infinite medium problem from Chapter~\ref{sec:Chp3} that has 27 groups and a very small dominance ratio was solved with preconditioned RQI. This was the first system that tested if the preconditioner can converge the Krylov iterations when they did not converge without it. Recall that originally RQI got an eigenvalue close to the correct answer, but was unable to converge the eigenvector. For this test both $k$ and the flux were compared to a reference solution. Like all the problems discussed so far, this was solved without any parallelization using the debug version of Denovo and GMRES. 
 
 \begin{table}[!h]
 \caption{Infinite Medium Eigenvalue Problem, Preconditioning Results with Rayleigh Quotient Iteration}
 \begin{center}
-\begin{tabular}{c c c c l c c c c}
+\begin{tabular}{| c | c | c | c | l | c | c | c | c |}
 \hline
 $w$ & $r$ & $v$ & $k$ & Krylov & RQI & Max Diff & Total Diff & Time (s) \\[0.5ex]
 \hline
@@ -685,9 +685,9 @@ $^{\dag}$negative flux
 \label{table:impi RQI}
 \end{table}
 %
-The results with the preconditioner are shown in Table~\ref{table:impi RQI}. In the table ``Max Diff'' is the absolute value of the maximum over all cells of the difference between the reference flux in a cell and the absolute value of the computed flux in that cell, $\vert\max(\phi_{ref} - \vert\phi_{calc}\vert)\vert$. ``Total Diff'' is the absolute value of sum over all cells of the differences, $\sum_{1}^{Ncells}\vert(\phi_{ref} - \vert\phi_{calc}\vert)\vert$. As a reminder, the total and upscattering tolerances were $1 \times 10^{-4}$, and the $k$ tolerance was $1 \times 10^{-5}$. Recall that if the Krylov iteration count is in the thousands it means the eigenvector did not converge.
+The results with the preconditioner are shown in Table~\ref{table:impi RQI}. In the table ``Max Diff'' is the absolute value of the maximum over all cells of the difference between the reference flux in a cell and the absolute value of the computed flux in that cell, $\vert\max(\phi_{ref} - \vert\phi_{calc}\vert)\vert$. ``Total Diff'' is the absolute value of the sum of the differences over all cells, $\sum_{1}^{Ncells}\vert(\phi_{ref} - \vert\phi_{calc}\vert)\vert$. As a reminder, the total and upscattering tolerances were $1 \times 10^{-4}$, and the $k$ tolerance was $1 \times 10^{-5}$. Recall that if the Krylov iteration count is in the thousands it means the eigenvector did not converge.
 
-Two pieces of information are pertinent for interpreting these results. One is that when a calculation is terminated manually, the flux information is not reported since the calculation does not go through post-processing. This means that for the unpreconditioned case it is only known that the flux did not converge, not whether the flux was positive or negative, nor how far the estimate at termination was from the reference solution. The other is that if a negative value for $k$ is found, the problem terminates. For the two cases in which a negative eigenvalue is reported it simply means a negative $k$ was computed on iteration 2, not that the problem converged in 2 RQ iterations. 
+Two pieces of information are pertinent for interpreting these results. One is that when a calculation is terminated manually, the flux information is not reported since the calculation does not go through post-processing. This means that for the unpreconditioned case it is only known that the flux did not converge, not whether the flux was positive or negative, nor how far the estimate at termination was from the reference solution. The other is that if a negative value for $k$ is calculated, the problem terminates. For the two cases in which a negative eigenvalue is reported it simply means a negative $k$ was computed on iteration 2, not that the problem converged in 2 RQ iterations. 
 
 This calculation performed strangely when preconditioned, though the results were not necessarily worse than when it was not. A wide variety of $w\#r\#v\#$ combinations were tried and there were zero out of fifteen cases that exactly matched the reference eigenpair, though the $w1r4v4$ case was quite close and several cases matched in magnitude. 
 
@@ -733,7 +733,7 @@ The results from the RQI study are in Table~\ref{table:2-D c5g7 rqi}. In all cas
 \begin{table}[!h]
 \caption{2-D C5G7 Benchmark, Convergence Study with Rayleigh Quotient Iteration}
 \begin{center}
-\begin{tabular}{c c c l c c c}
+\begin{tabular}{| c | c | c | l | c | c | c |}
 \hline
 Weight & Relaxations & V-cycles & Krylov & RQI & $<$ 1,000? & Time (s) \\[0.5ex]
 \hline
@@ -774,7 +774,7 @@ The power iteration results are in Table~\ref{table:3-D c5g7}. None of the $k$s 
 \begin{table}[!h]
 \caption{3-D C5G7 Benchmark, Preconditioning Parameter Scoping with Power Iteration}
 \begin{center}
-\begin{tabular}{c c c c l l}
+\begin{tabular}{| c | c | c | c | l | l |}
 \hline
 Weight & Relaxations & V-cycles & Krylov & PI & Time (s) \\[0.5ex]
 \hline
@@ -802,7 +802,7 @@ The degree to which the RQI-computed $k$ matched the benchmark was the same as P
 \begin{table}[!h]
 \caption{3-D C5G7 Benchmark, Preconditioning Parameter Scoping with Rayleigh Quotient Iteration}
 \begin{center}
-\begin{tabular}{c c c c l l}
+\begin{tabular}{| c | c | c | c | l | l |}
 \hline
 Weight & Relaxations & V-cycles & Krylov & RQI & Time (s) \\[0.5ex]
 \hline
@@ -886,18 +886,19 @@ The 44-group, 1.7 trillion unknown version of the problem was used for this scal
 \begin{table}[!h]
 \caption{PWR900, Preconditioned Strong Scaling Study}
 \begin{center}
-\begin{tabular}{l c c c l c c l}
+\begin{tabular}{| l | c | c | c | l | c | c | l |}
 \hline
-Solver & Sets & Cores & $k$ & Krylov & Eigenvalue & Total (min) & Solver (min)\\[0.5ex]
+Solver & Sets & Cores & $k$ & Krylov & Eigenvalue & Total (m) & Solver (m)\\[0.5ex]
 \hline
-RQI & 1   & 10,200   & 0.182 & 12    & 2$^{\dag}$ & 720.05 & n/a \\
+RQI & 1   & 10,200   & 0.182 & 12    & 2$^{\dag}$ & 720.05    & n/a \\
 PI    & 1   & 10,200   &  &  &       &  &  \\
-RQI & 4   & 40,800   & 1.269 & 76   &  6               & 802.60 & 801.32 \\
-PI    & 4   & 40,800   & 1.269 & 91   & 9$^{\dag}$       & 960.07 & n/a \\
-RQI & 11 & 112,200 & 1.269 & 76   & 6                & 331.43 & 330.38 \\
-PI    & 11 & 112,200 & 1.270 & 111 & 11$^{\dag}$ & 480.63 & n/a \\
-RQI & 22 & 198,528 & 1.269 & 76   & 6                & 143.62 & 142.56 \\
-PI    & 22 & 198,528 & 1.271 & 161 & 16$^{*}$      & 285.92 & n/a \\
+RQI & 4   & 40,800   & 1.269 & 76   &  6               & 802.60   & 801.32 \\
+RQI w/ $S_{2}$ & 4   & 40,800   & 1.269 & 79   &  6               & 192.48   & 191.42 \\
+PI    & 4   & 40,800   & 1.270 & 101 & 10$^{\dag}$ & 1440.12 & n/a \\
+RQI & 11 & 112,200 & 1.269 & 76   & 6                & 331.43    & 330.38 \\
+PI    & 11 & 112,200 & 1.270 & 111 & 11$^{\dag}$ & 480.63    & n/a \\
+RQI & 22 & 198,528 & 1.269 & 76   & 6                & 143.62    & 142.56 \\
+PI    & 22 & 198,528 & 1.271 & 161 & 16$^{*}$      & 285.92    & n/a \\
 \hline 
 \end{tabular}\\
 $^{*}$machine taken down for maintenance during calculation \\
@@ -910,7 +911,7 @@ Based on the full PWR calculations done previously by Evans and Davidson, $k$ is
 
 There were no cases where PI completed the calculation. Partway through the 22 set calculation a portion of the jaguar machine was taken offline for maintenance leaving only 162,240 cores, so the calculation was terminated. The calculation cannot be completed because machine will not be restored to the full 224,256 cores before this work must be submitted. 
 
-The other 3 PI problems did not finish before the wall time limit was reached. With both 11 and 4 sets the wall time limit was not set high enough. Limits of 8 and 16 hours, respectively, were chosen based on the RQI finish times of 5.5 and 13.4 hours. In previous problems the solve time for PI was close to or less than RQI, so the selected limits seemed reasonable. 
+The other 3 PI problems did not finish before the wall time limit was reached. With both 11 and 4 sets the wall time limit was not set high enough. Limits of 8 and 24 hours, respectively, were chosen based on the RQI finish times of 5.5 and 13.4 hours. In previous problems the solve time for PI was close to or less than RQI, so the selected limits seemed reasonable. 
 
 Neither solver completed the 1 set test. Jaguar limits problems that use fewer than 20,000 cores to a 12 hour wall limit. Because the 4 set times both took more than 12 hours it was not expected that the 1 set cases would finish. Because the preconditioner would need to go from 44 groups to 1 group (7 levels) and back on every V-cycle, the 1 set calculations would likely have taken a very long time to converge. The tests were still conducted for the purpose of comparing to one another how much progress towards solution was made in 12 hours. 
 
