@@ -38,7 +38,7 @@ The next phase of challenging problems are even more highly refined. High-fideli
 
 %--------------------------------------------------------------------------------
 \subsection{Enabling Technology}
-Nuclear transport computation began in the age of run tapes and punch cards with widely used codes being written in advanced programming languages such as FORTRAN IV \cite{Fortran1998}. Computer technology has evolved quickly and radically since that time. Now there are machines like Jaguar, which consists of two partitioned machines, the Cray XT4 and the Cray XT5. Jaguar has 84 XT4 cabinets containing 7,832 quad-core Opteron 1354 "Budapest" processors, each with eight gigabytes of DDR2-800 memory. The 200 XT5 cabinets have 37,376 six-core core Opteron 2435 "Istanbul" processors with 16 gigabytes of memory per node. The machine has a total of 362 terabytes of high-speed memory \cite{Sciences2010}. A table of machine parameters can be seen in Figure~\ref{fig:jaguar}. 
+Nuclear transport computation began in the age of run tapes and punch cards with widely used codes being written in advanced programming languages such as FORTRAN IV \cite{Fortran1998}. Computer technology has evolved quickly and radically since that time. Now there are machines like Jaguar, which consists of two partitioned machines, the Cray XT4 and the Cray XT5. Jaguar has 84 XT4 cabinets containing 7,832 quad-core Opteron 1354 "Budapest" processors, each with eight gigabytes of DDR2-800 memory. The 200 XT5 cabinets have 37,376 six-core Opteron 2435 "Istanbul" processors with 16 gigabytes of memory per node. The machine has a total of 362 terabytes of high-speed memory \cite{Sciences2010}. A table of machine parameters can be seen in Figure~\ref{fig:jaguar}. 
 
 \begin{figure}[!h]
   \begin{center}
@@ -55,7 +55,7 @@ Whenever an equation is being mathematically approximated, errors can be introdu
 %--------------------------------------------------------------------------------
 %--------------------------------------------------------------------------------
 \section{The Transport Equation}
-To understand the methods that were developed for this work and how they will enable the use of leadership-class hardware, the mathematical details of the transport equation must be discussed first. This subsection does this for neutrons in steady-state systems. 
+To understand the methods that were developed for this work and how they will enable the use of leadership-class hardware, the mathematical details of the transport equation must be discussed first. This section does this for neutrons in steady-state systems. 
 
 Neutrons can have many different kinds of interactions that influence a system's behavior. These interactions are described by cross sections, which reflect the likelihood of a particular interaction occurring and are given in units of inverse length. Of particular interest is the total cross section, $\Macro$, which includes all possible interactions; the scattering cross section, $\Macro_{s}$, where scattering can change the momentum and kinetic energy of a neutron; and the fission cross section, $\Macro_{f}$.   
 
@@ -149,7 +149,7 @@ The next area of phase space to discretize is direction. The discrete ordinates 
 
 For the transport equation, the basis functions are the angular fluxes along specific directions and the collocation points are the angle sets. The linear combination is done by weighting the basis functions using a quadrature set. 
 
-To implement this, the transport equation is written for neutrons traveling in $d\vOmega$ about direction $\vOmega_{a}$. Now $\psi^{g}_{a}$ can be defined as $\psi^{g}(\vOmega_{a})$, and the angular flux can be related to the flux moments as $\phi^{g} = \sum_{a=1}^{n}\psi^{g}_{a}w_{a}$. Using these terms, including the discretized scattering source and suppressing spatial dependence, Equation \eqref{eq:group-transport} becomes:
+To implement this, the transport equation is written for neutrons traveling in $d\vOmega$ about direction $\vOmega_{a}$. Now $\psi^{g}_{a}$ can be defined as $\psi^{g}(\vOmega_{a})$, and the angular flux can be related to the scalar flux as $\phi^{g} = \sum_{a=1}^{n}\psi^{g}_{a}w_{a}$. Using these terms, including the discretized scattering source and suppressing spatial dependence, Equation \eqref{eq:group-transport} becomes:
 %
 \begin{align}
  \bigl( \vOmega_{a} \cdot \nabla + \Macro_{g} \bigr) \psig_{a} = \sum_{g' = 1}^{G} \sum_{l=0}^{N} \sigg{l} \bigl[ Y^{e}_{l0}(\vOmega_{a}) \evenp_{l0} &+ \sum_{m=1}^{l} \bigl( Y^{e}_{lm}(\vOmega_{a}) \evenp_{lm} + Y^{o}_{lm}(\vOmega_{a}) \oddp_{lm} \bigr) \bigr] \nonumber \\
@@ -157,7 +157,7 @@ To implement this, the transport equation is written for neutrons traveling in $
   \label{eq:mg-sn-transport}
 \end{align}
 
-The quadrature weights, $w_{a}$, are defined such that $\int_{4 \pi} d\vOmega =  \sum_{a=1}^{n}w_{a} = 4 \pi$. One of the choices in the \Sn approximation is what quadrature set to use. The number of unknowns contributed by discretization of direction is determined by the quadrature set. For example, level-symmetric quadrature gives $n = N(N+2)$ unknowns for an \Sn approximation. The flux moments are also collocated on the ordinates using the desired quadrature set to linearly combine the angular flux basis functions \cite{Evans2009}:
+The quadrature weights, $w_{a}$, are defined such that $\int_{4 \pi} d\vOmega =  \sum_{a=1}^{n}w_{a} = 4 \pi$. One of the choices in the \Sn approximation is what quadrature set to use. The number of unknowns contributed by discretization of direction is determined by the quadrature set. For example, level-symmetric quadrature gives $n = N(N+2)$ unknowns for an \Sn approximation. The scalar flux is also collocated on the ordinates using the desired quadrature set to linearly combine the angular flux basis functions \cite{Evans2009}. This results in the flux moments:
 %
 \begin{align}
   \even_{lm} &= \sum_{a=1}^{n}Y^e_{lm}(\vOmega'_a)\psi^g_a w_a\:,
