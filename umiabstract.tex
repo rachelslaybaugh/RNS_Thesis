@@ -2,7 +2,7 @@
 % by Rachel Slaybaugh
 
 \noindent       % Don't indent this paragraph.
-To improve the design of nuclear systems, high-fidelity neutron fluxes are required. Leadership-class machines provide platforms on which very large problems can be solved. Computing such fluxes efficiently requires numerical methods with good convergence properties and algorithms that can scale to hundreds of thousands of cores. Many 3-D deterministic transport codes can only scale in space and angle, limiting them to tens of thousands of cores, and rely on methods such as Gauss Seidel for fixed source problems and power iteration for eigenvalue problems. These methods can be slow to converge for challenging problems like those with highly scattering materials or high dominance ratios. 
+To improve the design of nuclear systems, high-fidelity neutron fluxes are required. Leadership-class machines provide platforms on which very large problems can be solved. Computing such fluxes efficiently requires numerical methods with good convergence properties and algorithms that can scale to hundreds of thousands of cores. Many 3-D deterministic transport codes are decomposable in space and angle only, limiting them to tens of thousands of cores. Most codes rely on methods such as Gauss Seidel for fixed source problems and power iteration for eigenvalue problems, which can be slow to converge for challenging problems like those with highly scattering materials or high dominance ratios. 
 
 \vspace*{0.5em}
 \noindent       % Don't indent this paragraph.
@@ -18,4 +18,4 @@ The third method is a multigrid in energy preconditioner. The preconditioner tak
 
 \vspace*{0.5em}
 \noindent       % Don't indent this paragraph.
-The methods added to Denovo accomplish the goals of this work. They converge more quickly than traditional methods and enable the use of hundreds of thousands of cores. Each method can be used individually, with the multigroup Krylov solver and multigrid in energy preconditioner being particularly successful on their own. For ``grand challenge'' eigenvalue problems, though, the true benefit comes from using these methods in concert. 
+The methods added to Denovo accomplish the goals of this work. They converge in fewer iterations than traditional methods and enable the use of hundreds of thousands of cores. Each method can be used individually, with the multigroup Krylov solver and multigrid in energy preconditioner being particularly successful on their own. For ``grand challenge'' eigenvalue problems, the largest benefit comes from using these methods in concert. 
