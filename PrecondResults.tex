@@ -128,24 +128,24 @@ Weight & Relaxations & V-cycles & Krylov & PI & Time (s) \\[0.5ex]
 \label{table:2-D c5g7}
 \end{table}
 
-The data in Table~\ref{table:FeC multisets} are plotted in Figure~\ref{fig:FeC multisets}. Here the preconditioned time is termed ``Precond T''  unpreconditioned time is ``Regular T''. ``Rel Diff'' is the preconditioned time minus the regular time divided by the regular time. ``P T Set N / 1'' is the preconditioned time with N sets divided by the preconditioned time with 1 set. The last column is the same thing, but for the unpreconditioned time.
+The data in Table~\ref{table:FeC multisets} are plotted in Figure~\ref{fig:FeC multisets}. Here the preconditioned time is termed ``Precond T''  unpreconditioned time is ``Regular T''. ``Rel Diff'' is the preconditioned time minus the regular time divided by the regular time. The efficiency is computed as $\frac{\text{base\_domains}\times\text{base\_time}}{\text{used\_domains}\times\text{used\_time}}$.
 \begin{table}[!h]
 \caption{Iron Graphite Fixed Source Problem, Preconditioned Multiset Study}
 \begin{center}
 \begin{tabular}{|c |c |c |c |c |c|}
 \hline
-\# Sets & Precond T (s) & Regular T (s) & Rel Diff & P T Set N / Set 1 & R T Set N / Set 1 \\[0.5ex]
+\# Sets & Precond T (s) & Regular T (s) & Rel Diff & P Efficiency & R Efficiency \\[0.5ex]
 \hline
-1   & 3.64$\times 10^{3}$  & 8.00$\times 10^{2}$ & 3.56 & 1.00                              & 1.00 \\
-2   & 1.81$\times 10^{3}$	& 4.26$\times 10^{2}$ & 3.24 & 4.96$\times 10^{-1}$ & 5.32$\times 10^{-1}$ \\
-3   & 1.25$\times 10^{3}$	& 2.99$\times 10^{2}$ & 3.18 & 3.43$\times 10^{-1}$ & 3.74$\times 10^{-1}$ \\
-4   & 8.84$\times 10^{2}$	& 2.42$\times 10^{2}$ & 2.65 & 2.42$\times 10^{-1}$ & 3.02$\times 10^{-1}$ \\ 
-5   & 7.70$\times 10^{2}$	& 2.18$\times 10^{2}$ & 2.54 & 2.11$\times 10^{-1}$ & 2.72$\times 10^{-1}$ \\
-6   & 6.93$\times 10^{2}$	& 1.89$\times 10^{2}$ & 2.67 & 1.90$\times 10^{-1}$ & 2.36$\times 10^{-1}$ \\
-7   & 5.59$\times 10^{2}$	& 1.64$\times 10^{2}$ & 2.41 & 1.53$\times 10^{-1}$ & 2.05$\times 10^{-1}$ \\
-8   & 4.33$\times 10^{2}$	& 1.62$\times 10^{2}$ & 1.67 & 1.19$\times 10^{-1}$ & 2.03$\times 10^{-1}$ \\
-9   & 3.66$\times 10^{2}$	& 1.39$\times 10^{2}$ & 1.64 & 1.01$\times 10^{-1}$ & 1.74$\times 10^{-1}$ \\
-10 & 3.63$\times 10^{2}$	& 1.37$\times 10^{2}$ & 1.65 & 9.95$\times 10^{-2}$ & 1.71$\times 10^{-1}$ \\
+1   & 3.64$\times 10^{3}$  & 8.00$\times 10^{2}$ & 3.56 & 1.00 & 1.00 \\
+2   & 1.81$\times 10^{3}$	& 4.26$\times 10^{2}$ & 3.24 & 1.01 & 0.94 \\
+3   & 1.25$\times 10^{3}$	& 2.99$\times 10^{2}$ & 3.18 & 0.97 & 0.89 \\
+4   & 8.84$\times 10^{2}$	& 2.42$\times 10^{2}$ & 2.65 & 1.03 & 0.83 \\ 
+5   & 7.70$\times 10^{2}$	& 2.18$\times 10^{2}$ & 2.54 & 0.95 & 0.73 \\
+6   & 6.93$\times 10^{2}$	& 1.89$\times 10^{2}$ & 2.67 & 0.88 & 0.71 \\
+7   & 5.59$\times 10^{2}$	& 1.64$\times 10^{2}$ & 2.41 & 0.93 & 0.70 \\
+8   & 4.33$\times 10^{2}$	& 1.62$\times 10^{2}$ & 1.67 & 1.05 & 0.62 \\
+9   & 3.66$\times 10^{2}$	& 1.39$\times 10^{2}$ & 1.64 & 1.11 & 0.64 \\
+10 & 3.63$\times 10^{2}$	& 1.37$\times 10^{2}$ & 1.65 & 1.00 & 0.58 \\
 \hline 
 \end{tabular} 
 \end{center}
@@ -158,18 +158,18 @@ The data in Table~\ref{table:impi multisets} are plotted in Figure~\ref{fig:impi
 \begin{center}
 \begin{tabular}{|c |c |c |c |c |c|}
 \hline
-\# Sets & Precond T (s) & Regular T (s) & Rel Diff & P T Set N / Set 1 & R T Set N / Set 1 \\[0.5ex]
+\# Sets & Precond T (s) & Regular T (s) & Rel Diff & P Efficiency & R Efficiency \\[0.5ex]
 \hline
-1   & 1.43$\times 10^{2}$ & 5.69$\times 10^{1}$ & 1.51 & 1.00                                & 1.00 \\
-2   & 7.14$\times 10^{1}$ & 2.89$\times 10^{1}$ & 1.47 & 4.99$\times 10^{-1}$  & 5.08$\times 10^{-1}$ \\
-3   & 4.49$\times 10^{1}$ & 1.91$\times 10^{1}$ & 1.35 & 3.14$\times 10^{-1}$  & 3.35$\times 10^{-1}$ \\ 
-4   & 2.91$\times 10^{1}$ & 1.51$\times 10^{1}$ & 0.93 & 2.03$\times 10^{-1}$  & 2.65$\times 10^{-1}$ \\
-5   & 2.27$\times 10^{1}$ & 1.26$\times 10^{1}$ & 0.80 & 1.59$\times 10^{-1}$  & 2.22$\times 10^{-1}$ \\
-6   & 2.00$\times 10^{1}$ & 1.01$\times 10^{1}$ & 0.99 & 1.40$\times 10^{-1}$  & 1.77$\times 10^{-1}$ \\
-7   & 1.46$\times 10^{1}$ & 8.54                             & 0.71 & 1.02$\times 10^{-1}$  & 1.50$\times 10^{-1}$ \\
-8   & 1.15$\times 10^{1}$ & 7.86                             & 0.46 & 8.05$\times 10^{-2}$  & 1.38$\times 10^{-1}$ \\
-9   & 1.10$\times 10^{1}$ & 1.05$\times 10^{1}$ & 0.05 & 7.73$\times 10^{-2}$  & 1.84$\times 10^{-1}$ \\
-10 & 1.11$\times 10^{1}$ & 7.32                             & 0.52 & 7.77$\times 10^{-2}$  & 1.29$\times 10^{-1}$ \\
+1   & 1.43$\times 10^{2}$ & 5.69$\times 10^{1}$ & 1.51 & 1.00 & 1.00 \\
+2   & 7.14$\times 10^{1}$ & 2.89$\times 10^{1}$ & 1.47 & 1.00 & 0.99 \\
+3   & 4.49$\times 10^{1}$ & 1.91$\times 10^{1}$ & 1.35 & 1.06 & 0.99 \\ 
+4   & 2.91$\times 10^{1}$ & 1.51$\times 10^{1}$ & 0.93 & 1.23 & 0.94 \\
+5   & 2.27$\times 10^{1}$ & 1.26$\times 10^{1}$ & 0.80 & 1.26 & 0.90 \\
+6   & 2.00$\times 10^{1}$ & 1.01$\times 10^{1}$ & 0.99 & 1.19 & 0.94 \\
+7   & 1.46$\times 10^{1}$ & 8.54                          & 0.71 & 1.40 & 0.95 \\
+8   & 1.15$\times 10^{1}$ & 7.86                          & 0.46 & 1.55 & 0.90 \\
+9   & 1.10$\times 10^{1}$ & 1.05$\times 10^{1}$ & 0.05 & 1.44 & 0.60 \\
+10 & 1.11$\times 10^{1}$ & 7.32                          & 0.52 & 1.29 & 0.78 \\
 \hline 
 \end{tabular} 
 \end{center}
