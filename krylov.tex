@@ -256,10 +256,9 @@ The methods that have been used in the past dictate an inner-outer iteration str
 %-----------------------------------------------------
 %----------------------------------------------------- 
 \section{Multigroup Krylov Solver}
+\label{subsec:KrylovMethod}
 Section \ref{sec:DenAndPar} demonstrated that Denovo is limited in the number of cores it can use effectively. In addition to enhanced parallelism, there is also a need for faster solution algorithms for all parts of the code so Denovo can be used to solve very large systems. To address these issues, a new solver was implemented that applies a Krylov method to an entire block of energy groups rather than to only one group at a time. This replaces the inner-outer iteration structure with just one level of iteration because all groups can be converged simultaneously. 
 
-\subsection{Method}
-\label{subsec:KrylovMethod}
 The first goal of this project is to decompose the upscatter block in energy so that portion of phase space can be parallelized. This goal can be achieved in a straightforward way by solving the entire upscattering block as one entity with a Krylov method rather than solving one group at a time. 
 
 In the new method there are two ways to partition the energy groups: over all groups and over upscattering groups only \cite{Evans2010}. Partitioning over upscattering groups only is more complex, so will be described in greater detail here. In this case, the downscatter groups are treated the same way as before. For the example case, $[\phi]_{1}$ and $[\phi]_{2}$ are solved in the downscattering only calculations and are known by the time the upscatter block is reached. The portion of the scattering matrix shown in Equation \eqref{eq:up-source-matrix}, operates on these moments. 
@@ -331,10 +330,10 @@ Before this work, no one had decomposed the transport equation in energy nor use
 Note that the Jacobi method could have been used to decompose energy groups before because it is order independent in energy and does not have the large memory footprint associated with Krylov methods. However, there was no need to scale to so many cores and so there was no motivation for this development. Now that the scaling need exists, there is sufficient memory for Krylov methods. Krylov methods are the clear choice because they often converge faster than Jacobi \cite{LeVeque2007}. 
 
 %--------------------------------------------------------------------------------
-\subsection{Results}
+\section{Results}
 The new method, which will be referred to as multigroup (MG) Krylov or block Krylov, has been implemented in Denovo. A few test problems were used to investigate the benefits of the new method. One was a small problem intended for initial scoping, and another was a full scale reactor calculation intended for more detailed study. Energy decomposition was investigated from the standpoint of both strong and weak scaling. The problems were also run without energy decomposition, i.e.\ using one energy set, to compare using Krylov instead of GS for the upscatter groups. First MG Krylov and GS are compared, then strong scaling studies are shown, and finally weak scaling is discussed.
 
-\subsubsection{Gauss Seidel vs. Block Krylov}
+\subsection{Gauss Seidel vs.\ Block Krylov}
 The small problem was used first to compare GS to MG Krylov for multigroup upscattering. This is a cube of half iron and half graphite discretized with a 50 $\times$ 50 $\times$ 50 orthogonal mesh and decomposed into two spatial domains to use two cores. It is a 27-group problem with 13 upscattering groups and vacuum boundary conditions. An isotropic source is assigned everywhere to all energy groups, and the problem used $P_0$ and $S_4$. The iron plus graphite material composition was chosen for several reasons. Both materials are commonly found in nuclear reactors, graphite is highly scattering and creates a system with a large spectral radius for GS, and the cross sections were available with multiple upscattering groups.
 
 The calculation took $3.51 \times 10^{3}$ seconds using MG Krylov, and the upscattering block converged in 43 GMRES iterations. With GS, the calculation took $2.87 \times 10^{4}$ seconds, or 718\% longer. This case converged in 44 Gauss Seidel iterations, each of which took about 124 GMRES inner iterations, or $\sim$5455 GMRES iterations all together. Note that the Krylov iterations with block Krylov needed a subspace with a length dimension of 13 energy groups while the Krylov iterations in GS had a length of 1 energy group. This means the cost of the GMRES applications is not the same between solvers. Despite this, GS was clearly more costly.
@@ -380,7 +379,7 @@ Table~\ref{table:MGkrylovPWR} shows the results for the PWR900 problem. The goal
 
 In both test cases the new Krylov multigroup solver significantly outperformed Gauss Seidel. The block Krylov method took much less time and many fewer iterations, even when Gauss Seidel was accelerated. This demonstrates that the new multigroup solver provides substantial convergence improvement with only space-angle parallelization, which will help solve large and challenging problems. 
 
-\subsubsection{Strong Scaling}
+\subsection{Strong Scaling}
 The first two test problems plus an additional system were used to examine strong scaling with energy sets. The iron graphite cube was used first, largely to verify multiset functionality rather than rigorously test scaling. The cube was expanded to a 100 $\times$ 100 $\times$ 100 mesh and decomposed into four spatial blocks to make it large enough to warrant using multisets. It should be noted that it is not expected that this problem will scale particularly well because it is still a small problem and the number of upscattering groups is prime. 
 
 The number of energy sets was varied from 1 to 13. The test problems were run on the small orthanc cluster at ORNL. The downscattering groups were solved serially with forward substitution, and the upscattering groups were solved with the Krylov multigroup solver. The upscattering groups converged in 104 GMRES iterations. Every calculation gave the correct flux when compared to a reference.
@@ -500,7 +499,7 @@ The 44-group fixed source problem showed that the block Krylov solver can scale 
 
 Even when communication was not optimized the multigroup Krylov solver allowed Denovo to solve a real problem with over 1.7 trillion degrees of freedom in under 40 minutes. This problem would not have been practical to solve using the same 233M cell mesh without energy sets, relying on space-angle scaling alone. These results demonstrate that the block Krylov solver allows for the full use of leadership-class machines for problems where only KBA would not.
 
-\subsubsection{Weak Scaling}
+\subsection{Weak Scaling}
 Finally, the full-facility PWR problem was used for a weak scaling study. The two-group, 20,400 block MG Krylov calculation in Table~\ref{table:MGkrylovPWR} was compared to the 44-group, 11 set, 10,200 block MG Krylov calculation with the optimized general communication strategy, but without the multiset communication optimization. 
 
 Recall that there were 78,576,556,800 unknowns when using 2 groups with 2 sets on 20,400 cores, and 1,728,684,249,900 unknowns when using 44 groups with 11 sets on 112,200 cores. With weak scaling the problem size/core is typically kept constant. In these tests the problem size/core could not be held constant, so an adjustment factor was included. The number of energy groups were used to weight the problem size/core and that was used to get an adjusted solve time of 9.58 minutes for the larger calculation: $[(\frac{44}{2})(\frac{20,400}{112,200})]^{-1}\times38.33$ = 9.58. 
@@ -519,7 +518,7 @@ Recall that a weak scaling study using this same problem was reported in Section
 %\end{figure}
 
 %-----------------------------------------------------
-\subsection{Implications}
+\section{Implications}
 The tests just discussed show that the multigroup Krylov solver provides a time benefit both from using a Krylov solver for the equivalent of the outer iterations instead of Gauss Seidel and from the parallelization in energy that is enabled by this method. There were no deterministic transport codes found that decompose the upscatter calculation in energy, nor that only use one iteration level for the upscattering block. This decomposition is a new contribution to the field and helps alleviate the scaling limitations associated with the KBA algorithm.   
 
 There are a few reasons this has not been pursued before, primarily based on computer architecture and existing code capability. Memory has only become large enough to accommodate the necessary Krylov subspaces recently. Only in the last several years have there been computers with enough processing capability to allow for scaling to hundreds of thousands of cores, motivating energy decomposition. In addition, the inner-outer paradigm is at the core of most transport codes and in many cases it would take substantial effort to modify that structure. 

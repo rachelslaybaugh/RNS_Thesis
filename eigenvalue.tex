@@ -347,10 +347,8 @@ These experiences emphasize that Krylov methods can have serious convergence pro
 %-----------------------------------------------------------------------------------------
 %-----------------------------------------------------------------------------------------
 \section{RQI in Denovo}
-A better eigenvalue solution method is needed to be able to do cutting edge, high-fidelity calculations. The last two sections illustrated that a shifted inverse iteration method could provide substantial benefit over power iteration, particularly if an optimal shift is chosen. This observation inspired the addition of Rayleigh Quotient Iteration as an eigenvalue solver in Denovo. The balance of this chapter will cover the details of the method implementation, present some results, and discuss the implications of RQI.
+A better eigenvalue solution method is needed to be able to do cutting edge, high-fidelity calculations. The last two sections illustrated that a shifted inverse iteration method could provide substantial benefit over power iteration, particularly if an optimal shift is chosen. This observation inspired the addition of Rayleigh Quotient Iteration as an eigenvalue solver in Denovo. 
 
-%-----------------------------------------------------------------------------------------
-\subsection{Method}
 To implement RQI in Denovo, the shift was applied in a manner similar to Wielandt's method. To see how this works, subtract $\rho \ve{TMF}$ from both sides of $(\ve{I} - \ve{TMS})\phi = \lambda \ve{TMF}\phi$, where $\rho$ is the Rayleigh quotient and $\lambda = \frac{1}{k}$. This gives the following shifted system:
 %
 \begin{align}
@@ -412,7 +410,7 @@ There is also an option to simply do shifted inverse iteration instead of RQI. I
 The current implementation of Denovo's operator and solvers does not allow the RQI method to work with multisets when there are reflecting boundaries. This solution option combination is not necessary in this work nor in the analysis of the potential value of RQI. An important development step in the future will be to add this functionality to Denovo. A detailed explanation of the reason for the current code limitation is given in Appendix \ref{sec:AppendixC}.
 
 %-----------------------------------------------------------------------------------------
-\subsection{Results}
+\section{Results}
 A few calculations were done to investigate whether RQI is an improvement over power iteration. The quality of improvement is measured by the total number of Krylov iterations rather than timing. This is a more meaningful measure because some calculations were so small and ran so fast that timing was inaccurate, this is a metric that can be compared across computers, and there may be room for some optimization in the future that would change the timing. GMRES was the Krylov method used in all cases unless noted otherwise.
 
 Before RQI was added to Denovo, an infinite medium scoping code was written in Python to test that the algorithm worked in that very simple case.  Using this code a 4-group, a 7-group, and a 27-group problem were solved. In all cases RQI and PI both converged on the first iteration to the correct answer. 
@@ -496,7 +494,7 @@ The most important result, however, was that with RQI the eigenvector did not co
 
 \begin{figure}[!ht]	
   \begin{center}
-    \includegraphics [width=0.75\textwidth, height=0.4\textheight ] {RQIConvergenceFail}
+    \includegraphics [width=0.75\textwidth, height=0.47\textheight ] {RQIConvergenceFail}
   \end{center}
   \caption{2-D C5G7 Benchmark, Residual as a Function of Upscatter Iteration Count for One Eigenvalue Iteration}
   \label{fig:RQIConvergenceFail}
@@ -513,7 +511,7 @@ An additional concern is that when the system is ill-conditioned GMRES may no lo
 Overall, though, the observed behavior strongly suggests that the multigroup Krylov method should be preconditioned so that the eigenvector will converge. If that happens it is likely that RQI will then converge as well. Only with preconditioning can the real benefit of RQI be properly investigated.
 
 %-----------------------------------------------------------------------------------------
-\subsection{Implications}
+\section{Implications}
 Rayleigh quotient iteration is an old method that is an adaptation of shifted inverse iteration. Because the RQ provides an optimal shift, it is expected that using RQI in Denovo will converge in fewer iterations than power iteration for some problems, provided that the eigenvector is converged. 
 
 Further, this solver is wrapped around the MG Krylov solver from Chapter \ref{sec:Chp2}. It has already been demonstrated that the energy decomposition works and improves solution time and code scaling for fixed source multigroup problems. It is therefore reasonable to expect that when the method converges, decomposing the entire matrix in energy for eigenvalue calculations will work and provide the same kind of scaling improvement.
