@@ -337,7 +337,7 @@ The application of $\ve{A}$ to $\Gamma^{k}$ involves a multigroup solve that loo
 %
 This means outer iterations update the eigenvalue and there are two sets of inner iterations: energy, and space-angle, just like other fixed source solves. Originally, a Krylov solver was used for the space-angle inner iterations and Gauss Seidel was used for the energy iterations \cite{Evans2009a}, \cite{Evans2011}. Denovo uses Trilinos \cite{Heroux2003} to provide the Krylov solver, with a choice of either GMRES or BiCGSTAB \cite{Evans2009}.
 
-\subsection{Krylov Methods Concerns}
+\subsection{Concerns with Krylov Methods}
 As has been mentioned, Krylov methods have frequently been applied to the solution of the transport equation. It has often been found that these Krylov methods do not converge well when they are not preconditioned. The first observation of unsatisfactory behavior was by Lewis in 1977 when CG was applied to the 1-D, symmetrised, $S_{N}$ transport equation. The formulation used had a large condition number and that likely caused the problem \cite{Lewis1977}, \cite{Gupta2004}. 
 
 Recent work in 1- and 2-D transport analysis has highlighted that restarted GMRES can stagnate in problems with optically thin subdomains \cite{Rosa2010}. In 1998 Oliveira and Deng studied the application of a variety of Krylov methods to the 1-D neutron transport equation. They found that all of these methods can converge slowly for problems of interest if they are not preconditioned \cite{Oliveira1998}. The recognition that Krylov methods can have convergence problems in transport calculations led Patton and Holloway to study how different preconditioners improve the performance of GMRES when applied to the 1-D, $S_{N}$ transport equation. They focused on GMRES because they found it to be faster and less memory intensive than other Krylov methods \cite{Patton2002}. 
@@ -347,7 +347,7 @@ These experiences emphasize that Krylov methods can have serious convergence pro
 %-----------------------------------------------------------------------------------------
 %-----------------------------------------------------------------------------------------
 \section{RQI in Denovo}
-The theory and past work both indicate that power iteration can converge slowly for some types of eigenvalue transport problems. A better eigenvalue solution method is needed to be able to do cutting edge, high-fidelity calculations. The last two sections illustrated that a shifted inverse iteration method could provide substantial benefit, particularly if an optimal shift is chosen. These two observations inspired the addition of Rayleigh Quotient Iteration as an eigenvalue solver in Denovo. The balance of this chapter will cover the details of the method implementation, present some results, and discuss the implications of RQI.
+A better eigenvalue solution method is needed to be able to do cutting edge, high-fidelity calculations. The last two sections illustrated that a shifted inverse iteration method could provide substantial benefit over power iteration, particularly if an optimal shift is chosen. This observation inspired the addition of Rayleigh Quotient Iteration as an eigenvalue solver in Denovo. The balance of this chapter will cover the details of the method implementation, present some results, and discuss the implications of RQI.
 
 %-----------------------------------------------------------------------------------------
 \subsection{Method}
@@ -372,8 +372,8 @@ The energy-parallelized RQI method is shown in Algorithm \ref{algo:RQI+MGkrylov}
   Calculate the initial Rayleigh quotient, $\rho_{old}$, using Algorithm \ref{algo:calcRQ}\\
   Until convergence:
   \begin{list}{}{\hspace{2.5em}}
-     \item Calculate the shift: $\mu = \frac{1}{k_{old}} - \rho_{old}$
-     \item Apply the shift to both sides by 
+     \item Calculate the right shift: $\mu = \frac{1}{k_{old}} - \rho_{old}$
+     \item Shift both sides by 
      \begin{enumerate}
        \item subtracting $\rho_{old} [\ve{TMF}]^{\tilde{g}}$ from $\ve{A}^{\tilde{g}}$ and 
        \item making the right hand side $\mu [\ve{TMF}]^{\tilde{g}} \phi^{\tilde{g}}$
@@ -383,7 +383,7 @@ The energy-parallelized RQI method is shown in Algorithm \ref{algo:RQI+MGkrylov}
     \item $k_{old} = \frac{1}{\rho_{old}}$
     \item Calculate a new Rayleigh quotient, $\rho_{new}$; $k_{new} = \frac{1}{\rho_{new}}$
     \item Compare $k_{old}$ and $k_{new}$ for convergence 
-    \item $k_{old} = k_{new}$; $\rho_{old} = \rho_{new}$
+    \item Update the iterates, $k_{old} = k_{new}$; $\rho_{old} = \rho_{new}$
   \end{list}
   \caption{Rayleigh Quotient Iteration in Denovo}
   \label{algo:RQI+MGkrylov}
@@ -393,7 +393,7 @@ Denovo's implementation of RQI uses the generalized form of the Rayleigh quotien
 %
 \begin{algorithm}[!h]
   \begin{list}{}{\hspace{2.5em}}
-    \item denominator $= \phi_{old}^{\tilde{g}, T} \ve{TMF}^{\tilde{g}} \phi_{old}^{\tilde{g}}$
+    \item denominator $= \phi_{old}^{\tilde{g}, T} [\ve{TMF}]^{\tilde{g}} \phi_{old}^{\tilde{g}}$
     \item Globally sum the denominator
     \item If $|$denominator$|$ $> 1 \times 10^{-13}$, 
       \begin{list}{}{\hspace{1em}}
@@ -407,56 +407,52 @@ Denovo's implementation of RQI uses the generalized form of the Rayleigh quotien
   \label{algo:calcRQ}
 \end{algorithm}
 
-There is also an option to simply do shifted inverse iteration instead of RQI. In this case the user chooses a fixed shift, $\beta$, that is used in place of $\rho$ when shifting the matrices. Algorithm \ref{algo:RQI+MGkrylov} can be modified to accommodate this choice by changing $\rho$ to $\beta$ in the calculation of $\mu$ and the ``Apply shift to both sides'' step. The Rayleigh quotient is still calculated at every iteration to make the new estimate for $k$. 
+There is also an option to simply do shifted inverse iteration instead of RQI. In this case the user chooses a fixed shift, $\beta$, that is used in place of $\rho$ when shifting the matrices. Algorithm \ref{algo:RQI+MGkrylov} can be modified to accommodate this choice by changing $\rho$ to $\beta$ in the calculation of $\mu$ and the ``Shift both sides'' step. The Rayleigh quotient is still calculated at every iteration to make the new estimate for $k$. 
 
 The current implementation of Denovo's operator and solvers does not allow the RQI method to work with multisets when there are reflecting boundaries. This solution option combination is not necessary in this work nor in the analysis of the potential value of RQI. An important development step in the future will be to add this functionality to Denovo. A detailed explanation of the reason for the current code limitation is given in Appendix \ref{sec:AppendixC}.
 
 %-----------------------------------------------------------------------------------------
 \subsection{Results}
-A few calculations were done to investigate if RQI is an improvement over power iteration. The quality of improvement is measured by the total number of Krylov iterations rather than timing. This is a more meaningful measure because some calculations were so small and ran so fast that timing was inaccurate, this is a metric that can be compared across computers, and there may be room for some optimization in the future that would change the timing. 
+A few calculations were done to investigate whether RQI is an improvement over power iteration. The quality of improvement is measured by the total number of Krylov iterations rather than timing. This is a more meaningful measure because some calculations were so small and ran so fast that timing was inaccurate, this is a metric that can be compared across computers, and there may be room for some optimization in the future that would change the timing. GMRES was the Krylov method used in all cases unless noted otherwise.
 
 Before RQI was added to Denovo, an infinite medium scoping code was written in Python to test that the algorithm worked in that very simple case.  Using this code a 4-group, a 7-group, and a 27-group problem were solved. In all cases RQI and PI both converged on the first iteration to the correct answer. 
 
 The first Denovo problem chosen was a small, few-group system intended to demonstrate the new solver's correctness. In fact, it is a unit test built into Denovo's test suite intended to verify that all parts of the code behave correctly. This problem used a 3 $\times$ 3 $\times$ 3 grid with 0.1 spacing, vacuum boundary conditions, two materials, four groups that were only downscattering, $S_{2}$, $P_{0}$, had all tolerances set to 1 $\times$ 10$^{-6}$, a dominance ratio of 0.1396, and a reference $k$ of 0.11752. The small dominance ratio implies that PI should preform reasonably well on this problem. The debug version of Denovo was used and the calculation and was not parallelized in any way. 
 
-This problem was solved with RQI and PI, both using the MG Krylov solver for the multigroup iterations. Note that when PI is used with MG Krylov all the downscatter groups are still solved using the forward substitution method one group at a time rather than as a block. The RQI method uses MG Krylov over the whole block because of the effective upscattering added by the shift. GMRES was the Krylov method used in all cases unless noted otherwise.
+This problem was solved with RQI and PI, both using the MG Krylov solver for the multigroup iterations. Note that when PI is used with MG Krylov all the downscatter groups are still solved using the forward substitution method one group at a time rather than as a block. The RQI method used MG Krylov over the whole block because of the effective upscattering added by the shift. 
 
 \begin{table}[!h]
 \caption{RQI Unit Test with Vacuum Boundaries, Power Iteration Compared to Rayleigh Quotient Iteration}
 \begin{center}
-\begin{tabular}{| l | c | c |}
+\begin{tabular}{| c | c | c | c | c |}
 \hline
-Item & Power Iteration & RQI \\[0.5ex]
+Solvers & $k$ & Group Iters & Eigen Iters & Total Krylov \\[0.5ex]
 \hline
-$k$ & 0.11752 & 0.11752 \\
-group iters & 2 or 3 / group   & 4 to 8 \\
-eigen iters & 7 & 6 \\
-total Krylov & 73 & 39 \\
+PI &  0.11752 &  2 or 3 / group & 7 & 73 \\
+RQI &  0.11752 & 4 to 8 & 6 & 39 \\
 \hline
 \end{tabular}
 \end{center}
 \label{table:SmallVacuumRQI}
 \end{table}
 %
-The results are given in Table \ref{table:SmallVacuumRQI}. The term ``group iters'' either refers to the number of within-group iterations (in the case of PI) or multigroup iterations where the Krylov vector is over all groups (in the case of RQI). Both RQI and PI got the correct answer. PI used a total of 73 Krylov iterations while RQI used a total of 39 Krylov iterations. 
+The results are given in Table \ref{table:SmallVacuumRQI}. The term ``Group Iters'' either refers to the number of within-group iterations (in the case of PI) or multigroup iterations where the Krylov vector is over all groups (in the case of RQI). Both RQI and PI got the correct answer. PI used a total of 73 Krylov iterations while RQI used a total of 39 Krylov iterations. 
 
-The subspace sizes in these two calculations are not the same and because of the shift the matrices being applied within each Krylov solve are also different. These differences mean the cost of the two methods cannot be quantitatively compared in a precise way when considering iteration count. For this problem with all downscattering, the application of RQI is likely more costly than PI. 
+The subspace sizes in these two calculations are not the same, and because of the shift the matrices being applied within each Krylov solve are also different. These differences mean the cost of the two methods cannot be quantitatively compared in a precise way when considering iteration count. For this problem with all downscattering, the application of RQI is likely more costly than PI. 
 
-Nevertheless, a few important heuristic observations can be made. RQI was able to get both the correct eigenvector and correct eigenvalue in a small number of iterations. And while RQI may not be better than PI for this problem with a small dominance ratio, it is at the very least not much worse. 
+Nevertheless, a few important heuristic observations can be made. RQI was able to calculate both the correct eigenvector and correct eigenvalue in a small number of iterations. And while RQI may not be better than PI for this problem with a small dominance ratio, it is at the very least not much worse. 
 
-The second problem was nearly the same as the first, but was intended to test the reflecting boundary case. This is also a unit test. For this problem all boundaries were reflecting and only one material was used. These changes made the dominance ratio 1.630 $\times$ 10$^{-15}$ and $k$ became 2. These results can be seen in Table \ref{table:SmallReflectingRQI}. The conclusions that can be drawn from this test are the same as from the last, with the addition that this one demonstrates RQI works with reflecting boundaries. 
+The second problem was nearly the same as the first, but was intended to test the reflecting boundary case. This is also a unit test. For this problem all boundaries were reflecting and only one material was used. These changes made the dominance ratio 1.630 $\times$ 10$^{-15}$ and $k$ became 2.0. These results can be seen in Table \ref{table:SmallReflectingRQI}. The conclusions that can be drawn from this test are the same as from the last, with the addition that this one demonstrates RQI works with reflecting boundaries. 
 %
 \begin{table}[!h]
 \caption{RQI Unit Test with Reflecting Boundaries, Power Iteration Compared to Rayleigh Quotient Iteration}
 \begin{center}
-\begin{tabular}{| l | c | c |}
+\begin{tabular}{| c | c | c | c | c |}
 \hline
-Item & Power Iteration & RQI \\[0.5ex]
+Solvers & $k$ &  Group Iters & Eigen Iters & Total Krylov \\[0.5ex]
 \hline
-$k$ & 2 & 2 \\
-group iters & 9 / group   & 17 to 18 \\
-eigen iters & 2 & 2 \\
-total Krylov & 72 & 35 \\
+PI & 2.0 & 9 / group & 2 & 72 \\
+RQI & 2.0 & 17 and 18 & 2 & 35 \\
 \hline
 \end{tabular}
 \end{center}
@@ -467,37 +463,36 @@ This problem was also solved using the fixed shift option. A shift of 1.95 was s
 
 The first two small tests plus the infinite medium experience show that RQI can get the right answer and that with very simple problems perform at least not much worse than power iteration. While these small successes were encouraging, they were not sufficient to demonstrate that the method is successful. 
 
-To continue investigation, an intermediate-size problem was tried next. This system had a 9 $\times$ 9 $\times$ 9 spatial grid with 0.5 spacing, reflecting boundary conditions, one material, 27 groups, 13 upscattering groups, $S_{2}$, $P_{1}$, the overall tolerance was 1 $\times$ 10$^{-3}$, the upscattering tolerance was 1 $\times$ 10$^{-6}$, and the eigenvalue tolerance was 1 $\times$ 10$^{-5}$. The dominance ratio was 6.32 $\times$ 10$^{-13}$ and the reference $k$ was 0.4. 
+To continue investigation, an intermediate-size problem was tried next. This system had a 9 $\times$ 9 $\times$ 9 spatial grid with 0.5 spacing, reflecting boundary conditions, one material, 27 groups, 13 upscattering groups, $S_{2}$, $P_{1}$, the overall tolerance was 1 $\times$ 10$^{-3}$, the upscattering tolerance was 1 $\times$ 10$^{-6}$, and the eigenvalue tolerance was 1 $\times$ 10$^{-5}$. The dominance ratio was 6.32 $\times$ 10$^{-13}$ and the reference $k$ was 0.4003. 
 
 When PI with MG Krylov was used the correct answer was obtained in 2.57 $\times$ 10$^{2}$ seconds. The calculation needed 90 Krylov iterations per eigenvalue iteration and two outer iterations for a total of 180 Krylov iterations to converge. 
 
 When RQI was used with MG Krylov, the problem did not converge. The maximum number of Krylov multigroup iterations per eigenvalue iteration was set to 1,000 and this was taken every time except the first, which took 25. That means the eigenvector was not converging. The calculation was terminated after 40 eigenvalue iterations. The value of $k$ oscillated between 0.3966 and 0.3967. While the problem did not converge, the estimated eigenvalue was close to the right value.
 
-This test was also tried using BiCGSTAB instead of GMRES for the Krylov solver since BiCGSTAB has different convergence properties. This change did not improve things. The eigenvector exhibited the same behavior, requiring all the multigroup iterations for each eigenvalue iteration. After seven eigenvalue iterations the problem terminated because a negative eigenvalue was calculated. Choosing to use BiCGSTAB made the results worse for this problem. 
+This test was also tried using BiCGSTAB instead of GMRES for the Krylov solver since BiCGSTAB has different convergence properties. This change did not improve things. The eigenvector exhibited the same behavior, requiring all the multigroup iterations for each eigenvalue iteration. After seven eigenvalue iterations the problem terminated because a negative eigenvalue was calculated. In Denovo a calculation terminates if a negative value for $k$ is found. Choosing to use BiCGSTAB made the results worse for this problem. 
 
-With an even more difficult problem RQI did not even find nearly the correct eigenvalue when using GMRES. The two dimensional C5G7 mox benchmark problem \cite{OECD-NEA2003} was selected for investigation and was solved with an optimized version of Denovo. This problem used three enrichment levels, an external mesh file, two reflecting boundaries to make it 2-D, 10 materials, 7 groups, 4 upscattering groups, $S_{2}$, $P_{0}$, an overall tolerance and upscatter tolerance of 1 $\times$ 10$^{-3}$, an eigenvalue tolerance of 1 $\times$ 10$^{-5}$, $k_{0}$ set to 1.14, and had a dominance ratio of 0.7709. The reference $k$ is 1.18655 $\pm$ 0.008.
+With an even more difficult problem RQI did not even find nearly the correct eigenvalue when using GMRES. The two-dimensional C5G7 mox benchmark problem \cite{OECD-NEA2003} was selected for investigation and was solved with an optimized version of Denovo. This problem used three enrichment levels, an external mesh file, two reflecting boundaries to make it 2-D, 10 materials, 7 groups, 4 upscattering groups, $S_{2}$, $P_{0}$, an overall tolerance and upscatter tolerance of 1 $\times$ 10$^{-3}$, an eigenvalue tolerance of 1 $\times$ 10$^{-5}$, $k_{0}$ set to 1.14, and had a dominance ratio of 0.7709. The reference $k$ is 1.18655 $\pm$ 0.008.
 
 \begin{table}[!h]
 \caption{2-D C5G7 Benchmark, Power Iteration Compared to Rayleigh Quotient Iteration}
 \begin{center}
-\begin{tabular}{| l | c | c | c |}
+\begin{tabular}{| l | c | c | c | c |}
 \hline
-Item & PI + TTG GS & PI +  MG Krylov & RQI \\[0.5ex]
+Solvers & $k$ & MG Iters & Eigen Iters & Total Krylov \\[0.5ex]
 \hline
-$k$ & 1.18538 & 1.18702 & $\sim$0.95 \\
-mg iters & 157 GS & $\sim$100 & 1,000 \\
-eigen iters & 32 & 32 & 120$^{*}$ \\
-total Krylov & 21,365 & 3,129 & 119,006 \\
-\hline 
+PI + TTG GS & 1.18538 & 157 GS & 32 & 21,365 \\
+PI +  MG Krylov & 1.18702 &  $\sim$100 & 32 & 3,129 \\
+RQI & $\sim$0.95 & 1,000 & 120$^{*}$ & 119,006 \\
+\hline
 \end{tabular} \\
 $^{*}$Terminated manually
 \end{center}
 \label{table:2DMoxRQI}
 \end{table}
 %
-The results from this calculation are presented in Table \ref{table:2DMoxRQI}. Here power iteration was used with both accelerated Gauss Seidel (TTG GS) and with MG Krylov. PI + TTG GS needed a total of 21,000 single-group-sized Krylov iterations and PI + block Krylov needed 3,000 all-group-sized Krylov iterations to converge. Concerning the new multigroup solver, the PI + block Krylov solver took slightly less time than PI + TTG GS. 
+The results from this calculation are presented in Table \ref{table:2DMoxRQI}. Here power iteration was used with both accelerated Gauss Seidel (TTG GS) and with MG Krylov. PI + TTG GS needed a total of 21,365 single-group-sized Krylov iterations and PI + block Krylov needed 3,125 all-group-sized Krylov iterations to converge. Regarding the new multigroup solver, it is of interest that the PI + block Krylov calculation took slightly less time than PI + TTG GS. 
 
-The most important result, however, was that with RQI the eigenvector did not converge and the eigenvalue was wrong. Except for the first, every set of multigroup iterations went to the maximum iteration count of 1,000. A 3-D version of the C5G7 mox benchmark problem \cite{OECD-NEA2005} was also tried with RQI. This, too, did not converge. Using BiCGSTAB instead of GMRES was also tried for the 2-D problem without success. 
+The most important result, however, was that with RQI the eigenvector did not converge and the eigenvalue was wrong. Except for the first, every set of multigroup iterations went to the maximum iteration count of 1,000. Using BiCGSTAB instead of GMRES was also tried for the 2-D problem without success. Finally, a 3-D version of the C5G7 mox benchmark problem \cite{OECD-NEA2005} was tried with RQI. This, too, did not converge.  
 
 \begin{figure}[!ht]	
   \begin{center}
@@ -507,9 +502,9 @@ The most important result, however, was that with RQI the eigenvector did not co
   \label{fig:RQIConvergenceFail}
 \end{figure}
 %
-Figure~\ref{fig:RQIConvergenceFail} shows a plot of the residual vs. multigroup iteration count for one RQI eigenvalue iteration in the 2-D case. It is clear that error reduction stalls and the eigenvector does not converge. When the Krylov iterations do not converge, the flux estimate is not good. Without a good approximation to the eigenvector, the RQ is no longer a valid approximation to the eigenvalue and thus the eigenvalue problem does not converge. It is likely that the eigenvector does not converge because RQI creates poorly conditioned systems. Krylov methods do not handle ill-conditioned systems very well and may converge extremely slowly. 
+Figure~\ref{fig:RQIConvergenceFail} shows a plot of the residual vs. multigroup iteration count for one RQI eigenvalue iteration in the 2-D case. It is clear that error reduction stalls and the eigenvector does not converge. When the Krylov iterations do not converge, the flux estimate is not good. Without a good approximation to the eigenvector, the RQ is no longer a valid approximation to the eigenvalue and thus the eigenvalue problem does not converge. It is likely that the eigenvector does not converge because RQI creates poorly conditioned systems. Krylov methods do not handle ill-conditioned systems very well and may converge extremely slowly when trying to solve them. 
 
-This hypothesis is supported by the fact that during the first eigenvalue iteration the GMRES does converge. During this first iteration the shifts are made from an RQ computed with the initial moments and the initial $k$. The RQ is likely not close to the actual eigenvalue and the right shift is likely not close to zero. This means the system will not be too ill-conditioned. 
+This hypothesis is supported by the fact that during the first eigenvalue iteration GMRES does converge. During this first iteration the shifts are made from an RQ computed with the initial moments and the initial $k$. The RQ is likely not close to the actual eigenvalue and the right shift is likely not close to zero. This means the system will not be too ill-conditioned. 
 
 After the eigenvector converges on that first iteration it may be that the RQ becomes close enough to $\lambda_{1}$ that the system is ill-conditioned enough to prevent subsequent multigroup iterations from converging in the specified number of iterations. The system seems to be in a middle ground where the eigenvalue-vector pair are not good enough to converge the calculation, but are good enough to keep the system ill-conditioned. 
 
@@ -529,6 +524,6 @@ The small problems showed that RQI can get the correct solution and that the num
 
 RQI has not been applied to the transport equation before because it takes $O(n^{3})$ operations for full dense matrices, and without parallelization in energy it could be prohibitively expensive \cite{Stewart2001}. In the past, adding a shift to make the scattering matrix energy-block dense was difficult to handle. The system would have been solved with Gauss Seidel, which would have been restrictively slow. The multigroup Krylov algorithm has enabled energy parallelization and made it possible to calculate the eigenvector with a shifted system.
 
-Computers that facilitate enough parallelization to decompose in energy and have enough memory to store Krylov subspaces for the full transport equation make combining RQI and MG Krylov possible. The resulting convergence of the eigenvalue should be faster than PI for at least some problems. The energy decomposition will allow eigenvalue calculations to overcome the limitations of KBA and be scaled to many more cores. These ideas have never been used together in this way. 
+Computers that facilitate enough parallelization to decompose in energy and have enough memory to store Krylov subspaces for the full transport equation make combining RQI and MG Krylov possible. The resulting convergence of the eigenvalue should be faster than PI for at least some problems. The energy decomposition will allow eigenvalue calculations to overcome the limitations of KBA and be scaled to many more cores. These ideas have never before been used together in this way. 
 
 \separatorpage{}
