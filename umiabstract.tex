@@ -10,7 +10,7 @@ Three methods have been added to the 3-D \Sn transport code Denovo that are desi
 
 \vspace*{0.5em}
 \noindent       % Don't indent this paragraph.
-The second is Rayleigh quotient iteration (RQI), an old method applied in a new context. This eigenvalue solver finds the dominant eigenvalue in an optimal way, and RQI should converge in fewer iterations than power iteration. RQI creates energy-block dense equations that the new Krylov solver treats efficiently. Unfortunately, RQI creates poorly conditioned systems that cause convergence problems. This can be overcome with preconditioning. 
+The second is Rayleigh quotient iteration (RQI), an old method applied in a new context. This eigenvalue solver finds the dominant eigenvalue in a mathematically optimal way and should converge in fewer iterations than power iteration. RQI creates energy-block dense equations that the new Krylov solver treats efficiently. However, RQI can have convergence problems because it creates poorly conditioned systems. This can be overcome with preconditioning. 
 
 \vspace*{0.5em}
 \noindent       % Don't indent this paragraph.
@@ -18,4 +18,4 @@ The third method is a multigrid in energy preconditioner. The preconditioner tak
 
 \vspace*{0.5em}
 \noindent       % Don't indent this paragraph.
-The methods added to Denovo accomplish the goals of this work. They converge in fewer iterations than traditional methods and enable the use of hundreds of thousands of cores. Each method can be used individually, with the multigroup Krylov solver and multigrid in energy preconditioner being particularly successful on their own. For ``grand challenge'' eigenvalue problems, the largest benefit comes from using these methods in concert. 
+The methods added to Denovo accomplish the goals of this work. They converge in fewer iterations than traditional methods and enable the use of hundreds of thousands of cores. Each method can be used individually, with the multigroup Krylov solver and multigrid in energy preconditioner being particularly successful on their own. The largest benefit, though, comes from using these methods in concert. 

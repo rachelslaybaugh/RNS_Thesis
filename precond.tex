@@ -326,6 +326,12 @@ The cross sections could be flux-weighted and re-restricted every time a new val
 
 To prolong from a coarse to a fine grid, the points that line up between the grids are mapped directly: $e_{2g}^{h} = e_{g}^{2h}$. To fill in the intermediate points on the fine grid, the adjacent coarse values are averaged: $e_{2g+1}^{h} = \frac{1}{2}(e_{g}^{2h} + e_{g+1}^{2h})$. The errors are prolonged every time there is a transfer to a finer grid. Since cross sections do not change they are never prolonged. 
 
+There are other restriction and prolongation operators that are more rigorous and would preserve more accuracy when transferring between grids than the implemented ones. For example, a full weighting restriction operator would be more rigorous in combination with the current prolongation method than the current restriction operator is \cite{Briggs2000}. This change would be straightforward to implement. 
+
+An example of a more complex prolongation operator that would be more accurate would be to use shape functions to prolong from a coarse grid to a fine grid. The shape functions could be based on the previous iterate of the fine-grid vector, some known desirable expansion, etc. Such a change would be more difficult to implement and require more research. 
+
+These issues were not investigated in this work since the chosen operators, which were simple to code and check for correct implementation, were sufficient in practice. Any errors that may have been added by the restriction and prolongation operators were largely removed by the relaxations. In addition, because this is a preconditioner all of the pieces do not need to be rigorous. It is likely not valuable to spend time on complex grid transfer operators. However it could be of value to investigate other simple operators. 
+
 The user chooses the number of V-cycles done on each preconditioner application, $v \leftarrow \ve{G}(v,b)$. Recall that one V-cycle, seen in Figure~\ref{fig:Vcycle} (a), goes from the finest grid to the coarsest grid and back up to the finest. The input option specifies the number of the large Vs that are concatenated together. The default number of V-cycles is 2. Each additional V-cycle should remove more error, but also has a computational cost. 
 
 At this time the depth of the V-cycle is determined by the number of groups such that the grids will be coarsened until there is only one energy group. The number of grids needed is given by \cite{BinaryTree2011}
