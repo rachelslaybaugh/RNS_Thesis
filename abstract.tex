@@ -10,7 +10,7 @@ Three methods have been added to the 3-D \Sn transport code Denovo that are desi
 
 \vspace*{0.5em}
 \noindent       % Don't indent this paragraph.
-The second method is Rayleigh quotient iteration (RQI), an old method being applied in a new context. This eigenvalue solver finds the dominant eigenvalue in a mathematically optimal way, and theory indicates that RQI should converge in fewer iterations than the traditional power iteration. RQI creates an energy-block dense system that would be difficult for Gauss Seidel to solve. The new Krylov solver treats this kind of system very efficiently and RQI would not be a good choice without it. However, RQI creates poorly conditioned systems such that the method is only useful in very simple problems. Preconditioning can alleviate this concern. 
+The second method is Rayleigh quotient iteration (RQI), an old method being applied in a new context. This eigenvalue solver finds the dominant eigenvalue in a mathematically optimal way, and theory indicates that RQI should converge in fewer iterations than the traditional power iteration. RQI creates an energy-block-dense system that would be difficult for Gauss Seidel to solve. The new Krylov solver treats this kind of system very efficiently and RQI would not be a good choice without it. However, RQI creates poorly conditioned systems such that the method is only useful in very simple problems. Preconditioning can alleviate this concern. 
 
 \vspace*{0.5em}
 \noindent       % Don't indent this paragraph.
@@ -18,5 +18,5 @@ The final method is a multigrid in energy, physics-based preconditioner. Because
 
 \vspace*{0.5em}
 \noindent       % Don't indent this paragraph.
-The three methods added to Denovo accomplish the goals of this work. They converge in fewer iterations than traditional methods and enable the use of hundreds of thousands of cores. Each method can be used individually, with the multigroup Krylov solver and multigrid in energy preconditioner being particularly successful on their own. For ``grand challenge'' eigenvalue problems, though, the largest benefit comes from using these methods in concert. 
+The three methods added to Denovo accomplish the goals of this work. They converge in fewer iterations than traditional methods and enable the use of hundreds of thousands of cores. Each method can be used individually, with the multigroup Krylov solver and multigrid-in-energy preconditioner being particularly successful on their own. For ``grand challenge'' eigenvalue problems, though, the largest benefit comes from using these methods in concert. 
 

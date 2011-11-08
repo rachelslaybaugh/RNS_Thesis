@@ -3,7 +3,7 @@
 
 \chapter{Preconditioning}
 \label{sec:Chp4}
-The new ``grand challenge'' problems facing the nuclear transport community are large and complex. Cutting edge methods are required to solve them. While the second and third chapters discussed methods that enable the solution of such problems, low-cost preconditioners that can reduce the number of iterations needed for convergence will be invaluable. In Benzi et.\ al.'s 2002 survey paper on preconditioning techniques for large linear systems they state ``it is widely recognized that preconditioning is the most critical ingredient in the development of efficient solvers for challenging problems in scientific computation \cite{Benzi2002}.'' 
+The new ``grand challenge'' problems facing the nuclear transport community are large and complex. Cutting edge methods are required to solve them. While the second and third chapters discussed methods that enable the solution of such problems, low-cost preconditioners that can reduce the number of iterations needed for convergence will be invaluable. In Benzi et al.'s 2002 survey paper on preconditioning techniques for large linear systems they state ``it is widely recognized that preconditioning is the most critical ingredient in the development of efficient solvers for challenging problems in scientific computation \cite{Benzi2002}.'' 
 
 This is true for Krylov methods in particular because the memory required and cost per iteration increase dramatically with the number of iterations \cite{Benzi2002}. And, as discussed in Chapter \ref{sec:Chp3}, Krylov methods can converge very slowly for poorly conditioned systems. When this happens the eigenvector is not converged in a reasonable number of iterations and RQI cannot converge the eigenvalue. Preconditioning is therefore required to make RQI useful. 
 
@@ -72,9 +72,9 @@ In synthetic acceleration a low-order approximation to the transport operator is
 
 Original DSA formulations exhibited instability in some instances. In 1977 Alcouffe demonstrated with diamond difference that stability can be obtained by using a consistent spatial differencing scheme \cite{Alcouffe1977}. The transport and diffusion equations cannot be discretized independently or the diffusion equation may not satisfy the original transport equation. The discretization of the diffusion equation must therefore be derived from the discretization of the transport equation such that they are consistent. Alcouffe's idea has since been extended to accelerate currents, to more dimensions, and to different spatial discretizations \cite{Larsen1982}. 
 
-DSA can be implemented a few different ways, each of which performs a transport sweep and then solves a corrected diffusion equation. Different terms in the diffusion equation can be corrected for different problem types \cite{Alcouffe1977}. DSA has been found to degrade in the presence of material discontinuities in addition to when it is not consistently derived. However, Warsa et.\ al.\ found that when DSA is used as a preconditioner for Krylov iterative methods, it is effective even when only partially consistent \cite{Warsa2004}.
+DSA can be implemented a few different ways, each of which performs a transport sweep and then solves a corrected diffusion equation. Different terms in the diffusion equation can be corrected for different problem types \cite{Alcouffe1977}. DSA has been found to degrade in the presence of material discontinuities in addition to when it is not consistently derived. However, Warsa et al.\ found that when DSA is used as a preconditioner for Krylov iterative methods, it is effective even when only partially consistent \cite{Warsa2004}.
 
-To address the concerns about spatial discretization associated with DSA, a low-order transport solve could be used to find the correction term instead. Larsen and Miller developed a method that neglects scattering in the low-order transport equation, but this can cause instability in multi-dimensional problems \cite{Larsen1986}. Ramone et.\ al.\ proposed including some scattering by using a tunable parameter. A high-order transport equation is solved first, then a transport equation with a coarse quadrature and reduced scattering is solved to find the correction that is applied to the new iterate of the scalar flux \cite{Ramone1997}. This algorithm can be viewed as Richardson iteration with a coarse operator preconditioner. Synthetic acceleration methods are widely used and actively researched in the transport community today.
+To address the concerns about spatial discretization associated with DSA, a low-order transport solve could be used to find the correction term instead. Larsen and Miller developed a method that neglects scattering in the low-order transport equation, but this can cause instability in multi-dimensional problems \cite{Larsen1986}. Ramone et al.\ proposed including some scattering by using a tunable parameter. A high-order transport equation is solved first, then a transport equation with a coarse quadrature and reduced scattering is solved to find the correction that is applied to the new iterate of the scalar flux \cite{Ramone1997}. This algorithm can be viewed as Richardson iteration with a coarse operator preconditioner. Synthetic acceleration methods are widely used and actively researched in the transport community today.
 
 %-----------------------------------------------------------------------------------------------------
 \subsection{Multigrid Methods}
@@ -168,7 +168,7 @@ As an aside, it is important to note that how well a preconditioner is going to 
 
 %-------------------------------------------------------------------------------------------------------
 \subsection{Rebalance}
-CMR has been widely used in transport codes since at least the 1970s and new variants of it are being applied to Krylov solvers \cite{Dahmani2002}, \cite{Yamamoto2005}. For example, Dahmani et.\ al.\ investigated using GMRES and preconditioned GMRES for solving the 3-D transport equation using the method of characteristics (MOC) in 2005. Self-collision rebalance (SCR) was used as a left preconditioner. SCR uses the probability of a region scattering particles to itself to rebalance the energy distribution in each region. MOC is quite different from \Sn and requires a specific derivation to be able to use GMRES \cite{Dahmani2002}. 
+CMR has been widely used in transport codes since at least the 1970s and new variants of it are being applied to Krylov solvers \cite{Dahmani2002}, \cite{Yamamoto2005}. For example, Dahmani et al.\ investigated using GMRES and preconditioned GMRES for solving the 3-D transport equation using the method of characteristics (MOC) in 2005. Self-collision rebalance (SCR) was used as a left preconditioner. SCR uses the probability of a region scattering particles to itself to rebalance the energy distribution in each region. MOC is quite different from \Sn and requires a specific derivation to be able to use GMRES \cite{Dahmani2002}. 
 
 %-------------------------------------------------------------------------------------------------------
 \subsection{Incomplete Factorizations}
@@ -193,7 +193,7 @@ Kozlowski, Downar, and Lewis investigated a Krylov preconditioning method for th
 \subsection{Synthetic Acceleration}
 DSA has been under continuous development since Alcouffe's 1977 paper. For example, a recent research string began when Wareing, Larsen, and Adams developed a simple DSA scheme for bilinear discontinuous (BLD) discretizationss in 2-D. An unconditionally efficient multigrid technique for solving these 2-D, BLD equations was derived by Morel, Dendy, and Wareing. This was later extended to bilinear nodal differencing and bilinear characteristic differencing \cite{Adams2002}. New versions of DSA are applied to Krylov solvers in current transport codes.
 
-Very recently Rosa et.\ al.\ performed detailed Fourier Analysis on TSA combined with Inexact Parallel Block-Jacobi (IPBJ) splitting applied to the one- and two-dimensional transport cases. They noted that both experience in the nuclear community and analytical work have shown that solution methods such as GMRES(m) can stagnate for problems containing optically thin spatial regions. Rosa et.\ al.'s analysis and results show that using modified TSA improves the spectral properties such that convergence can be obtained using a relatively small m when using GMRES(m) \cite{Rosa2010}.
+Very recently Rosa et al.\ performed detailed Fourier Analysis on TSA combined with Inexact Parallel Block-Jacobi (IPBJ) splitting applied to the one- and two-dimensional transport cases. They noted that both experience in the nuclear community and analytical work have shown that solution methods such as GMRES(m) can stagnate for problems containing optically thin spatial regions. Rosa et al.'s analysis and results show that using modified TSA improves the spectral properties such that convergence can be obtained using a relatively small m when using GMRES(m) \cite{Rosa2010}.
 
 \subsubsection{DSA in Denovo}
 Denovo has the option to use DSA to precondition the within-group transport equation, $\bigl(\ve{I} - \ve{DL}^{-1}\ve{MS}_{gg}\bigr) \phi_{g} = \ve{DL}^{-1}Q_{g}$, which works very well when using a Krylov method. High-frequency error modes are what often cause instability in DSA. Krylov iteration, like iterative methods in general, will rapidly damp such oscillatory modes. Eliminating the high-frequency error enables the removal of the consistency requirement since DSA is not likely to fail when those error modes are gone \cite{Evans2009d}. This means DSA can be applied successfully for a variety of spatial discretizations. 
@@ -215,11 +215,11 @@ is solved for each group. In Denovo, DSA has been found to be beneficial for dif
 
 %-------------------------------------------------------------------------------------------------------
 \subsection{Multigrid Methods}
-Beginning in the late 1980s, the nuclear community started using spatial \mg and/or angular \mg as both solvers and preconditioners. The first use of spatial \mg for transport equations in 1-D and 2-D was investigated by Nowak et.\ al. Since that time \mg has been used in multiple dimensions, for both isotropic and anisotropic scattering, and for various spatial discretizations \cite{Adams2002}. Some highlights from recent work are discussed below. All are applied to the \Sn neutron transport equation unless otherwise noted. 
+Beginning in the late 1980s, the nuclear community started using spatial \mg and/or angular \mg as both solvers and preconditioners. The first use of spatial \mg for transport equations in 1-D and 2-D was investigated by Nowak et al. Since that time \mg has been used in multiple dimensions, for both isotropic and anisotropic scattering, and for various spatial discretizations \cite{Adams2002}. Some highlights from recent work are discussed below. All are applied to the \Sn neutron transport equation unless otherwise noted. 
 
 In 1996 Sjoden and Haghighat used a simplified spatial \mg method that does not use the residual as a solver for the 3-D, parallel code PENTRAN \cite{Sjoden1996}. In 1998 multigrid in space and multigrid in angle were used as preconditioners for Krylov methods and were tested for the 1-D, one-group, modified linear discontinuous (MLD) neutron transport equations by Oliveira and Deng. They looked at isotropic scattering without absorption, isotropic with absorption, and anisotropic cases. They had better results with multigrid than when using ILU as a preconditioner \cite{Oliveira1998}.
 
-In 2007 Chang et.\ al.\ used 2-D spatial \mg for the isotropic scattering case with corner balance finite difference in space and a four-color block-Jacobi relaxation scheme. A bilinear interpolation operator and its transpose were used for grid transfer. The method had some trouble with heterogeneous problems. The authors assert their algorithm is parallelizable \cite{Chang2007}.
+In 2007 Chang et al.\ used 2-D spatial \mg for the isotropic scattering case with corner balance finite difference in space and a four-color block-Jacobi relaxation scheme. A bilinear interpolation operator and its transpose were used for grid transfer. The method had some trouble with heterogeneous problems. The authors assert their algorithm is parallelizable \cite{Chang2007}.
 
 In 2010 Lee developed a method to do \mg in space and angle simultaneously for two and three dimensions, isotropic and anisotropic scattering, one energy group, and a variety of spatial discretizations. The method can perform \mg in only space, only angle, or some combination there of. It also handles thick and thin cells \cite{Lee2010}.
 
@@ -259,7 +259,7 @@ The two-grid method requires the diffusion operator to be consistent with the tr
 \label{sec:TTG}
 Denovo has a two-grid acceleration scheme based on the one developed by Adams and Morel. As noted above, the iteration procedure uses a collapsed one-group diffusion equation to correct the low-order Fourier modes \cite{Adams1993}. Because of the consistency requirement for the discretization of the diffusion operator in multi-dimensional and multi-material problems, this method can fail for systems of interest \cite{Evans2009d}. 
 
-The original two-grid method was modified by Evans et.\ al.\ to make it applicable for the desired cases by using a one-group transport equation instead of the diffusion equation. The modified method is called transport two-grid (TTG). Adams and Morel showed that the slowest converging spatial modes are diffusive and can be exactly computed in the infinite homogeneous case. To preserve this, the TTG method gives the correct error estimation in that limit \cite{Evans2009d}. 
+The original two-grid method was modified by Evans et al.\ to make it applicable for the desired cases by using a one-group transport equation instead of the diffusion equation. The modified method is called transport two-grid (TTG). Adams and Morel showed that the slowest converging spatial modes are diffusive and can be exactly computed in the infinite homogeneous case. To preserve this, the TTG method gives the correct error estimation in that limit \cite{Evans2009d}. 
 
 The cross sections used in TTG are therefore calculated to give the same energy-collapsed cross sections as the diffusion equation for the infinite homogeneous case, as seen in Equations \eqref{TTGxsecs1} and \eqref{TTGxsecs2}. TTG solves a one-group transport equation for the low-order error in each GS iteration, where $[g1, g2]$ is the group range of the upscatter block:
 %
@@ -297,7 +297,7 @@ Clearly, a wide variety of preconditioning techniques have been applied to the n
 \section{Multigrid in Energy}
 Preconditioning is a very important part of increasing the robustness of Krylov methods. This is particularly true in this work for two reasons. The first is that the multigroup Krylov solver can create very large Krylov subspaces because it forms the subspaces with multiple-group-sized vectors. As a result, any reduction in iteration count will have a large benefit in terms of both memory and cost per iteration. The second is that preconditioning is needed to compensate for the ill-conditioned systems created by RQI so that the eigenvector can be converged. 
 
-A new physics-based, multigrid in energy preconditioner has been added to Denovo to improve the performance of the Krylov solves. Choosing a physics-based preconditioner supports the goal of accelerating a code that solves a specific equation rather than developing an all purpose preconditioner. It makes sense to take advantage of information specific to the neutron transport equations. Previous work has shown that physics-based preconditioners often provide more benefit than matrix-based methods. Further, the matrix $\ve{A}$ is never formed in Denovo, ruling out matrix-based preconditioners. 
+A new physics-based, multigrid-in-energy preconditioner has been added to Denovo to improve the performance of the Krylov solves. Choosing a physics-based preconditioner supports the goal of accelerating a code that solves a specific equation rather than developing an all purpose preconditioner. It makes sense to take advantage of information specific to the neutron transport equations. Previous work has shown that physics-based preconditioners often provide more benefit than matrix-based methods. Further, the matrix $\ve{A}$ is never formed in Denovo, ruling out matrix-based preconditioners. 
 
 Among physics-based preconditioners, a multigrid method was selected because they have been generally successful at accelerating the transport equation, and the residual behavior in the Krylov iterations inside RQI looks like the ideal case for multigrid methods.
 
@@ -432,12 +432,12 @@ The range of problem types include fixed source, eigenvalue with power iteration
 
 The goal of using the preconditioner is to improve convergence behavior of the multigroup Krylov solves. The best metric for measuring this is the total number of multigroup Krylov iterations used in a calculation because it is the most consistent and fair measure. The number of eigenvalue iterations is also compared for most eigenvalue tests. This is a point of interest rather than a measure of goal attainment. The total number of Krylov iterations is the best proxy for convergence behavior as it encompasses the work that is done within each eigenvalue iteration.  
 
-Timing comparisons, which are given for some tests, should be considered heuristically. In cases where the calculations were done on a single core, the machine was not dedicated to these calculations and times could vary if the same calculations were repeated. Some problems use the optimized version of the code and other use the debug. The two versions should give the same iteration count, but not necessarily the same relative times between problems. Further, little effort has been put into optimizing the preconditioner for speed. Once the multigrid in energy solver has been optimized for efficiency, the preconditioned times should decrease. How much improvement can be gained is a matter for future study. 
+Timing comparisons, which are given for some tests, should be considered heuristically. In cases where the calculations were done on a single core, the machine was not dedicated to these calculations and times could vary if the same calculations were repeated. Some problems use the optimized version of the code and other use the debug. The two versions should give the same iteration count, but not necessarily the same relative times between problems. Further, little effort has been put into optimizing the preconditioner for speed. Once the multigrid-in-energy solver has been optimized for efficiency, the preconditioned times should decrease. How much improvement can be gained is a matter for future study. 
 
 \subsection{RQI Parameter Scoping}
 The first two problems calculated with preconditioning were the small Rayleigh quotient iteration unit tests reported on in Chapter~\ref{sec:Chp3}. These easy problems were done to find out three things. The first was to check that the preconditioner reduces the number of Krylov iterations used in an RQI calculation. The second was to get some guidance on the effect of the preconditioning parameters. The third was find out whether or not the shifted version of the operator should be used in the preconditioner. All tests used the debug version of Denovo on one processor with GMRES as the multigroup Krylov solver.
 
-The small RQI unit test with vacuum boundary conditions was tested first. In all cases the correct $k$ and flux were found. The tolerance used to compare the flux to the reference case was $1 \times 10^{-5}$. The results are shown in Table~\ref{table:RQIUnitTestVac}. ``Krylov'' is the total number of Krylov iterations and ``RQI'' is the total number of eigenvalue iterations.
+The small RQI unit test with vacuum boundary conditions was tested first. In all cases the correct $k$ and flux were found. The tolerance used to compare the flux to the reference case was $1 \times 10^{-5}$. The results are shown in Table~\ref{table:RQIUnitTestVac}. ``Krylov'' is the total number of Krylov iterations and ``RQI'' is the total number of eigenvalue iterations. Note that throughout this chapter a $w$ and/or $r$ and/or $v$ of 0 in a table or figure indicates the unpreconditioned case.
 %
 \begin{table}[!h]
 \caption{RQI Unit Test with Vacuum Boundaries, Preconditioning Parameter Study}
@@ -640,22 +640,23 @@ These two sets of results confirm that increasing $r$ and/or $v$ decreases Krylo
 %-------------------------------------------------------------------------------------------------------
 %-------------------------------------------------------------------------------------------------------
 \subsection{Fixed Source Solver and Angle Comparisons} 
-Another fixed source problem was the half iron, half graphite cube from Chapter~\ref{sec:Chp2}. For this calculation a grid of 10 $\times$ 10 $\times$ 10 was used with an $S_{8}$ angle set. The tolerance and upscatter tolerance were 1 $\times$ 10$^{-6}$. This problem has vacuum boundaries and 27 energy groups, 13 of which have upscattering. A few calculations were done with this configuration to compare one set of preconditioning parameters to a few solvers without preconditioning. The solver comparisons can be seen in Table~\ref{table:FeC solvers} (note, the first three values in this table were shown in Chapter \ref{sec:Chp2}). 
+Another fixed source problem was the half iron, half graphite cube from Chapter~\ref{sec:Chp2}. For this calculation a grid of 10 $\times$ 10 $\times$ 10 was used with an $S_{8}$ angle set. The tolerance and upscatter tolerance were 1 $\times$ 10$^{-6}$. This problem has vacuum boundaries and 27 energy groups, 13 of which have upscattering. A few calculations were done with this configuration to compare one set of preconditioning parameters to a few solvers without preconditioning. The solver comparisons can be seen in Table~\ref{table:FeC solvers} (note, the first three values in this table were shown in Chapter \ref{sec:Chp2}). The last column in the table shows the ratio of the case of interest's time to the MG Krylov time to provide a better sense of how the times compare to one another.
 %
 \begin{table}[!h]
 \caption{Iron Graphite Fixed Source Cube, Solver and Preconditioning Comparison}
 \begin{center}
-\begin{tabular}{| l | c | l | c |}
+\begin{tabular}{| l | c | l | c | c |}
 \hline
-Solver & GS iters & Krylov & time (s)\\[0.5ex]
+Solver & GS Iters & Krylov & Subspace Length & Rel Time$^{*}$\\[0.5ex]
 \hline
-GS &  12 & 1,727 & $1.12 \times 10^{2}$ \\
-GS TTG & 11 & 1,687 & $1.99 \times 10^{2}$  \\
-MG Krylov & n/a & 30 & $8.78 \times 10^{1}$ \\
-w1 r2 v2 & n/a & 10 & $7.07 \times 10^{2}$ \\
-w1.3 r4 v4 & n/a & 4 & $1.29 \times 10^{3}$ \\
+GS &  12 & 1,727 & 1 group & 2.41 \\ %$2.12 \times 10^{2}$
+GS TTG & 11 & 1,687 & 1 group & 2.27 \\ %$1.99 \times 10^{2}$
+MG Krylov & n/a & 30 & 27 groups & 1.00 \\ %$8.78 \times 10^{1}$
+w1 r2 v2 & n/a & 10 & 27 groups & 8.05 \\ %$7.07 \times 10^{2}$
+w1.3 r4 v4 & n/a & 4 & 27 groups & 14.68 \\ %$1.29 \times 10^{3}$
 \hline
-\end{tabular}
+\end{tabular}\\
+$^{*}$compared to unpreconditioned MG Krylov
 \end{center}
 \label{table:FeC solvers}
 \end{table}
@@ -664,7 +665,7 @@ All of the calculations using the block Krylov solver dramatically reduced the n
 
 The timing comparison is not as favorable. With the current unoptimized state of the preconditioner, using it for fixed source problems increases rather than decreases run time. Even though many fewer Krylov iterations are taken, the overall preconditioned run times are longer than all other calculations. 
 
-This problem investigated the option of using a reduced angle set within the preconditioner. The preconditioning parameters were $w1r2v2$. The overall problem was solved with $S_{8}$, but the preconditioner used $S_{2}$. Changing the number of solution directions did not change the number of iterations. The solution time was reduced from $7.07 \times 10^{2}$ seconds to $1.57 \times 10^{2}$ seconds, a factor of 4.5. With this option the solve time was less than with accelerated GS. Using fewer solve directions inside the preconditioner had a very positive impact; it reduced time but did not impact the number of iterations.
+This problem investigated the option of using a reduced angle set within the preconditioner. The preconditioning parameters were $w1r2v2$. The overall problem was solved with $S_{8}$, but the preconditioner used $S_{2}$. Changing the number of solution directions did not change the number of iterations. The solution time was reduced from $7.07 \times 10^{2}$ seconds to $1.57 \times 10^{2}$ seconds, a factor of 4.5. The relative time is 1.79. With this option the solve time was less than both GS and approaching the unpreconditioned MG Krylov case. Using fewer solve directions inside the preconditioner had a very positive impact; it reduced time but did not impact the number of iterations.
 
 %-------------------------------------------------------------------------------------------------------
 %-------------------------------------------------------------------------------------------------------
@@ -676,35 +677,36 @@ The intermediate-size infinite medium problem from Chapter~\ref{sec:Chp3} that h
 \begin{center}
 \begin{tabular}{| c | c | c | c | l | c | c | c | c |}
 \hline
-$w$ & $r$ & $v$ & $k$ & Krylov & RQI & Max Rel Diff & RMS Err & Time (s) \\[0.5ex]
+$w$ & $r$ & $v$ & $k$ & Krylov & RQI & Max Rel Diff & RMS Err & Rel Time$^{+}$ \\[0.5ex]
 \hline
-0    & 0 & 0 & 0.3970 & 39,025              & 40$^{*}$  & n/a & n/a & $5.43 \times 10^{4}$ \\
-1    & 1 & 1 & 0.3982 & 3,014$^{\dag}$ & 4 & $1.67 \times 10^{-1}$ & $3.32 \times 10^{-2}$ & $2.66 \times 10^{4}$ \\
-1    & 3 & 1 & 0.3983 & 50                     & 3 & 0.0 & 0.0 & $1.03 \times 10^{4}$ \\
-1    & 4 & 1 & 0.3983 & 44$^{\dag}$      & 3 & 0.0 & 0.0 & $1.16 \times 10^{3}$ \\
-1    & 2 & 2 & 0.3983 & 44$^{\dag}$      & 3 & 0.0 & 0.0 & $2.86 \times 10^{2}$ \\
-1    & 4 & 4 & 0.4001 & 16                     & 3 & $1.67 \times 10^{-1}$ & $3.21 \times 10^{-2}$ & $1.99 \times 10^{3}$ \\
-1    & 5 & 4 & 0.4001 & 14$^{\dag}$     & 3 & $1.67 \times 10^{-1}$ & $3.21 \times 10^{-2}$ & $2.27 \times 10^{2}$ \\
-1.4 & 5 & 4 & -0.4711 & 12$^{\dag}$    & 2 & $1.67 \times 10^{-1}$ & $3.21 \times 10^{-2}$ & $1.74 \times 10^{3}$ \\
-1    & 5 & 5 & -0.4575 & 7$^{\dag}$      & 2 & $3.43 \times 10^{-6}$ & $3.67 \times 10^{-5}$ & $1.58 \times 10^{3}$ \\
+0    & 0 & 0 & 0.3970 & 39,025              & 40$^{*}$  & n/a & n/a & 211.03 \\%$5.43 \times 10^{4}$ \\
+1    & 1 & 1 & 0.3982 & 3,014$^{\dag}$ & 4 & $1.67 \times 10^{-1}$ & $3.32 \times 10^{-2}$ & 103.56 \\%$2.66 \times 10^{4}$ \\
+1    & 3 & 1 & 0.3983 & 50                     & 3 & 0.0 & 0.0 & 40.19 \\ %$1.03 \times 10^{4}$ \\
+1    & 4 & 1 & 0.3983 & 44$^{\dag}$      & 3 & 0.0 & 0.0 & 4.51 \\ %$1.16 \times 10^{3}$ \\
+1    & 2 & 2 & 0.3983 & 44$^{\dag}$      & 3 & 0.0 & 0.0 & 1.11 \\ %$2.86 \times 10^{2}$ \\
+1    & 4 & 4 & 0.4001 & 16                     & 3 & $1.67 \times 10^{-1}$ & $3.21 \times 10^{-2}$ & 7.73 \\ %$1.99 \times 10^{3}$ \\
+1    & 5 & 4 & 0.4001 & 14$^{\dag}$     & 3 & $1.67 \times 10^{-1}$ & $3.21 \times 10^{-2}$ & 8.81 \\ %$2.27 \times 10^{2}$ \\
+1.4 & 5 & 4 & -0.4711 & 12$^{\dag}$    & 2 & $1.67 \times 10^{-1}$ & $3.21 \times 10^{-2}$ & 6.77 \\ %$1.74 \times 10^{3}$ \\
+1    & 5 & 5 & -0.4575 & 7$^{\dag}$      & 2 & $3.43 \times 10^{-6}$ & $3.67 \times 10^{-5}$ & 6.13 \\ %$1.58 \times 10^{3}$ \\
 \hline
-1.1 & 4 & 1 & 0.3983 & 43$^{\dag}$      & 3 & 0.0 & 0.0 & $1.16 \times 10^{3}$ \\
-1.1 & 1 & 4 & 0.3983 & 43$^{\dag}$      & 3 & 0.0 & 0.0 & $1.35 \times 10^{3}$ \\
-1.1 & 2 & 2 & 0.3983 & 43$^{\dag}$      & 3 & 0.0 & 0.0 & $1.18 \times 10^{3}$ \\
+1.1 & 4 & 1 & 0.3983 & 43$^{\dag}$      & 3 & 0.0 & 0.0 & 4.51 \\ %$1.16 \times 10^{3}$ \\
+1.1 & 1 & 4 & 0.3983 & 43$^{\dag}$      & 3 & 0.0 & 0.0 & 5.24 \\ %$1.35 \times 10^{3}$ \\
+1.1 & 2 & 2 & 0.3983 & 43$^{\dag}$      & 3 & 0.0 & 0.0 & 4.57 \\ %$1.18 \times 10^{3}$ \\
 \hline
-0.7 & 1 & 1 & 0.3999 & 3,001$^{\dag}$ & 4 & 1.0 & $3.72 \times 10^{-1}$ & $2.25 \times 10^{4}$ \\
-0.7 & 3 & 1 & 0.4001 & 87$^{\dag}$      & 5 & 0.0 & 0.0 & $1.95 \times 10^{3}$ \\
-0.7 & 3 & 3 & 0.4001 & 47$^{\dag}$      & 5 & 0.0 & 0.0 & $2.92 \times 10^{3}$ \\
-0.4 & 3 & 1 & 0.4001 & 1,052$^{\dag}$ & 4 & $1.18 \times 10^{-5}$ & $8.43 \times 10^{-8}$      & $1.74 \times 10^{4}$ \\
+0.7 & 1 & 1 & 0.3999 & 3,001$^{\dag}$ & 4 & 1.0 & $3.72 \times 10^{-1}$ & 87.34 \\ %$2.25 \times 10^{4}$ \\
+0.7 & 3 & 1 & 0.4001 & 87$^{\dag}$      & 5 & 0.0 & 0.0 & 7.60 \\ %$1.95 \times 10^{3}$ \\
+0.7 & 3 & 3 & 0.4001 & 47$^{\dag}$      & 5 & 0.0 & 0.0 & 11.34 \\ %$2.92 \times 10^{3}$ \\
+0.4 & 3 & 1 & 0.4001 & 1,052$^{\dag}$ & 4 & $1.18 \times 10^{-5}$ & $8.43 \times 10^{-8}$      & 67.57 \\ %$1.74 \times 10^{4}$ \\
 \hline 
 \end{tabular}\\
+$^{+}$compared to unpreconditioned PI, $2.57 \times 10^{2}$ seconds\\
 $^{*}$terminated manually\\
 $^{\dag}$negative flux
 \end{center}
 \label{table:impi RQI}
 \end{table}
 %
-The preconditioned results are shown in Table~\ref{table:impi RQI}. In the table ``Max Rel Diff'' is the maximum over all cells and all groups of the relative difference between the reference flux and the absolute value of the computed flux, $\max[ (\phi_{ref} - \vert\phi_{calc}\vert) / \phi_{ref}]$. ``RMS Err'' is the root mean squared (rms) relative error, $\sqrt{ \sum_{1}^{N}(rel\_err)^{2} / N}$. As a reminder, the total and upscattering tolerances were $1 \times 10^{-4}$, and the $k$ tolerance was $1 \times 10^{-5}$. Recall that if the Krylov iteration count is in the thousands it means the eigenvector did not converge in every iteration.
+The preconditioned results are shown in Table~\ref{table:impi RQI}. In the table ``Max Rel Diff'' is the maximum over all cells and all groups of the relative difference between the reference flux and the absolute value of the computed flux, $\max[ (\phi_{ref} - \vert\phi_{calc}\vert) / \phi_{ref}]$. ``RMS Err'' is the root mean squared (rms) relative error, $\sqrt{ \sum_{1}^{N}(rel\_err)^{2} / N}$. As a reminder, the total and upscattering tolerances were $1 \times 10^{-4}$, and the $k$ tolerance was $1 \times 10^{-5}$. Recall that if the Krylov iteration count is in the thousands it means the eigenvector did not converge in every iteration. The ``Rel Time'' column is the ratio of the found time to the unpreconditioned PI time of $2.57 \times 10^{-2}$ seconds.
 
 Two pieces of information are pertinent for interpreting these results. One is that when a calculation is terminated manually, the flux information is not reported since the calculation does not go through post-processing. This means that for the unpreconditioned case it is only known that the flux did not converge, not whether the flux was positive or negative, nor how far the estimate at termination was from the reference solution. Recall that Denovo terminates if a negative eigenvalue is computed. For the two cases in which a negative eigenvalue is reported it simply means a negative $k$ was computed on iteration 2, not that the problem converged in 2 RQ iterations. 
 
@@ -747,28 +749,29 @@ This study shows the preconditioner is very effective at reducing the number of 
 
 Two other calculations with a higher level of preconditioning were also done. When the parameters were $w1.4r2v2$ the number of Krylov iterations were reduced to 438 and the calculation took $1.77 \times 10^{4}$ seconds, both lower than all the cases using $r1v1$. For $w1r3v3$, 253 Krylov iterations and $2.28 \times 10^{4}$ seconds were required. This had the smallest number of Krylov iterations, but a slightly longer time than all the calculations except $w1.5r1v1$.	
 
-The results from the RQI study are in Table~\ref{table:2-D c5g7 rqi}. In all cases, except the unpreconditioned one, $k$ was within the uncertainty of the benchmark value. The ``$<$ 1,000?'' column indicates whether or not the multigroup iterations converged during the RQI process. If the value is ``no'' that means the eigenvector only converged during the first iteration. A number indicates the last eigenvalue iteration for which the Krylov method took less than 1,000 iterations. All subsequent iterations required the full 1,000. A ``yes'' means all of the Krylov iterations converged.
+The results from the RQI study are in Table~\ref{table:2-D c5g7 rqi}. In all cases, except the unpreconditioned one, $k$ was within the uncertainty of the benchmark value. The ``$<$ 1,000?'' column indicates whether or not the multigroup iterations converged during the RQI process. If the value is ``no'' that means the eigenvector only converged during the first iteration. A number indicates the last eigenvalue iteration for which the Krylov method took less than 1,000 iterations. All subsequent iterations required the full 1,000. A ``yes'' means all of the Krylov iterations converged. The relative time is the ratio of the case of interest to the unpreconditioned PI time of $8.54 \times 10^{3}$ seconds.
 %
 \begin{table}[!h]
 \caption{2-D C5G7 Benchmark, Convergence Study with Rayleigh Quotient Iteration}
 \begin{center}
 \begin{tabular}{| c | c | c | l | c | c | c |}
 \hline
-Weight & Relaxations & V-cycles & Krylov & RQI & $<$ 1,000? & Time (s) \\[0.5ex]
+Weight & Relaxations & V-cycles & Krylov & RQI & $<$ 1,000? & Rel Time$^{\dag}$\\[0.5ex]
 \hline
-0    & 0 & 0 & 119,006 & 120$^{*}$ & no & $9.38 \times 10^{4}$ \\
-1    & 1 & 1 & 16,007   & 17            & no & $2.02 \times 10^{5}$ \\
-1.2 & 1 & 1 & 40,008   & 41$^{*}$   & no & $2.06 \times 10^{5}$ \\
+0    & 0 & 0 & 119,006 & 120$^{*}$ & no & 10.98 \\%$9.38 \times 10^{4}$ \\
+1    & 1 & 1 & 16,007   & 17            & no & 23.65 \\ %$2.02 \times 10^{5}$ \\
+1.2 & 1 & 1 & 40,008   & 41$^{*}$   & no & 13.00 \\ %$2.06 \times 10^{5}$ \\
 1    & 3 & 1 & n/a         & n/a$^{*}$  & 7   & n/a \\
-1    & 2 & 2 & 11,158   & 19            & alternated & $3.99 \times 10^{5}$ \\
-1    & 3 & 2 & 3,320     & 19            & 14 & $1.64 \times 10^{5}$ \\
+1    & 2 & 2 & 11,158   & 19            & alternated & 46.72 \\ %$3.99 \times 10^{5}$ \\
+1    & 3 & 2 & 3,320     & 19            & 14 &19.23 \\ % $1.64 \times 10^{5}$ \\
 \hline
-1    & 3 & 3 & 299        & 19            & yes & $2.57 \times 10^{4}$ \\
-1.1 & 3 & 3 & 281        & 19            & yes & $2.40 \times 10^{4}$ \\
-1.3 & 3 & 3 & 254        & 19            & yes & $2.19 \times 10^{4}$ \\
+1    & 3 & 3 & 299        & 19            & yes & 3.01 \\ %$2.57 \times 10^{4}$ \\
+1.1 & 3 & 3 & 281        & 19            & yes & 2.80 \\ %$2.40 \times 10^{4}$ \\
+1.3 & 3 & 3 & 254        & 19            & yes & 2.57 \\ %$2.19 \times 10^{4}$ \\
 1.5 & 3 & 3 & n/a         & n/a$^{*}$ & no & n/a \\
 \hline 
 \end{tabular} \\
+$^{\dag}$compared to unpreconditioned PI, $8.54 \times 10^{3}$ seconds\\
 $^{*}$terminated manually
 \end{center}
 \label{table:2-D c5g7 rqi}
@@ -779,7 +782,7 @@ These results show a few important things. Most significantly, with enough preco
 
 For many of the calculations the eigenvector did not converge or did not converge all the time, but the correct eigenvalue was still found (even in the $w1.2r1v1$ case that was terminated manually). As the preconditioning increased, the eigenvector came closer to converging for all iterations. When the Krylov iterations converged, increasing the weight decreased iteration count and wall time for small weights. As in other tests, too much weight caused the calculation not to converge at all. 
 
-Additionally, it seems that preconditioning held RQI on track enough to get the right eigenvalue when the eigenvector did quite converge. As was hypothesized for the unpreconditioned infinite medium test, it may be that the eigenvector was close enough to correct that a good approximation to the eigenvalue could still be made from it, even though the vector itself did not converge. 
+Additionally, it seems that preconditioning held RQI on track enough to get the right eigenvalue when the eigenvector did not quite converge. As was hypothesized for the unpreconditioned infinite medium test, it may be that the eigenvector was close enough to correct that a good approximation to the eigenvalue could still be made from it, even though the vector itself did not converge. 
 
 Only the $w1r3v3$ calculation overlaped between RQI and PI. PI took fewer Krylov iterations, 253 compared to 299, and less time, $2.28 \times 10^{4}$ compared to $2.57 \times 10^{4}$ seconds. For this test preconditioned RQI did not perform as well as preconditioned PI, though the times and iteration counts were close to one another. 
 
@@ -792,27 +795,28 @@ The RQI problem was also tried with BiCGSTAB as the Krylov solver for an unpreco
  \subsection{3-D C5G7 Benchmark Study}
 The preconditioner using both PI and RQI was also applied to the 3-D c5g7 benchmark with an optimized version of Denovo. The goals of this study were essentially the same as the 2-D study, except that this problem is larger, and the first to approach a real ``grand challenge'' type of calculation. The medium-sized oic cluster at Oak Ridge was used and each problem was given 720 cores with 40 $x$-blocks, 18 $y$-blocks, and 5 $z$-blocks. The total and upscattering tolerances were $1 \times 10^{-4}$, with a $k$ tolerance of $1 \times 10^{-5}$ unless otherwise indicated. The wall time limit was 12 hours. 
 
-The power iteration results are in Table~\ref{table:3-D c5g7}. The unpreconditioned power iteration calculation computed a $k$ that was not within the uncertainty bounds of the reported benchmark; it was low by about 0.011. All preconditioned PI and RQI tests computed a $k$ that was within the Denovo $k$ tolerance of the unpreconditioned PI result so they are not reported here. 
+The power iteration results are in Table~\ref{table:3-D c5g7}. The relative time is compared to unpreconditioned PI, $4.46 \times 10^{3}$ seconds. The unpreconditioned power iteration calculation computed a $k$ that was not within the uncertainty bounds of the reported benchmark; it was low by about 0.011. All preconditioned PI and RQI tests computed a $k$ that was within the Denovo $k$ tolerance of the unpreconditioned PI result so they are not reported here. Subsequent to these calculations it was determined that using a more accurate quadrature gives the correct $k$. 
 %
 \begin{table}[!h]
 \caption{3-D C5G7 Benchmark, Preconditioning Parameter Scoping with Power Iteration}
 \begin{center}
-\begin{tabular}{| c | c | c | c | l | l |}
+\begin{tabular}{| c | c | c | c | l | c |}
 \hline
-Weight & Relaxations & V-cycles & Krylov & PI & Time (s) \\[0.5ex]
+Weight & Relaxations & V-cycles & Krylov & PI & Rel Time$^{\dag}$ \\[0.5ex]
 \hline
-0    & 0 & 0 & 1,224 & 32 & $4.46 \times 10^{3}$ \\
-1    & 1 & 1 & 708    & 32 & $2.12 \times 10^{4}$ \\
-1.2 & 1 & 2 & 448    & 32 & $2.38 \times 10^{4}$ \\
-1.2 & 2 & 1 & 448    & 32 & $2.39 \times 10^{4}$ \\
-1.3 & 2 & 2 & 288    & 32 & $2.84 \times 10^{4}$ \\
-1    & 3 & 3 & 126    & 14$^{*}$  & $4.04 \times 10^{4}$ \\
-1.5 & 3 & 3 & 192    & 32 & $3.73 \times 10^{4}$ \\
+0    & 0 & 0 & 1,224 & 32 & 1.00 \\ %$4.46 \times 10^{3}$ \\
+1    & 1 & 1 & 708    & 32 & 5.90 \\ %$2.12 \times 10^{4}$ \\
+1.2 & 1 & 2 & 448    & 32 & 5.33 \\ %$2.38 \times 10^{4}$ \\
+1.2 & 2 & 1 & 448    & 32 & 5.37 \\ %$2.39 \times 10^{4}$ \\
+1.3 & 2 & 2 & 288    & 32 & 6.37 \\ %$2.84 \times 10^{4}$ \\
+1    & 3 & 3 & 126    & 14$^{*}$  & 9.05 \\ %$4.04 \times 10^{4}$ \\
+1.5 & 3 & 3 & 192    & 32 & 8.36 \\ %$3.73 \times 10^{4}$ \\
 1    & 4 & 4 & n/a     & n/a          & exceeded wall time \\
 1    & 4 & 4 & n/a     & n/a$^{*}$ & exceeded wall time \\
 1.5 & 5 & 5 & n/a     & n/a          & exceeded wall time \\
 \hline 
 \end{tabular}\\
+$^{\dag}$compared to unpreconditioned PI, $4.46 \times 10^{3}$ seconds\\
 $^{*}$tol and upscatter tol = $1 \times 10^{-5}$, $k$ tol = $1 \times 10^{-3}$
 \end{center}
 \label{table:3-D c5g7}
@@ -822,35 +826,36 @@ The 3-D benchmark study shows the preconditioner with PI can reduce the number o
 
 The effect of preconditioning parameters was consistent with what was observed in other test problems. However, using large values for $r$ and $v$ made the calculation take too long to get results. On the oic machine, if a calculation exceeds wall time there is no way to get any of the results from the scratch space. Therefore, no conclusions can be drawn from this problem about the effect of substantial preconditioning when using power iteration for a real, 3-D problem. 
 
-The RQI results are in Table~\ref{table:3-D c5g7 rqi}. Many cases did not finish in time to report results. What is likely happening when the problems with lower parameter values run out of time is that the eigenvector is not converging. As was seen before, the calculations take a long time when every eigenvalue iteration uses 1,000 Krylov iterations. Unfortunately, there is no way to confirm this theory or find out if the eigenvalue is close to correct since the output cannot be obtained. 
+The RQI results are in Table~\ref{table:3-D c5g7 rqi}. The relative time is compared to unpreconditioned PI, $4.46 \times 10^{3}$ seconds. Many cases did not finish in time to report results. What is likely happening when the problems with lower parameter values run out of time is that the eigenvector is not converging. As was seen before, the calculations take a long time when every eigenvalue iteration uses 1,000 Krylov iterations. Unfortunately, there is no way to confirm this theory or find out if the eigenvalue is close to correct since the output cannot be obtained. 
 %
 \begin{table}[!h]
 \caption{3-D C5G7 Benchmark, Preconditioning Parameter Scoping with Rayleigh Quotient Iteration}
 \begin{center}
-\begin{tabular}{| c | c | c | c | l | l |}
+\begin{tabular}{| c | c | c | c | l | c |}
 \hline
-Weight & Relaxations & V-cycles & Krylov & RQI & Time (s) \\[0.5ex]
+Weight & Relaxations & V-cycles & Krylov & RQI & Rel Time$^{+}$ \\[0.5ex]
 \hline
 0    & 0 & 0 & n/a     & n/a          & exceeded wall time \\
 1    & 1 & 1 & n/a     & n/a          & exceeded wall time \\
 1.5 & 1 & 1 & n/a     & n/a          & exceeded wall time \\
 1.2 & 2 & 1 & n/a     & n/a          & exceeded wall time \\
-1.3 & 2 & 2 & 302    & 19           & $2.32 \times 10^{4}$ \\
-1    & 3 & 3 & 103    & 9$^{*}$    & $3.02 \times 10^{4}$ \\
-1    & 3 & 3 & 164    & 15$^{\dag}$ & $3.38 \times 10^{4}$ \\
-1.5 & 3 & 3 & 187    & 19           & $3.24 \times 10^{4}$ \\
+1.3 & 2 & 2 & 302    & 19           & 5.20 \\ %$2.32 \times 10^{4}$ \\
+1    & 3 & 3 & 103    & 9$^{*}$    & 6.67 \\ %$3.02 \times 10^{4}$ \\
+1    & 3 & 3 & 164    & 15$^{\dag}$ & 7.59 \\ %$3.38 \times 10^{4}$ \\
+1.5 & 3 & 3 & 187    & 19           & 7.26 \\ %$3.24 \times 10^{4}$ \\
 1    & 4 & 4 & n/a     & n/a          & exceeded wall time \\
-1    & 4 & 4 & 74     & 9$^{*}$    & $2.29 \times 10^{4}$ \\
+1    & 4 & 4 & 74     & 9$^{*}$    & 5.13 \\ %$2.29 \times 10^{4}$ \\
 1.5 & 5 & 5 & n/a     & n/a          & exceeded wall time \\
 \hline 
 \end{tabular}\\
+$^{+}$compared to unpreconditioned PI, $4.46 \times 10^{3}$ seconds\\
 $^{*}$tol and upscatter tol = $1 \times 10^{-5}$, $k$ tol = $1 \times 10^{-3}$\\
 $^{\dag}$tol and upscatter tol = $1 \times 10^{-4}$, $k$ tol = $5 \times 10^{-5}$
 \end{center}
 \label{table:3-D c5g7 rqi}
 \end{table}  
 
-With an intermediate amount of preconditioning, RQI converged and performed better than the analogous PI cases. There are three cases where both problems finish and the same tolerances were used: $w1.3r2v2$, $w1r3v3$, $w1.5r3v3$. These results are shown together in Table~\ref{table:PI RQI} for ease of comparison. In all three the RQI calculations took less time and fewer eigenvalue iterations than PI. In the second two they also took fewer Krylov iterations. RQI even finished in time to get results from the $w1r4v4$ calculation when PI did not. 
+With an intermediate amount of preconditioning, RQI converged and performed better than the analogous PI cases. There are three cases where both problems finish and the same tolerances were used: $w1.3r2v2$, $w1r3v3$, $w1.5r3v3$. These results are shown together in Table~\ref{table:PI RQI} for ease of comparison. This table displays time instead of relative time since the comparison is between two cases rather than across all cases. In all three the RQI calculations took less time and fewer eigenvalue iterations than PI. In the second two they also took fewer Krylov iterations. RQI even finished in time to get results from the $w1r4v4$ calculation when PI did not. 
 %
 \begin{table}[!h]
 \caption{3-D C5G7 Benchmark, Rayleigh Quotient Iteration and Power Iteration Comparison}
@@ -927,7 +932,7 @@ The infinite medium test with power iteration exhibited behavior similar to the 
 %The preconditioned 1 set time was faster than the 10 set time by a factor of 12.9, while it was only 7.8 for the regular version. The preconditioned time was always at least linear, with the efficiency ranging from 1 to 1.55 and an average efficiency of 1.24. The regular efficiency was between 60\% and 99\%, with an average of 90\%. The relative difference between the preconditioned and regular times decreased from 1.51 with 1 set to 0.52 with 10 sets. These results show that the preconditioned results benefited more from multisets than the regular results, and the times approached one another as set count increased. 
 This test was run with increased preconditioning parameters for 1 set and 10 sets as well. The number of Krylov iterations decreased to 8 per eigenvalue iteration, with 2 eigenvalue iterations when $w1r4v4$ was used. With 1 set this took $4.02 \times 10^{2}$ seconds to complete. With 10 sets this was reduced to $2.94 \times 10^{1}$ seconds. This preconditioning parameter set also performed very well, yielding a speedup of 13.7 for a 10 fold increase in computing power.  
  
-A few key conclusions can be drawn from the multiset studies about the tradeoff between the number of groups per set and about the overall usefulness of the multigrid in energy method with multisets. An important observation is that the number of GMRES iterations did not change with the number of sets. This means convergence improvement from the preconditioner does not come from the depth of V-cycle. Only restricting down 1 or 2 grids had as much of an impact as restricting down something like 6. This indicates it is not necessary to coarsen down to one group. 
+A few key conclusions can be drawn from the multiset studies about the tradeoff between the number of groups per set and about the overall usefulness of the multigrid-in-energy method with multisets. An important observation is that the number of GMRES iterations did not change with the number of sets. This means convergence improvement from the preconditioner does not come from the depth of V-cycle. Only restricting down 1 or 2 grids had as much of an impact as restricting down something like 6. This indicates it is not necessary to coarsen down to one group. 
 
 From an error mode reduction standpoint, this conclusion suggests what a Fourier expansion of the error in energy might look like. Because a few coarser grid had a large impact but many coarser grids did not, the bulk of the error might be intermediately oscillatory in energy. If the smooth error were dominant, then the coarsest grids would likely be necessary. Only solving on a fine grid, however, was not good enough, so the error is not only oscillatory either. This leaves the modes that are between the two extremes as the likely culprit for slow convergence. 
 
@@ -935,10 +940,10 @@ The super-linear energy scaling of the preconditioner warrants more discussion. 
 
 Once the preconditioner is optimized, the scaling in energy may not be as good since the preconditioner will take a smaller total fraction of the runtime. The scaling will also be less impressive if the preconditioner is modified to use only two or three grids all the time instead of always restricting down to one energy group. This would eliminate the un-beneficial work in all cases. 
 
-Overall, the multigrid in energy method performed very well with multisets. After the modifications mentioned in the last paragraph are made, the preconditioner will likely no longer cause the entire calculation to scale so well in energy. However, the preconditioner does not communicate between sets and it does load-balance in energy. It therefore seem likely that the preconditioner can at worst leave the energy scaling behavior unchanged. 
+Overall, the multigrid-in-energy method performed very well with multisets. After the modifications mentioned in the last paragraph are made, the preconditioner will likely no longer cause the entire calculation to scale so well in energy. However, the preconditioner does not communicate between sets and it does load-balance in energy. It therefore seem likely that the preconditioner can at worst leave the energy scaling behavior unchanged. 
 
 \subsection{PWR Study}
-Finally, the full-facility PWR problem was calculated on the Jaguar machine as the illustrative example of using all the new methods in combination. This test used the multigroup Krylov solver, the Rayleigh quotient iteration eigenvalue solver, and the parallelized multigrid in energy preconditioner. It is also exactly the kind of large and challenging problem this work is designed to solve. The PWR900 was solved with PI + MG Krylov + the multigrid in energy preconditioner as well. 
+Finally, the full-facility PWR problem was calculated on the Jaguar machine as the illustrative example of using all the new methods in combination. This test used the multigroup Krylov solver, the Rayleigh quotient iteration eigenvalue solver, and the parallelized multigrid-in-energy preconditioner. It is also exactly the kind of large and challenging problem this work is designed to solve. The PWR900 was solved with PI + MG Krylov + the multigrid-in-energy preconditioner as well. 
 
 The 44-group, 1.7 trillion unknown version of the problem was used for this strong scaling study. The tolerance and $k$ tolerance were $1 \times 10^{-3}$, and the upscattering tolerance was $1 \times 10^{-4}$. The preconditioner settings were $w1r3v3$. 1, 4, 11, and 22 sets were used giving 44, 11, 4, and 2 groups per set and 8, 6, 4, and 2 energy grids, respectively. There were 578 $\times$ 578 $\times$ 700 mesh elements. With 22 sets, 96 $x$-blocks, 94 $y$-blocks, and 10 $z$-blocks were used. All other cases had 102 $x$-blocks, 100 $y$-blocks, and 10 $z$-blocks. The results using both eigenvalue solvers are in Table~\ref{table:full PWR}. 
 %
@@ -966,7 +971,7 @@ $^{*}$machine taken down for maintenance during calculation
 \label{table:full PWR}
 \end{table}  
 
-Based on the full PWR calculations done previously by Evans and Davidson, $k$ is approximately 1.27, though the there were no results where the dominance ratio was reported. The previous calculations that used PI with the multigroup Krylov solver and multisets had looser tolerances than these tests, so $k$ is not known more accurately and timing comparisons are not valid. All of the calculations, even those that did not finish excluding the 1 set RQI case, found the correct $k$ compared to the accuracy with which it is known. 
+Based on the full PWR calculations done previously by Evans and Davidson, $k$ is approximately 1.27, though there were no results where the dominance ratio was reported. The previous calculations that used PI with the multigroup Krylov solver and multisets had looser tolerances than these tests, so $k$ is not known more accurately and timing comparisons are not valid. All of the calculations, even those that did not finish excluding the 1 set RQI case, found the correct $k$ compared to the accuracy with which it is known. 
 
 Only RQI was used for the 1 set test. Jaguar limits problems using fewer than 20,000 cores to a 12 hour wall limit. Because the 4 set case took more than 12 hours it was not expected that the 1 set cases would finish. The test was still conducted to see whether the behavior of progress made toward solution differed from the multiset cases. That is, at eigenvalue iteration $x$ with 1 set were the $k$ and associated errors the same or different from those at iteration $x$ with a different number of sets. The purpose of this comparison was to see if the number of grid levels used in the preconditioner affected the iteration behavior. 
 
@@ -1008,7 +1013,7 @@ Overall, a moderate amount of preconditioning gave the best performance. A littl
  
 Increasing the weight a small amount, up to about 1.3 or 1.4, was generally beneficial. However, using a large weight was sometimes detrimental. Weight was the least consistent parameter, behaving differently in different problems with different degrees of preconditioning. Using a weight of 1 with small $r$ and $v$ and a weight between 1 and 1.3 for an intermediate $r$ and $v$ is probably the safest approach. 
 
-Note that the improvement gained from the multigrid in energy preconditioner is non-linear; doubling the preconditioning parameters does not necessarily halve the iteration count. This means the impact of preconditioning parameters can not be accurately predicted ahead of time. The wider computational community's experience with preconditioning Krylov methods is also that performance cannot be well predicted \emph{a priori} in general.
+Note that the improvement gained from the multigrid-in-energy preconditioner is non-linear; doubling the preconditioning parameters does not necessarily halve the iteration count. This means the impact of preconditioning parameters can not be accurately predicted ahead of time. The wider computational community's experience with preconditioning Krylov methods is also that performance cannot be well predicted \emph{a priori} in general.
 
 Some lessons were also learned about preconditioner choices besides $w$, $r$, and $v$. GMRES, which is the default Krylov method, should always be selected over BiCGSTAB when using RQI. The shifted operator should never be used inside the preconditioner when there are reflecting boundaries, and should probably never be used at all. While it reduced the number of iterations in the vacuum test case compared to the unshifted operator, it was not robust and gave no indication when it resulted in incorrect answers. The default behavior is to use the unshifted operator. 
 
@@ -1016,17 +1021,17 @@ Using the reduced angular expansion option within the preconditioner may have a 
 
 Based on the multiset results, the multigrid method likely does not need to restrict down to one energy group. The depth of the V-cycles should be set to only a few or two levels, and experiments should be done to investigate the effect on serial calculation time and energy scaling. Implementing this choice requires changing the code itself. To give the user more control over this setting the code could be modified to provide a user-input option that controls the depth of the V-cycle.
 
-Overall, the multigrid in energy preconditioner was shown to be very effective at reducing iteration count. It was demonstrated that it takes advantage of energy parallelization efficiently. The tests showed that RQI can be used with the new preconditioner to solve problems it could not solve without it. They also showed that preconditioned RQI can be faster than preconditioned PI for challenging problems. Will preconditioned RQI ever be faster than unpreconditioned PI? That cannot be answer based on the existing data, but the data do not exclude that possibility. 
+Overall, the multigrid-in-energy preconditioner was shown to be very effective at reducing iteration count. It was demonstrated that it takes advantage of energy parallelization efficiently. The tests showed that RQI can be used with the new preconditioner to solve problems it could not solve without it. They also showed that preconditioned RQI can be faster than preconditioned PI for challenging problems. Will preconditioned RQI ever be faster than unpreconditioned PI? That cannot be answer based on the existing data, but the data do not exclude that possibility. 
 
 %-------------------------------------------------------------------------------------------------------
 \section{Implications}
-There were two primary motivations for the multigrid in energy preconditioner. Power iteration, the traditional eigenvalue solver, can converge slowly for systems with high dominance ratios. This motivated the implementation of RQI, which uses an optimal shift to converge loosely coupled systems in fewer eigenvalue iterations. As was found in Chapter~\ref{sec:Chp3}, Krylov methods stagnate for poorly conditioned systems such as those created by RQI. Preconditioning is therefore required to be able to use RQI for real problems. 
+There were two primary motivations for the multigrid-in-energy preconditioner. Power iteration, the traditional eigenvalue solver, can converge slowly for systems with high dominance ratios. This motivated the implementation of RQI, which uses an optimal shift to converge loosely coupled systems in fewer eigenvalue iterations. As was found in Chapter~\ref{sec:Chp3}, Krylov methods stagnate for poorly conditioned systems such as those created by RQI. Preconditioning is therefore required to be able to use RQI for real problems. 
 
-In addition, ever-expanding computers allow codes to use hundreds of thousands of cores for large computations. Any new preconditioner in Denovo must be able to use these machines efficiently. At its core, the multigroup in energy preconditioner is designed to take advantage of energy parallelization. The way it has been implemented, the multigrid in energy method does not require any inter-set communication and it is always energy-load balanced so it should scale extremely well. The new energy decoupling provided by the MG Krylov solver is what allows this preconditioner to be parallelized in energy. Without that, the preconditioner would not be as attractive. 
+In addition, ever-expanding computers allow codes to use hundreds of thousands of cores for large computations. Any new preconditioner in Denovo must be able to use these machines efficiently. At its core, the multigroup in energy preconditioner is designed to take advantage of energy parallelization. The way it has been implemented, the multigrid-in-energy method does not require any inter-set communication and it is always energy-load balanced so it should scale extremely well. The new energy decoupling provided by the MG Krylov solver is what allows this preconditioner to be parallelized in energy. Without that, the preconditioner would not be as attractive. 
 
 Using a multigrid method in the energy domain is new for the neutron transport equation. No similar ideas were found in the literature. This is not surprising because the energy scaling motivation for the preconditioner is relatively new as well. Only in the last few years has parallelization in energy become feasible. Without that driver there was no reason to do multigrid in energy. 
 
-The goals for the new preconditioner were to decrease iteration count for at least some problems, to enable RQI, and to be decomposable in energy. All goals were achieved. The multigrid in energy preconditioner reduced the number of Krylov iterations for all problem types as long as the eigenvector converged. In some cases it reduced the number of eigenvalue iterations as well. The preconditioner makes the use of RQI in real problems possible, and it scales to hundreds of thousands of cores without trouble. 
+The goals for the new preconditioner were to decrease iteration count for at least some problems, to enable RQI, and to be decomposable in energy. All goals were achieved. The multigrid-in-energy preconditioner reduced the number of Krylov iterations for all problem types as long as the eigenvector converged. In some cases it reduced the number of eigenvalue iterations as well. The preconditioner makes the use of RQI in real problems possible, and it scales to hundreds of thousands of cores without trouble. 
 
 
 
