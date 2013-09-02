@@ -98,7 +98,7 @@ More investigation into weak scaling for all solvers is needed as well. The perf
 No weak scaling studies have been done for the preconditioner or RQI. Once the MG Krylov study has been completed, a preconditioned fixed source weak scaling study should be done. The performance with the preconditioner can be compared to the performance with MG Krylov alone. After that, a preconditioned RQI weak scaling study can be done, informed by the MG Krylov and preconditioned fixed source results.
 
 \subsection{Optimization}
-RQI and multigrid in energy can both by improvement through implementation changes. Rayleigh quotient iteration can not be used with energy sets when there are reflecting boundaries. This capability should be added as it vastly expands the number of problems for which it is applicable. This also expands the suite of tests available to study energy scaling with RQI. For example, the 2-D and 3-D c5g7 benchmark problems would then be available for these kinds of tests. 
+RQI and multigrid in energy can both by improvement through implementation changes. \\Rayleigh quotient iteration can not be used with energy sets when there are reflecting boundaries. This capability should be added as it vastly expands the number of problems for which it is applicable. This also expands the suite of tests available to study energy scaling with RQI. For example, the 2-D and 3-D c5g7 benchmark problems would then be available for these kinds of tests. 
 
 Using a reduced number of solution directions inside the preconditioner is also not available when there are reflecting boundaries. This option seems like it may be very useful for reducing the time taken by the preconditioner. Ensuring all problems have this tool available will increase the benefit of preconditioning for problems using anything besides $S_{2}$.
 
@@ -127,4 +127,3 @@ The real motivation of this work was to add RQI, which should converge in fewer 
 The methods added in this research accelerated Denovo in multiple ways. This acceleration helps enable the solution of today's ``grand challenge'' problems. It is hoped that improved methods will lead to improved reactor designs and systems, and that the frontier of computational challenges will be moved forward.  
 
 
-\separatorpage{}

@@ -523,5 +523,3 @@ The small problems showed that RQI can get the correct solution and that the num
 RQI has not been applied to the transport equation before because it takes $O(n^{3})$ operations for full dense matrices, and without parallelization in energy it could be prohibitively expensive \cite{Stewart2001}. In the past, adding a shift to make the scattering matrix energy-block dense was difficult to handle. The system would have been solved with Gauss Seidel, which would have been restrictively slow. The multigroup Krylov algorithm has enabled energy parallelization and made it possible to calculate the eigenvector with a shifted system.
 
 Computers that facilitate enough parallelization to decompose in energy and have enough memory to store Krylov subspaces for the full transport equation make combining RQI and MG Krylov possible. The resulting convergence of the eigenvalue should be faster than PI for at least some problems. The energy decomposition will allow eigenvalue calculations to overcome the limitations of KBA and be scaled to many more cores. These ideas have never before been used together in this way. 
-
-\separatorpage{}

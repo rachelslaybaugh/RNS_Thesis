@@ -295,7 +295,7 @@ Clearly, a wide variety of preconditioning techniques have been applied to the n
 %-------------------------------------------------------------------------------------------------------
 %-------------------------------------------------------------------------------------------------------
 \section{Multigrid in Energy}
-Preconditioning is a very important part of increasing the robustness of Krylov methods. This is particularly true in this work for two reasons. The first is that the multigroup Krylov solver can create very large Krylov subspaces because it forms the subspaces with multiple-group-sized vectors. As a result, any reduction in iteration count will have a large benefit in terms of both memory and cost per iteration. The second is that preconditioning is needed to compensate for the ill-conditioned systems created by RQI so that the eigenvector can be converged. 
+Preconditioning is a very important part of increasing the robustness of Krylov methods. This is particularly true in this work for two reasons. The first is that the multigroup Krylov solver can create very large Krylov subspaces because it forms the subspaces withmultiple-group-sized vectors. As a result, any reduction in iteration count will have a large benefit in terms of both memory and cost per iteration. The second is that preconditioning is needed to compensate for the ill-conditioned systems created by RQI so that the eigenvector can be converged. 
 
 A new physics-based, multigrid-in-energy preconditioner has been added to Denovo to improve the performance of the Krylov solves. Choosing a physics-based preconditioner supports the goal of accelerating a code that solves a specific equation rather than developing an all purpose preconditioner. It makes sense to take advantage of information specific to the neutron transport equations. Previous work has shown that physics-based preconditioners often provide more benefit than matrix-based methods. Further, the matrix $\ve{A}$ is never formed in Denovo, ruling out matrix-based preconditioners. 
 
@@ -739,7 +739,7 @@ A weight variation study was done with power iteration first. The results using 
 %
 \begin{figure}[!ht]
     \begin{center}
-      \includegraphics [width=0.7\textwidth, height=0.7\textheight] {2dc5g7PI}
+      \includegraphics [width=0.7\textwidth, height=0.7\textheight] {2Dc5g7PI}
    \end{center}
    \caption{2-D C5G7 Benchmark, Preconditioner Weight Variation with Power Iteration}
    \label{fig:2-Dc5g7PI}
